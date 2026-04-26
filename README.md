@@ -110,7 +110,7 @@ Assets/
 1. **Yêu cầu hệ thống:** Unity 2022.3 LTS hoặc mới hơn
 2. **Clone project:**
    ```bash
-   git clone https://github.com/your-username/the-promised-run.git
+   git clone https://github.com/NhomNhem/the-promised-run
    ```
 3. **Mở dự án:** Dùng Unity Hub mở thư mục project
 4. **Chạy game:** Mở scene `Assets/Scenes/` và nhấn Play
