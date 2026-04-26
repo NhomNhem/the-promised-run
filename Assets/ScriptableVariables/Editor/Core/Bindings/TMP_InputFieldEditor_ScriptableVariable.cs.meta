@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: d2519d7d5e7a5a046bd82cbcbc5c1a38
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Core/Bindings/TMP_InputFieldEditor_ScriptableVariable.cs
+  uploadId: 868040

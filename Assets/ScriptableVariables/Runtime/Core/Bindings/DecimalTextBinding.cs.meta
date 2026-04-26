@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 18e6dccc31b9901468d95d9a72706447
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Bindings/DecimalTextBinding.cs
+  uploadId: 868040

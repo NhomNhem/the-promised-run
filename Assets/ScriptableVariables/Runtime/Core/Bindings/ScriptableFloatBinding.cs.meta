@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: de89f5ed6e0a0aa4fa53520ef13a97c4
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Bindings/ScriptableFloatBinding.cs
+  uploadId: 868040

@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: eddb35bec3daea54595647e00311c682
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Core/Bindings/SliderEditor_ScriptableVariable.cs
+  uploadId: 868040

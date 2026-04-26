@@ -1,0 +1,21 @@
+{
+    "name": "OpenUtility",
+    "rootNamespace": "OpenUtility",
+    "references": [
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "Unity.Localization",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        ""
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

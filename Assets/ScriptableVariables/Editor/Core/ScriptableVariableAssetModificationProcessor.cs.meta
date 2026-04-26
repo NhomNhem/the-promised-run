@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: b1ca2773d96d50540addb9b900fc8f2e
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Core/ScriptableVariableAssetModificationProcessor.cs
+  uploadId: 868040

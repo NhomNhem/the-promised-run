@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 869ed7042794c8d43ae7a9c22db38fda
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Core/References/ScriptableVariableReferencePropertyDrawer.cs
+  uploadId: 868040

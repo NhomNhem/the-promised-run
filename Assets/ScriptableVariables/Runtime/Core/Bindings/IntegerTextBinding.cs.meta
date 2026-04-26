@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 759e55454269de8449cb3361dc0eeae0
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Bindings/IntegerTextBinding.cs
+  uploadId: 868040
