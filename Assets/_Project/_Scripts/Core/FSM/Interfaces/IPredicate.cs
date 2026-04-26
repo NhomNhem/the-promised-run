@@ -1,4 +1,4 @@
-﻿namespace ThePromisedRune.Core.FSM.Interfaces {
+﻿namespace ThePromisedRun.Core.FSM.Interfaces {
     public interface IPredicate {
         bool Evaluate();
     }

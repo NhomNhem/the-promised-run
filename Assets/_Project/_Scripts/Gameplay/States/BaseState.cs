@@ -1,4 +1,4 @@
-﻿using ThePromisedRune.Core.FSM.Interfaces;
+﻿using ThePromisedRun.Core.FSM.Interfaces;
 using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
@@ -11,16 +11,9 @@ namespace ThePromisedRun.Gameplay.States {
             _animator = animator;
         }
         
-        
-        public void OnEnter() {
-        }
-        public void OnUpdate() {
-        }
-        public void OnFixedUpdate() {
-        }
-        public void OnExit() {
-        }
+        public virtual void OnEnter() { }
+        public virtual void OnUpdate() { }
+        public virtual void OnFixedUpdate() { }
+        public virtual void OnExit() { }
     }
-
-    public class PlayerController { }
 }

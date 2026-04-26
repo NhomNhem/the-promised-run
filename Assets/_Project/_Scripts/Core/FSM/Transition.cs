@@ -1,4 +1,4 @@
-﻿using ThePromisedRune.Core.FSM.Interfaces;
+﻿using ThePromisedRun.Core.FSM.Interfaces;
 
 namespace ThePromisedRun.Core.FSM {
     public class Transition : ITransition {
