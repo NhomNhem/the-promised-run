@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
     public class OverloadState : BaseState {
-        private static readonly int OverloadHash = Animator.StringToHash("Overload");
+        private static readonly int OverloadGlitchHash = Animator.StringToHash("Overload_Glitch");
 
         public OverloadState(PlayerController playerController, Animator animator) 
             : base(playerController, animator) {
@@ -13,7 +13,7 @@ namespace ThePromisedRun.Gameplay.States {
             
             _playerController.InitiateOverload();
             
-            _animator.Play(OverloadHash); 
+            _animator.Play(OverloadGlitchHash); 
         }
 
         public override void OnUpdate() {

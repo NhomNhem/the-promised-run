@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 using ThePromisedRun.Core.FSM;
 using ThePromisedRun.Gameplay.States;
 using ThePromisedRun.Gameplay.Input;
@@ -16,9 +17,11 @@ namespace ThePromisedRun.Gameplay {
         [SerializeField] private float chaosDecayRate = 10f;     
 
         // References
-        public Rigidbody2D Rb { get; private set; }
+        public Rigidbody Rb { get; private set; }
         public Animator Anim { get; private set; }
         public InputReader Input { get; private set; }
+        public float MoveSpeed => moveSpeed;
+        public float JumpForce => jumpForce;
 
         // State Variables
         public bool IsGrounded { get; private set; }
@@ -28,10 +31,25 @@ namespace ThePromisedRun.Gameplay {
 
         private StateMachine _stateMachine;
 
+        [Header("References")]
+        [SerializeField] private Transform visual;
+        [SerializeField] private Transform detector;
+
         private void Awake() {
-            Rb = GetComponent<Rigidbody2D>();
-            Anim = GetComponent<Animator>();
+            Rb = GetComponent<Rigidbody>();
             Input = GetComponent<InputReader>();
+
+            if (visual != null) {
+                Anim = visual.GetComponent<Animator>();
+            } else {
+                Anim = GetComponentInChildren<Animator>();
+            }
+
+            if (detector == null) {
+                detector = Enumerable.Range(0, transform.childCount)
+                    .Select(i => transform.GetChild(i))
+                    .FirstOrDefault(c => c.name == "Detector");
+            }
 
             _stateMachine = new StateMachine();
             SetupStateMachine();
@@ -66,24 +84,50 @@ namespace ThePromisedRun.Gameplay {
             if (OverloadTimer > 0) OverloadTimer -= Time.deltaTime;
             if (CooldownTimer > 0) CooldownTimer -= Time.deltaTime;
 
-            if (OverloadTimer <= 0 && ChaosMeter > 0) {
-                ChaosMeter = Mathf.Max(0, ChaosMeter - chaosDecayRate * Time.deltaTime);
+            if (OverloadTimer <= 0 && ChaosMeter > 0) ChaosMeter = Mathf.Max(0, ChaosMeter - chaosDecayRate * Time.deltaTime);
+        }
+
+        private int _groundContacts;
+
+        private void OnEnable() {
+            if (detector != null) {
+                var collider = detector.GetComponent<Collider>();
+                if (collider != null) collider.enabled = true;
             }
         }
 
-        private void CheckGround() => IsGrounded = Physics2D.Raycast(transform.position, Vector2.down, 1.1f, LayerMask.GetMask("Ground"));
+        private void OnDisable() {
+            if (detector != null) {
+                var collider = detector.GetComponent<Collider>();
+                if (collider != null) collider.enabled = false;
+            }
+        }
+
+        private void OnTriggerEnter(Collider other) {
+            if (other.gameObject.layer == LayerMask.NameToLayer("Ground")) {
+                _groundContacts++;
+            }
+        }
+
+        private void OnTriggerExit(Collider other) {
+            if (other.gameObject.layer == LayerMask.NameToLayer("Ground")) {
+                _groundContacts = Mathf.Max(0, _groundContacts - 1);
+            }
+        }
+
+        private void CheckGround() => IsGrounded = _groundContacts > 0;
 
         #region Actions (Được gọi bởi các State hoặc yếu tố ngoại cảnh)
 
         public void ApplyMovement() {
-            Rb.linearVelocity = new Vector2(Input.MoveInput.x * moveSpeed, Rb.linearVelocity.y);
+            Rb.linearVelocity = new Vector3(Input.MoveInput.x * moveSpeed, Rb.linearVelocity.y, Input.MoveInput.y * moveSpeed);
 
             if (Input.MoveInput.x != 0)
                 transform.localScale = new Vector3(Mathf.Sign(Input.MoveInput.x), 1, 1);
         }
 
         public void ApplyJump() {
-            Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, jumpForce);
+            Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, jumpForce, 0);
             Input.ConsumeJumpInput();
             AddChaos(20f); 
         }
