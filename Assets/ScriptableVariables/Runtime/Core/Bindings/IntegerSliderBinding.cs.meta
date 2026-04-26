@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 4b624d844e2afc846a521ac8a8eca4c6
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Bindings/IntegerSliderBinding.cs
+  uploadId: 868040

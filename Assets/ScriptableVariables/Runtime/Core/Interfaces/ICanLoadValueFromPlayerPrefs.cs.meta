@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: d292f73e386f21d4f9c710548c9fd2bb
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Interfaces/ICanLoadValueFromPlayerPrefs.cs
+  uploadId: 868040

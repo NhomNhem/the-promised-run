@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 6e290e1309d3e1c49b697a96c7d40d8d
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Core/Bindings/TMP_TextEditor_ScriptableVariable.cs
+  uploadId: 868040

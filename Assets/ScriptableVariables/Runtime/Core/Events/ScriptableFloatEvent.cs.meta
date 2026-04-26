@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 743081a7a802f754c9582c097aa75606
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Events/ScriptableFloatEvent.cs
+  uploadId: 868040

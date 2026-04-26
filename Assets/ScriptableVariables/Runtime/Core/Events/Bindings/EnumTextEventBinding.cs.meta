@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: e6b89f4080c7c9148a00792741bea310
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Events/Bindings/EnumTextEventBinding.cs
+  uploadId: 868040

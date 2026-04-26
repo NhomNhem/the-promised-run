@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 21a9638961f50fa4c825e18729b9343f
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/GameObject/GameObjectGroup.cs
+  uploadId: 868040

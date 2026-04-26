@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 53d58295dc05b7c4c893c8479fbf4f85
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Core/Bindings/DropdownEditor_ScriptableVariable.cs
+  uploadId: 868040

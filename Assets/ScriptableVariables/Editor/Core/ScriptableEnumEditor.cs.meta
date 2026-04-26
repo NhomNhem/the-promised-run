@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 960d6ff689669214e9279dc136494718
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Core/ScriptableEnumEditor.cs
+  uploadId: 868040

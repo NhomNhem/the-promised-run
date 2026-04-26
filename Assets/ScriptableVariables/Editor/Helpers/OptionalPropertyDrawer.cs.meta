@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 50b86eecbd7da2e4cb73abdabb1f094f
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Helpers/OptionalPropertyDrawer.cs
+  uploadId: 868040

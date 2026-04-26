@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5ac392357e3c9724987721a649dc9a7d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 9f27ca35d7bc971449d8ed11e27a815c, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/ScriptableBool.cs
+  uploadId: 868040

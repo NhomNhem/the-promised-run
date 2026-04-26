@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 293ebe9000b4c724e835f52dda33f470
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Events/ScriptableIntEvent.cs
+  uploadId: 868040

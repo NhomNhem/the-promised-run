@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4f6e82e77bc3cbf43bd6233909b1278d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 9f27ca35d7bc971449d8ed11e27a815c, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/ScriptableFloat.cs
+  uploadId: 868040

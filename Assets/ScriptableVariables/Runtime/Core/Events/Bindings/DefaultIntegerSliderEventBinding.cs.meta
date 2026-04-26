@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: ff300ddcfce246b093767192f098c89b
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Events/Bindings/DefaultIntegerSliderEventBinding.cs
+  uploadId: 868040

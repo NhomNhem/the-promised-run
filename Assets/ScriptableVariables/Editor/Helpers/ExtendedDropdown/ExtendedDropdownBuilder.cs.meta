@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2794544de77bb0f409dbb9d14674e2d5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Editor/Helpers/ExtendedDropdown/ExtendedDropdownBuilder.cs
+  uploadId: 868040

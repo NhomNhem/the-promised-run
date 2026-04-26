@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: bea16cf2eb252c54ba98da5bcd6b0c91
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/OpenUtility.asmdef
+  uploadId: 868040

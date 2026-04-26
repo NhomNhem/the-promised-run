@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 2fd13a3c7a03ceb40b0da2a55396ac0c
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Events/ScriptableStringEvent.cs
+  uploadId: 868040

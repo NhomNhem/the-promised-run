@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 06c96b5fee0bc1f4399922ae6bbdf0ed
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Helpers/ThrowIf.cs
+  uploadId: 868040

@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 7ce9530a098b3fc4a9d7c1544a8cad64
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355020
+  packageName: Scriptable Object Variables
+  packageVersion: 1.0
+  assetPath: Assets/ScriptableVariables/Runtime/Core/Events/ScriptableEnumEvent.cs
+  uploadId: 868040
