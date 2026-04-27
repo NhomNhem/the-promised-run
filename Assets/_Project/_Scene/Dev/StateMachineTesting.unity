@@ -318,6 +318,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.ChaosMeterUI
   _player: {fileID: 688052370}
+  _health: {fileID: 0}
 --- !u!114 &168318013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1055,7 +1056,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4587063672172373630, guid: 810a1f141de1cae46be754696e817594, type: 3}
   m_PrefabInstance: {fileID: 8717505636286732108}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 8717505636286732109}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e44b8b4ce3a14456a5dec10f44ff7f0c, type: 3}
@@ -5147,7 +5148,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6973943808851950464, guid: 810a1f141de1cae46be754696e817594, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6973943808851950464, guid: 810a1f141de1cae46be754696e817594, type: 3}
       propertyPath: m_ProvidesContacts
@@ -5158,10 +5159,46 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1745451643}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 2990838708617104390, guid: 810a1f141de1cae46be754696e817594, type: 3}
+    - {fileID: 8771324705451498688, guid: 810a1f141de1cae46be754696e817594, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3073531796263142347, guid: 810a1f141de1cae46be754696e817594, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8717505636286732110}
   m_SourcePrefab: {fileID: 100100000, guid: 810a1f141de1cae46be754696e817594, type: 3}
+--- !u!1 &8717505636286732109 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3073531796263142347, guid: 810a1f141de1cae46be754696e817594, type: 3}
+  m_PrefabInstance: {fileID: 8717505636286732108}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8717505636286732110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8717505636286732109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b7e1dd715b0fd74385c89a8e98bb11b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Combat.PlayerHealth
+  maxHealth: 100
+  iFrames: 0.6
+  hitKnockback: 4
+  cameraShakeStrength: 0.15
+  cameraShakeDuration: 0.2
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHit:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &8739398203325639453
 Transform:
   m_ObjectHideFlags: 0

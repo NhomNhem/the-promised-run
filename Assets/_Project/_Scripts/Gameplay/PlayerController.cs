@@ -212,11 +212,20 @@ namespace ThePromisedRun.Gameplay {
 
         public void ApplyMovement() {
             Vector3 moveDir = new Vector3(Input.MoveInput.x, 0f, Input.MoveInput.y);
-            Rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, Rb.linearVelocity.y, moveDir.z * moveSpeed);
 
-            if (moveDir.sqrMagnitude > 0.01f && visual != null) {
-                Quaternion targetRot = Quaternion.LookRotation(moveDir, Vector3.up);
-                visual.rotation = Quaternion.Slerp(visual.rotation, targetRot, rotationSpeed * Time.deltaTime);
+            Rb.linearVelocity = new Vector3(
+                moveDir.x * moveSpeed,
+                Rb.linearVelocity.y,
+                moveDir.z * moveSpeed);
+
+            // Only rotate visual when there's meaningful input (dead zone 0.1)
+            if (moveDir.sqrMagnitude > 0.1f && visual != null) {
+                Quaternion targetRot = Quaternion.LookRotation(moveDir.normalized, Vector3.up);
+                visual.rotation = Quaternion.Slerp(
+                    visual.rotation, targetRot, rotationSpeed * Time.deltaTime);
+            } else if (moveDir.sqrMagnitude <= 0.01f) {
+                // Fully stopped — zero out horizontal velocity cleanly
+                Rb.linearVelocity = new Vector3(0f, Rb.linearVelocity.y, 0f);
             }
         }
 
