@@ -3,52 +3,51 @@ using UnityEngine;
 namespace ThePromisedRun.Gameplay.States {
     public class JumpState : BaseState {
         private static readonly int JumpStartHash = Animator.StringToHash("Jump_Start");
-        private static readonly int JumpAirHash = Animator.StringToHash("Jump_Air");
-        private static readonly int JumpLandHash = Animator.StringToHash("Jump_Land");
+        private static readonly int JumpAirHash   = Animator.StringToHash("Jump_Air");
 
-        private bool _hasStartedJump;
-        private bool _isAscending;
+        private const float MinAirTime = 0.15f;
+
+        private float _airTimer;
+        private bool  _isAscending;
 
         public JumpState(PlayerController playerController, Animator animator)
             : base(playerController, animator) { }
 
         public override void OnEnter() {
             base.OnEnter();
-            _hasStartedJump = false;
+            _airTimer    = 0f;
             _isAscending = false;
 
-            // Trigger jump immediately on state enter — the FSM transition already
-            // confirmed IsJumpPressed && IsGrounded, so no buffer needed here.
             _animator.Play(JumpStartHash);
             _playerController.ApplyJump();
-            _hasStartedJump = true;
+            _playerController.Juice?.OnTakeoff();
         }
 
         public override void OnUpdate() {
             base.OnUpdate();
+            _airTimer += Time.deltaTime;
 
-            if (!_hasStartedJump) return;
+            if (_airTimer < MinAirTime) return;
 
-            float vy = _playerController.Rb.linearVelocity.y;
-
-            if (!_playerController.IsGrounded) {
-                if (vy > 0f) {
-                    // Ascending — play air animation once
-                    if (!_isAscending) {
-                        _animator.Play(JumpAirHash);
-                        _isAscending = true;
-                    }
-                } else {
-                    // Descending / about to land
-                    _animator.Play(JumpLandHash);
-                }
+            // Ascending → play air animation once
+            if (_playerController.Rb.linearVelocity.y > 0f && !_isAscending) {
+                _animator.Play(JumpAirHash);
+                _isAscending = true;
             }
         }
 
         public override void OnFixedUpdate() {
             base.OnFixedUpdate();
-            // Allow horizontal movement while airborne
             _playerController.ApplyMovement();
         }
+
+        /// <summary>
+        /// Ready to transition to LandState: airborne long enough AND touching ground
+        /// while falling.
+        /// </summary>
+        public bool CanLand =>
+            _airTimer >= MinAirTime &&
+            _playerController.IsGrounded &&
+            _playerController.Rb.linearVelocity.y <= 0f;
     }
 }

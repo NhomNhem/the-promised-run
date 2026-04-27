@@ -2,10 +2,10 @@ using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
     public class LocomotionState : BaseState {
-        private static readonly int LocomotionHash = Animator.StringToHash("Locomotion"); 
+        private static readonly int LocomotionHash = Animator.StringToHash("Locomotion");
 
-        public LocomotionState(PlayerController playerController, Animator animator) : base(playerController, animator) {
-        }
+        public LocomotionState(PlayerController playerController, Animator animator)
+            : base(playerController, animator) { }
 
         public override void OnEnter() {
             base.OnEnter();
@@ -14,16 +14,16 @@ namespace ThePromisedRun.Gameplay.States {
 
         public override void OnUpdate() {
             base.OnUpdate();
-             
-            float velX = _playerController.Input.MoveInput.x;
-            float velZ = _playerController.Input.MoveInput.y;
-            _animator.SetFloat("VelocityX", Mathf.Clamp(velX, -1, 1));
-            _animator.SetFloat("VelocityZ", Mathf.Clamp(velZ, -1, 1));
+
+            // Use input magnitude as forward speed — character always faces move direction
+            float speed = _playerController.Input.MoveInput.magnitude;
+            _animator.SetFloat("VelocityZ", Mathf.Clamp01(speed));
+            _animator.SetFloat("VelocityX", 0f);
         }
 
         public override void OnFixedUpdate() {
             base.OnFixedUpdate();
-            _playerController.ApplyMovement(); 
+            _playerController.ApplyMovement();
         }
     }
 }
