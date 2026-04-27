@@ -2,6 +2,14 @@
     <ui:Style src="project://database/Assets/_Project/_UI/GameHUD.uss" />
     <ui:VisualElement name="hud-root" style="width: 100%; height: 100%; position: absolute;">
 
+        <!-- Health Bar — bottom left -->
+        <ui:VisualElement name="health-container" class="health-container">
+            <ui:Label name="health-label" text="HP" class="health-label"/>
+            <ui:VisualElement name="health-bar-bg" class="health-bar-bg">
+                <ui:VisualElement name="health-bar-fill" class="health-bar-fill"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <!-- Chaos Meter — bottom center -->
         <ui:VisualElement name="chaos-container" class="chaos-container">
             <ui:Label name="chaos-label" text="CHAOS" class="chaos-label"/>
