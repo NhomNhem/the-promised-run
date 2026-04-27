@@ -75,3 +75,4 @@ crashlytics-build.properties
 # OpenSpec generated files
 /openspec/
 
+/.kiro/

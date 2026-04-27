@@ -14,11 +14,11 @@ namespace ThePromisedRun.Gameplay.States {
 
         public override void OnUpdate() {
             base.OnUpdate();
-            
-            float velX = _playerController.Rb.linearVelocity.x;
-            float velZ = _playerController.Rb.linearVelocity.z;
-            _animator.SetFloat("VelocityX", Mathf.Clamp(velX / _playerController.MoveSpeed, -1, 1));
-            _animator.SetFloat("VelocityZ", Mathf.Clamp(velZ / _playerController.MoveSpeed, -1, 1));
+             
+            float velX = _playerController.Input.MoveInput.x;
+            float velZ = _playerController.Input.MoveInput.y;
+            _animator.SetFloat("VelocityX", Mathf.Clamp(velX, -1, 1));
+            _animator.SetFloat("VelocityZ", Mathf.Clamp(velZ, -1, 1));
         }
 
         public override void OnFixedUpdate() {
