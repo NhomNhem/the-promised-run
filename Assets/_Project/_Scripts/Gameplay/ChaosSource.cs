@@ -8,7 +8,8 @@ namespace ThePromisedRun.Gameplay {
         Attack              = 1,
         TrapHit             = 2,
         EnemyHit            = 3,
-        SystemInterference  = 4,  // Helper System popup spawns, UI spam, player fail due to popup
+        SystemInterference  = 4,
+        Damage              = 5,  // When player takes damage
         Manual              = 99
     }
 }

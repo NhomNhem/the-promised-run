@@ -2,13 +2,14 @@
 using System.Linq;
 using RaycastPro.Detectors;
 using ThePromisedRun.Core.FSM;
+using ThePromisedRun.Gameplay.Combat;
 using ThePromisedRun.Gameplay.Juice;
 using ThePromisedRun.Gameplay.States;
 using ThePromisedRun.Gameplay.Input;
 using UnityEngine.Events;
 
 namespace ThePromisedRun.Gameplay {
-    public class PlayerController : MonoBehaviour {
+    public class PlayerController : MonoBehaviour, IDamageable {
         #region Inspector Fields
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed             = 8f;
@@ -47,6 +48,7 @@ namespace ThePromisedRun.Gameplay {
         public float       CooldownTimer  { get; private set; }
         public float       ChaosMeter    { get; private set; }
         public bool        IsOverloaded  => OverloadTimer > 0f;
+        public bool        IsAlive     => true; // Player is always alive
         #endregion
 
         #region Events
@@ -216,6 +218,13 @@ namespace ThePromisedRun.Gameplay {
         public void EndOverload() {
             Juice?.OnOverloadEnd();
             OnOverloadEnded.Invoke();
+        }
+
+        #endregion
+
+        #region IDamageable
+        public void TakeDamage(float amount, DamageInfo info) {
+            AddChaos(amount * 0.5f, ChaosSource.Damage);
         }
         #endregion
     }
