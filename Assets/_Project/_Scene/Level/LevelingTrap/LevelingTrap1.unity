@@ -243,6 +243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.ChaosMeterUI
   _player: {fileID: 688052370}
+  _health: {fileID: 0}
 --- !u!114 &168318013
 MonoBehaviour:
   m_ObjectHideFlags: 0
