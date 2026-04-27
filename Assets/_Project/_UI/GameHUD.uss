@@ -1,3 +1,42 @@
+/* ===== Health Bar ===== */
+.health-container {
+    position: absolute;
+    bottom: 32px;
+    left: 32px;
+    width: 200px;
+    align-items: flex-start;
+}
+
+.health-label {
+    color: rgb(80, 255, 120);
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+    letter-spacing: 2px;
+}
+
+.health-bar-bg {
+    width: 100%;
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.health-bar-fill {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(80, 220, 100);
+    border-radius: 6px;
+    transition-property: width, background-color;
+    transition-duration: 0.2s;
+}
+
+.health-bar-fill.medium { background-color: rgb(220, 200, 50); }
+.health-bar-fill.low    { background-color: rgb(220, 60, 60);  }
+
 /* ===== Chaos Container ===== */
 .chaos-container {
     position: absolute;
@@ -35,7 +74,6 @@
     transition-duration: 0.15s;
 }
 
-/* Fill color states driven by USS classes */
 .chaos-bar-fill.low    { background-color: rgb(80, 200, 255); }
 .chaos-bar-fill.medium { background-color: rgb(255, 180, 30); }
 .chaos-bar-fill.high   { background-color: rgb(255, 80, 30);  }
