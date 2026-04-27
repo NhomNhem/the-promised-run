@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/_UI/GameHUD.uss" />
+    <ui:VisualElement name="hud-root" style="width: 100%; height: 100%; position: absolute;">
+
+        <!-- Chaos Meter — bottom center -->
+        <ui:VisualElement name="chaos-container" class="chaos-container">
+            <ui:Label name="chaos-label" text="CHAOS" class="chaos-label"/>
+            <ui:VisualElement name="chaos-bar-bg" class="chaos-bar-bg">
+                <ui:VisualElement name="chaos-bar-fill" class="chaos-bar-fill"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Overload Banner — center screen, hidden by default -->
+        <ui:VisualElement name="overload-banner" class="overload-banner hidden">
+            <ui:Label name="overload-text" text="⚡ SYSTEM OVERLOAD ⚡" class="overload-text"/>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

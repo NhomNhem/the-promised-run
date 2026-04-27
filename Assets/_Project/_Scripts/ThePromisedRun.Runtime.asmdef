@@ -1,0 +1,16 @@
+{
+    "name": "ThePromisedRun.Runtime",
+    "references": [
+        "Unity.InputSystem",
+        "RaycastPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
