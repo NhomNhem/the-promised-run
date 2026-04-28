@@ -5,21 +5,16 @@ using ThePromisedRun.Gameplay.Enemy.AI;
 
 namespace ThePromisedRun.Gameplay.Enemy {
     /// <summary>
-    /// Enemy Controller - coordinates enemy entity and AI
-    /// SOLID: Single Responsibility - Only coordinates components
-    /// SOLID: Dependency Inversion - Depends on interfaces
+    /// Example implementation showing how to use the new Enemy architecture
+    /// This replaces EnemyController.cs and EnemyControllerRefactored.cs
     /// </summary>
-    public class EnemyController : MonoBehaviour {
+    public class EnemyExample : MonoBehaviour {
         [Header("Components")]
         [SerializeField] private Enemy enemy;
         [SerializeField] private EnemyAIController aiController;
         
         [Header("Debug")]
         [SerializeField] private bool showDebugInfo = true;
-        
-        // Public Properties
-        public Enemy Enemy => enemy;
-        public EnemyAIController AIController => aiController;
         
         private void Awake() {
             // Get components if not assigned
@@ -36,7 +31,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
                 aiController.Initialize(enemy);
                 
                 if (showDebugInfo) {
-                    Debug.Log($"[EnemyController] Initialized {enemy.name} with AI controller");
+                    Debug.Log($"[EnemyExample] Initialized {enemy.name} with AI controller");
                 }
             }
         }
@@ -45,22 +40,22 @@ namespace ThePromisedRun.Gameplay.Enemy {
             if (aiController == null) return;
             
             // AI State changes
-            aiController.OnStateChanged = (newState) => {
+            aiController.OnStateChanged += (newState) => {
                 if (showDebugInfo) {
-                    Debug.Log($"[EnemyController] State changed to: {newState}");
+                    Debug.Log($"[EnemyExample] State changed to: {newState}");
                 }
             };
             
             // Target events
-            aiController.OnTargetAcquired = (target) => {
+            aiController.OnTargetAcquired += (target) => {
                 if (showDebugInfo) {
-                    Debug.Log($"[EnemyController] Target acquired: {target.GetType().Name}");
+                    Debug.Log($"[EnemyExample] Target acquired: {target.GetType().Name}");
                 }
             };
             
-            aiController.OnTargetLost = () => {
+            aiController.OnTargetLost += () => {
                 if (showDebugInfo) {
-                    Debug.Log("[EnemyController] Target lost");
+                    Debug.Log("[EnemyExample] Target lost");
                 }
             };
             
@@ -68,19 +63,19 @@ namespace ThePromisedRun.Gameplay.Enemy {
             if (enemy != null) {
                 enemy.OnAttackStarted.AddListener(() => {
                     if (showDebugInfo) {
-                        Debug.Log("[EnemyController] Attack started");
+                        Debug.Log("[EnemyExample] Attack started");
                     }
                 });
                 
                 enemy.OnAttackCompleted.AddListener(() => {
                     if (showDebugInfo) {
-                        Debug.Log("[EnemyController] Attack completed");
+                        Debug.Log("[EnemyExample] Attack completed");
                     }
                 });
                 
                 enemy.OnTargetAcquired.AddListener((target) => {
                     if (showDebugInfo) {
-                        Debug.Log($"[EnemyController] Enemy acquired target: {target.GetType().Name}");
+                        Debug.Log($"[EnemyExample] Enemy acquired target: {target.GetType().Name}");
                     }
                 });
             }
@@ -90,19 +85,6 @@ namespace ThePromisedRun.Gameplay.Enemy {
         public void OnDamaged(DamageInfo damageInfo) {
             if (aiController != null) {
                 aiController.OnDamaged(damageInfo);
-            }
-        }
-        
-        // Animation event handlers
-        public void OnHitboxActivate() {
-            if (enemy != null) {
-                enemy.OnAttackStarted?.Invoke();
-            }
-        }
-        
-        public void OnHitboxDeactivate() {
-            if (enemy != null) {
-                enemy.OnAttackCompleted?.Invoke();
             }
         }
         
@@ -142,21 +124,6 @@ namespace ThePromisedRun.Gameplay.Enemy {
                 Gizmos.color = Color.green;
                 Vector3 targetPos = ((MonoBehaviour)enemy.CurrentTarget).transform.position;
                 Gizmos.DrawLine(enemy.transform.position, targetPos);
-            }
-        }
-        
-        // Unity Events
-        private void OnEnable() {
-            // Re-enable AI when component is enabled
-            if (aiController != null) {
-                aiController.IsActive = true;
-            }
-        }
-        
-        private void OnDisable() {
-            // Disable AI when component is disabled
-            if (aiController != null) {
-                aiController.IsActive = false;
             }
         }
     }

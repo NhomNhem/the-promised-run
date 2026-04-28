@@ -47,7 +47,8 @@ namespace ThePromisedRun.Gameplay.Juice {
         /// <summary>Heavy hit-stop + punch on confirmed hitbox contact.</summary>
         public void OnHit() {
             ApplyScale(hitScale, hitRecovery);
-            StartCoroutine(HitStop());
+            // Disabled HitStop to prevent spinning issues
+            // StartCoroutine(HitStop());
         }
 
         private void ApplyScale(Vector3 target, float recovery) {

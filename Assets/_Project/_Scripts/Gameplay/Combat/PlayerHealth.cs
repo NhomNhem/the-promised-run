@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Juice;
 
 namespace ThePromisedRun.Gameplay.Combat {
@@ -19,9 +20,9 @@ namespace ThePromisedRun.Gameplay.Combat {
         [SerializeField] private float cameraShakeDuration = 0.2f;
 
         [Header("Events")]
-        public UnityEvent<float> OnHealthChanged = new UnityEvent<float>(); // normalized 0-1
+        public UnityEvent<float> OnHealthChangedUnity = new UnityEvent<float>(); // normalized 0-1
         public UnityEvent        OnHit           = new UnityEvent();
-        public UnityEvent        OnDeath         = new UnityEvent();
+        public UnityEvent        OnDeathUnity    = new UnityEvent();
 
         private PlayerController _player;
         private float            _health;
@@ -30,10 +31,18 @@ namespace ThePromisedRun.Gameplay.Combat {
         public bool  IsAlive      => _health > 0f;
         public float HealthNorm   => _health / maxHealth;
         public bool  IsInvincible => _iFrameTimer > 0f;
+        public float Health        => _health;
+        public float MaxHealth     => maxHealth;
+        public System.Action<float> OnHealthChanged { get; set; }
+        public System.Action OnDeath { get; set; }
 
         private void Awake() {
             _player = GetComponent<PlayerController>();
             _health = maxHealth;
+            
+            // Initialize IDamageable events to wrap UnityEvents
+            OnHealthChanged = (health) => OnHealthChangedUnity.Invoke(health);
+            OnDeath = () => OnDeathUnity.Invoke();
         }
 
         private void Update() {
@@ -49,7 +58,7 @@ namespace ThePromisedRun.Gameplay.Combat {
             _health = Mathf.Max(0f, _health - amount);
             _iFrameTimer = iFrames;
 
-            OnHealthChanged.Invoke(HealthNorm);
+            OnHealthChangedUnity.Invoke(HealthNorm);
             OnHit.Invoke();
 
             // Knockback away from attacker
@@ -66,7 +75,7 @@ namespace ThePromisedRun.Gameplay.Combat {
             _player.AddChaos(10f, ChaosSource.EnemyHit);
 
             if (!IsAlive) {
-                OnDeath.Invoke();
+                OnDeathUnity.Invoke();
                 Debug.Log("[PlayerHealth] Player died.");
             }
         }
@@ -92,7 +101,7 @@ namespace ThePromisedRun.Gameplay.Combat {
 
         public void Heal(float amount) {
             _health = Mathf.Min(_health + amount, maxHealth);
-            OnHealthChanged.Invoke(HealthNorm);
+            OnHealthChangedUnity.Invoke(HealthNorm);
         }
     }
 }

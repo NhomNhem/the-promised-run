@@ -38,7 +38,7 @@ namespace ThePromisedRun.UI {
                 _player.OnOverloadEnded.AddListener(OnOverloadEnded);
             }
             if (_health != null) {
-                _health.OnHealthChanged.AddListener(OnHealthChanged);
+                _health.OnHealthChangedUnity.AddListener(OnHealthChanged);
             }
         }
 
@@ -49,7 +49,7 @@ namespace ThePromisedRun.UI {
                 _player.OnOverloadEnded.RemoveListener(OnOverloadEnded);
             }
             if (_health != null) {
-                _health.OnHealthChanged.RemoveListener(OnHealthChanged);
+                _health.OnHealthChangedUnity.RemoveListener(OnHealthChanged);
             }
         }
 

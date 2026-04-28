@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 using RaycastPro.Detectors;
 using ThePromisedRun.Core.FSM;
+using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Combat;
 using ThePromisedRun.Gameplay.Juice;
 using ThePromisedRun.Gameplay.States;
@@ -37,6 +39,12 @@ namespace ThePromisedRun.Gameplay {
 
         [SerializeField] private Transform detector;
         [SerializeField] private RangeDetector groundDetector;
+        [SerializeField] private AttackHitbox attackHitbox;
+
+        [Header("RaycastPro Detection")]
+        [SerializeField] private RangeDetector enemyDetector;
+        [SerializeField] private LayerMask enemyLayer;
+        [SerializeField] private float enemyDetectionRadius = 10f;
 
         #endregion
 
@@ -112,6 +120,11 @@ namespace ThePromisedRun.Gameplay {
             CheckGround();
         }
 
+        private void LateUpdate() {
+            // Disabled visual rotation reset to prevent spinning issues
+            // The Animator should handle visual rotation properly
+        }
+
         private void FixedUpdate() {
             _stateMachine.FixedUpdate();
 
@@ -132,13 +145,11 @@ namespace ThePromisedRun.Gameplay {
             var overload = new OverloadState(this, Anim);
 
             _stateMachine.AddTransition(locomotion, jump,
-                new FuncPredicate(() => Input.IsJumpPressed && IsGrounded && !IsOverloaded));
-            _stateMachine.AddTransition(jump, land, new FuncPredicate(() => jump.CanLand && !IsOverloaded));
+                new FuncPredicate(() => Input.IsJumpPressed && IsGrounded));
+            _stateMachine.AddTransition(jump, land, new FuncPredicate(() => jump.CanLand));
             _stateMachine.AddTransition(land, locomotion, new FuncPredicate(() => land.IsLandingComplete));
-            _stateMachine.AddAnyTransition(overload,
-                new FuncPredicate(() => ChaosMeter >= maxChaosThreshold && CooldownTimer <= 0));
-            _stateMachine.AddTransition(overload, locomotion,
-                new FuncPredicate(() => OverloadTimer <= 0 && IsGrounded));
+            _stateMachine.AddAnyTransition(overload, new FuncPredicate(() => ChaosMeter >= maxChaosThreshold && CooldownTimer <= 0));
+            _stateMachine.AddTransition(overload, locomotion, new FuncPredicate(() => OverloadTimer <= 0 && IsGrounded));
 
             _stateMachine.SetState(locomotion);
         }
@@ -190,6 +201,9 @@ namespace ThePromisedRun.Gameplay {
             Anim.SetInteger(ComboIndexHash, _comboIndex);
             Anim.SetTrigger(AttackTriggerHash);
 
+            // Hitbox activation is now handled by animation events
+            // attackHitbox?.Activate();
+            
             // Juice + chaos
             Juice?.OnAttackSwing();
             AddChaos(chaosPerHit, ChaosSource.Attack);
@@ -206,9 +220,111 @@ namespace ThePromisedRun.Gameplay {
                 : _groundContacts > 0;
         }
 
-        #endregion
+        /// <summary>
+        /// Enhanced ground detection using RaycastPro RangeDetector
+        /// More precise than simple collider detection
+        /// </summary>
+        private bool CheckGroundWithRaycastPro() {
+            if (groundDetector == null) return false;
+            
+            // RaycastPro RangeDetector provides more accurate ground detection
+            bool isGrounded = groundDetector.Performed;
+            
+            // Additional validation: check if detected colliders are actually ground
+            if (isGrounded && groundDetector.DetectedColliders.Count > 0) {
+                foreach (var collider in groundDetector.DetectedColliders) {
+                    if (collider != null && IsGroundLayer(collider.gameObject.layer)) {
+                        return true;
+                    }
+                }
+                return false; // Detected but not ground layer
+            }
+            
+            return isGrounded;
+        }
 
-        #region Public Actions
+        /// <summary>
+        /// Check if a layer is considered ground
+        /// </summary>
+        private bool IsGroundLayer(int layer) {
+            return layer == LayerMask.NameToLayer("Default") || 
+                   layer == LayerMask.NameToLayer("Ground") ||
+                   layer == LayerMask.NameToLayer("Floor");
+        }
+
+        /// <summary>
+        /// Get nearest enemy using RaycastPro RangeDetector
+        /// </summary>
+        public GameObject GetNearestEnemy() {
+            if (enemyDetector == null || !enemyDetector.Performed) return null;
+            
+            Collider nearest = enemyDetector.NearestMember;
+            if (nearest != null && IsEnemyLayer(nearest.gameObject.layer)) {
+                return nearest.gameObject;
+            }
+            
+            // Fallback: check all detected colliders for nearest enemy
+            GameObject nearestEnemy = null;
+            float nearestDistance = float.MaxValue;
+            
+            foreach (var collider in enemyDetector.DetectedColliders) {
+                if (collider != null && IsEnemyLayer(collider.gameObject.layer)) {
+                    float distance = Vector3.Distance(transform.position, collider.transform.position);
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearestEnemy = collider.gameObject;
+                    }
+                }
+            }
+            
+            return nearestEnemy;
+        }
+
+        /// <summary>
+        /// Check if a layer is considered enemy
+        /// </summary>
+        private bool IsEnemyLayer(int layer) {
+            return ((1 << layer) & enemyLayer) != 0;
+        }
+
+        /// <summary>
+        /// Get all enemies in detection range
+        /// </summary>
+        public GameObject[] GetEnemiesInRange() {
+            if (enemyDetector == null || !enemyDetector.Performed) 
+                return new GameObject[0];
+            
+            var enemies = new List<GameObject>();
+            
+            foreach (var collider in enemyDetector.DetectedColliders) {
+                if (collider != null && IsEnemyLayer(collider.gameObject.layer)) {
+                    enemies.Add(collider.gameObject);
+                }
+            }
+            
+            return enemies.ToArray();
+        }
+
+        /// <summary>
+        /// Check if player is surrounded by enemies
+        /// </summary>
+        public bool IsSurrounded() {
+            var enemies = GetEnemiesInRange();
+            if (enemies.Length < 3) return false; // Need at least 3 enemies to be surrounded
+            
+            int enemiesInFront = 0;
+            int enemiesBehind = 0;
+            
+            foreach (var enemy in enemies) {
+                Vector3 toEnemy = (enemy.transform.position - transform.position).normalized;
+                float dotProduct = Vector3.Dot(transform.forward, toEnemy);
+                
+                if (dotProduct > 0.5f) enemiesInFront++;
+                else if (dotProduct < -0.5f) enemiesBehind++;
+            }
+            
+            return enemiesInFront >= 1 && enemiesBehind >= 1;
+        }
 
         public void ApplyMovement() {
             Vector3 moveDir = new Vector3(Input.MoveInput.x, 0f, Input.MoveInput.y);
@@ -218,19 +334,16 @@ namespace ThePromisedRun.Gameplay {
                 Rb.linearVelocity.y,
                 moveDir.z * moveSpeed);
 
-            // Only rotate visual when there's meaningful input (dead zone 0.1)
-            if (moveDir.sqrMagnitude > 0.1f && visual != null) {
+            // Only rotate when actually moving to prevent spinning
+            if (moveDir.sqrMagnitude > 0.01f) {
                 Quaternion targetRot = Quaternion.LookRotation(moveDir.normalized, Vector3.up);
-                visual.rotation = Quaternion.Slerp(
-                    visual.rotation, targetRot, rotationSpeed * Time.deltaTime);
-            } else if (moveDir.sqrMagnitude <= 0.01f) {
-                // Fully stopped — zero out horizontal velocity cleanly
-                Rb.linearVelocity = new Vector3(0f, Rb.linearVelocity.y, 0f);
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
             }
         }
 
         public void ApplyJump() {
-            Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, jumpForce, 0f);
+            Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, jumpForce, Rb.linearVelocity.z);
             Input.ConsumeJumpInput();
             AddChaos(20f, ChaosSource.Jump);
         }
@@ -256,7 +369,30 @@ namespace ThePromisedRun.Gameplay {
 
         #endregion
 
+        #region Animation Event Receivers
+
+        /// <summary>
+        /// Called by animation event to activate attack hitbox
+        /// </summary>
+        public void OnHitboxActivate() {
+            attackHitbox?.Activate();
+        }
+
+        /// <summary>
+        /// Called by animation event to deactivate attack hitbox
+        /// </summary>
+        public void OnHitboxDeactivate() {
+            attackHitbox?.Deactivate();
+        }
+
+        #endregion
+
         #region IDamageable
+
+        public float Health => 100f; // Player has full health system in PlayerHealth component
+        public float MaxHealth => 100f;
+        public System.Action<float> OnHealthChanged { get; set; } = (health) => { };
+        public System.Action OnDeath { get; set; } = () => { };
 
         public void TakeDamage(float amount, DamageInfo info) {
             AddChaos(amount * 0.5f, ChaosSource.Damage);
