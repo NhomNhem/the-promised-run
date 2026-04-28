@@ -1,137 +1,163 @@
 using UnityEngine;
-using System.Linq;
-using ThePromisedRun.Core.FSM;
+using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Combat;
-using UnityEngine.Events;
+using ThePromisedRun.Gameplay.Enemy.AI;
 
 namespace ThePromisedRun.Gameplay.Enemy {
     /// <summary>
-    /// Base enemy controller. Manages FSM, health, and player detection.
-    /// Skeleton (and future enemies) extend this via config, not inheritance.
+    /// Enemy Controller - coordinates enemy entity and AI
+    /// SOLID: Single Responsibility - Only coordinates components
+    /// SOLID: Dependency Inversion - Depends on interfaces
     /// </summary>
-    [RequireComponent(typeof(Rigidbody))]
-    public class EnemyController : MonoBehaviour, IDamageable {
-        #region Inspector
-        [Header("Stats")]
-        [SerializeField] private float maxHealth    = 30f;
-        [SerializeField] private float moveSpeed    = 3.5f;
-        [SerializeField] private float attackDamage = 10f;
-        [SerializeField] private float attackRange  = 1.2f;
-        [SerializeField] private float aggroRadius  = 5f;
-
-        [Header("Overload Stun")]
-        [SerializeField] private float stunDuration = 2f;
-
-        [Header("References")]
-        [SerializeField] private Transform visual;
-        [SerializeField] private float rotationSpeed = 8f;
-        #endregion
-
-        #region Public Properties
-        public Rigidbody  Rb           { get; private set; }
-        public Animator   Anim         { get; private set; }
-        public Transform  Target       { get; private set; }
-        public float      MoveSpeed    => moveSpeed;
-        public float      AttackDamage => attackDamage;
-        public float      AttackRange  => attackRange;
-        public float      AggroRadius  => aggroRadius;
-        public float      StunDuration => stunDuration;
-        public bool       IsAlive      => _health > 0f;
-        public bool       IsStunned    => _stunTimer > 0f;
-        public Transform  Visual       => visual;
-        public float      RotationSpeed => rotationSpeed;
-        #endregion
-
-        #region Events
-        public UnityEvent OnDeath   = new UnityEvent();
-        public UnityEvent OnHit     = new UnityEvent();
-        #endregion
-
-        #region Private
-        private StateMachine _fsm;
-        private float        _health;
-        private float        _stunTimer;
-        #endregion
-
+    public class EnemyController : MonoBehaviour {
+        [Header("Components")]
+        [SerializeField] private Enemy enemy;
+        [SerializeField] private EnemyAIController aiController;
+        
+        [Header("Debug")]
+        [SerializeField] private bool showDebugInfo = true;
+        
+        // Public Properties
+        public Enemy Enemy => enemy;
+        public EnemyAIController AIController => aiController;
+        
         private void Awake() {
-            Rb   = GetComponent<Rigidbody>();
-            Anim = visual != null
-                ? visual.GetComponent<Animator>()
-                : GetComponentInChildren<Animator>();
-
-            _health = maxHealth;
-
-            // Find player
-            var player = FindFirstObjectByType<PlayerController>();
-            if (player != null) Target = player.transform;
-
-            _fsm = new StateMachine();
-            SetupFSM();
+            // Get components if not assigned
+            if (enemy == null) enemy = GetComponent<Enemy>();
+            if (aiController == null) aiController = GetComponent<EnemyAIController>();
+            
+            // Setup event handlers
+            SetupEventHandlers();
         }
-
-        private void SetupFSM() {
-            var idle   = new EnemyIdleState(this, Anim);
-            var chase  = new EnemyChaseState(this, Anim);
-            var attack = new EnemyAttackState(this, Anim);
-            var death  = new EnemyDeathState(this, Anim);
-
-            _fsm.AddTransition(idle,   chase,  new FuncPredicate(() => IsAlive && !IsStunned && PlayerInAggroRange()));
-            _fsm.AddTransition(chase,  idle,   new FuncPredicate(() => IsAlive && !IsStunned && !PlayerInAggroRange()));
-            _fsm.AddTransition(chase,  attack, new FuncPredicate(() => IsAlive && !IsStunned && PlayerInAttackRange()));
-            _fsm.AddTransition(attack, chase,  new FuncPredicate(() => IsAlive && !IsStunned && !PlayerInAttackRange() && attack.IsComplete));
-            _fsm.AddTransition(attack, idle,   new FuncPredicate(() => IsAlive && !IsStunned && !PlayerInAggroRange() && attack.IsComplete));
-            _fsm.AddAnyTransition(death, new FuncPredicate(() => !IsAlive));
-
-            _fsm.SetState(idle);
-        }
-
-        private void Update() {
-            if (_stunTimer > 0f) {
-                _stunTimer -= Time.deltaTime;
-                Rb.linearVelocity = Vector3.zero;
-                return;
-            }
-            _fsm.Update();
-        }
-
-        private void FixedUpdate() {
-            if (_stunTimer > 0f) return;
-            _fsm.FixedUpdate();
-        }
-
-        public bool PlayerInAggroRange() =>
-            Target != null && Vector3.Distance(transform.position, Target.position) <= aggroRadius;
-
-        public bool PlayerInAttackRange() =>
-            Target != null && Vector3.Distance(transform.position, Target.position) <= attackRange;
-
-        public void FaceTarget() {
-            if (Target == null || visual == null) return;
-            Vector3 dir = (Target.position - transform.position).normalized;
-            dir.y = 0f;
-            if (dir.sqrMagnitude < 0.01f) return;
-            visual.rotation = Quaternion.Slerp(
-                visual.rotation,
-                Quaternion.LookRotation(dir),
-                rotationSpeed * Time.deltaTime);
-        }
-
-        #region IDamageable
-        public void TakeDamage(float amount, DamageInfo info) {
-            if (!IsAlive) return;
-
-            _health = Mathf.Max(0f, _health - amount);
-
-            if (info.IsOverloadBoosted)
-                _stunTimer = stunDuration;
-
-            if (!IsAlive) {
-                OnDeath.Invoke();
-            } else {
-                Anim.SetTrigger("GetHit");
-                OnHit.Invoke();
+        
+        private void Start() {
+            // Initialize AI controller with enemy entity
+            if (aiController != null && enemy != null) {
+                aiController.Initialize(enemy);
+                
+                if (showDebugInfo) {
+                    Debug.Log($"[EnemyController] Initialized {enemy.name} with AI controller");
+                }
             }
         }
-        #endregion
+        
+        private void SetupEventHandlers() {
+            if (aiController == null) return;
+            
+            // AI State changes
+            aiController.OnStateChanged = (newState) => {
+                if (showDebugInfo) {
+                    Debug.Log($"[EnemyController] State changed to: {newState}");
+                }
+            };
+            
+            // Target events
+            aiController.OnTargetAcquired = (target) => {
+                if (showDebugInfo) {
+                    Debug.Log($"[EnemyController] Target acquired: {target.GetType().Name}");
+                }
+            };
+            
+            aiController.OnTargetLost = () => {
+                if (showDebugInfo) {
+                    Debug.Log("[EnemyController] Target lost");
+                }
+            };
+            
+            // Enemy events
+            if (enemy != null) {
+                enemy.OnAttackStarted.AddListener(() => {
+                    if (showDebugInfo) {
+                        Debug.Log("[EnemyController] Attack started");
+                    }
+                });
+                
+                enemy.OnAttackCompleted.AddListener(() => {
+                    if (showDebugInfo) {
+                        Debug.Log("[EnemyController] Attack completed");
+                    }
+                });
+                
+                enemy.OnTargetAcquired.AddListener((target) => {
+                    if (showDebugInfo) {
+                        Debug.Log($"[EnemyController] Enemy acquired target: {target.GetType().Name}");
+                    }
+                });
+            }
+        }
+        
+        // Handle damage events and pass to AI controller
+        public void OnDamaged(DamageInfo damageInfo) {
+            if (aiController != null) {
+                aiController.OnDamaged(damageInfo);
+            }
+        }
+        
+        // Animation event handlers
+        public void OnHitboxActivate() {
+            if (enemy != null) {
+                enemy.OnAttackStarted?.Invoke();
+            }
+        }
+        
+        public void OnHitboxDeactivate() {
+            if (enemy != null) {
+                enemy.OnAttackCompleted?.Invoke();
+            }
+        }
+        
+        // Public methods for external control
+        public void ForceState(EnemyAIState state) {
+            if (aiController != null) {
+                aiController.ForceState(state);
+            }
+        }
+        
+        public string GetCurrentState() {
+            return aiController?.GetCurrentStateName() ?? "Unknown";
+        }
+        
+        public bool IsAttacking() {
+            return enemy?.IsAttacking ?? false;
+        }
+        
+        public bool HasTarget() {
+            return enemy?.HasTarget ?? false;
+        }
+        
+        // Debug visualization
+        private void OnDrawGizmosSelected() {
+            if (enemy == null) return;
+            
+            // Draw detection radius
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(enemy.transform.position, enemy.DetectionRadius);
+            
+            // Draw attack range
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(enemy.transform.position, enemy.AttackRange);
+            
+            // Draw line to target
+            if (enemy.HasTarget && enemy.CurrentTarget != null) {
+                Gizmos.color = Color.green;
+                Vector3 targetPos = ((MonoBehaviour)enemy.CurrentTarget).transform.position;
+                Gizmos.DrawLine(enemy.transform.position, targetPos);
+            }
+        }
+        
+        // Unity Events
+        private void OnEnable() {
+            // Re-enable AI when component is enabled
+            if (aiController != null) {
+                aiController.IsActive = true;
+            }
+        }
+        
+        private void OnDisable() {
+            // Disable AI when component is disabled
+            if (aiController != null) {
+                aiController.IsActive = false;
+            }
+        }
     }
 }

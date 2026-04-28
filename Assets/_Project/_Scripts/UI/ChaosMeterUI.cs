@@ -1,73 +1,86 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using ThePromisedRun.Gameplay;
+using ThePromisedRun.Gameplay.Combat;
 
 namespace ThePromisedRun.UI {
     /// <summary>
-    /// Drives the Chaos Meter bar and Overload banner in the Game HUD.
-    /// Subscribes to PlayerController events — no polling.
+    /// Drives the Health Bar, Chaos Meter, and Overload banner in the Game HUD.
+    /// Event-driven — no polling.
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public class ChaosMeterUI : MonoBehaviour {
         [SerializeField] private PlayerController _player;
+        [SerializeField] private PlayerHealth     _health;
 
-        private VisualElement _fill;
+        // Chaos
+        private VisualElement _chaosFill;
         private VisualElement _overloadBanner;
 
+        // Health
+        private VisualElement _healthFill;
+
         private void Awake() {
-            if (_player == null)
-                _player = FindFirstObjectByType<PlayerController>();
+            if (_player == null) _player = FindFirstObjectByType<PlayerController>();
+            if (_health == null) _health = FindFirstObjectByType<PlayerHealth>();
         }
 
         private void OnEnable() {
-            var doc = GetComponent<UIDocument>();
-            var root = doc.rootVisualElement;
+            var root = GetComponent<UIDocument>().rootVisualElement;
 
-            _fill          = root.Q<VisualElement>("chaos-bar-fill");
+            _chaosFill      = root.Q<VisualElement>("chaos-bar-fill");
             _overloadBanner = root.Q<VisualElement>("overload-banner");
+            _healthFill     = root.Q<VisualElement>("health-bar-fill");
 
-            if (_player == null) return;
-            _player.OnChaosChanged.AddListener(OnChaosChanged);
-            _player.OnOverloadStarted.AddListener(OnOverloadStarted);
-            _player.OnOverloadEnded.AddListener(OnOverloadEnded);
+            if (_player != null) {
+                _player.OnChaosChanged.AddListener(OnChaosChanged);
+                _player.OnOverloadStarted.AddListener(OnOverloadStarted);
+                _player.OnOverloadEnded.AddListener(OnOverloadEnded);
+            }
+            if (_health != null) {
+                _health.OnHealthChangedUnity.AddListener(OnHealthChanged);
+            }
         }
 
         private void OnDisable() {
-            if (_player == null) return;
-            _player.OnChaosChanged.RemoveListener(OnChaosChanged);
-            _player.OnOverloadStarted.RemoveListener(OnOverloadStarted);
-            _player.OnOverloadEnded.RemoveListener(OnOverloadEnded);
+            if (_player != null) {
+                _player.OnChaosChanged.RemoveListener(OnChaosChanged);
+                _player.OnOverloadStarted.RemoveListener(OnOverloadStarted);
+                _player.OnOverloadEnded.RemoveListener(OnOverloadEnded);
+            }
+            if (_health != null) {
+                _health.OnHealthChangedUnity.RemoveListener(OnHealthChanged);
+            }
         }
 
-        // normalized 0-1
         private void OnChaosChanged(float normalized) {
-            if (_fill == null) return;
-
-            _fill.style.width = Length.Percent(normalized * 100f);
-
-            // Update color class based on fill level
-            _fill.RemoveFromClassList("low");
-            _fill.RemoveFromClassList("medium");
-            _fill.RemoveFromClassList("high");
-            _fill.RemoveFromClassList("full");
-
-            string cls = normalized switch {
+            if (_chaosFill == null) return;
+            _chaosFill.style.width = Length.Percent(normalized * 100f);
+            _chaosFill.RemoveFromClassList("low");
+            _chaosFill.RemoveFromClassList("medium");
+            _chaosFill.RemoveFromClassList("high");
+            _chaosFill.RemoveFromClassList("full");
+            _chaosFill.AddToClassList(normalized switch {
                 >= 1f    => "full",
                 >= 0.66f => "high",
                 >= 0.33f => "medium",
                 _        => "low"
-            };
-            _fill.AddToClassList(cls);
+            });
         }
 
-        private void OnOverloadStarted() {
-            _overloadBanner?.RemoveFromClassList("hidden");
+        private void OnHealthChanged(float normalized) {
+            if (_healthFill == null) return;
+            _healthFill.style.width = Length.Percent(normalized * 100f);
+            _healthFill.RemoveFromClassList("medium");
+            _healthFill.RemoveFromClassList("low");
+            if (normalized <= 0.25f)      _healthFill.AddToClassList("low");
+            else if (normalized <= 0.5f)  _healthFill.AddToClassList("medium");
         }
 
+        private void OnOverloadStarted() => _overloadBanner?.RemoveFromClassList("hidden");
         private void OnOverloadEnded() {
             _overloadBanner?.AddToClassList("hidden");
-            // Reset bar to empty
-            if (_fill != null) _fill.style.width = Length.Percent(0f);
+            if (_chaosFill != null) _chaosFill.style.width = Length.Percent(0f);
         }
     }
 }
