@@ -88,6 +88,11 @@ namespace ThePromisedRun.Gameplay {
             Input = GetComponent<InputReader>();
             Juice = GetComponent<PlayerJuice>();
 
+            // Prevent physics from rotating the player (common cause of endless spinning on collisions/stairs).
+            // We keep yaw rotation on the visual child only.
+            if (Rb != null)
+                Rb.constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
             Anim = visual != null
                 ? visual.GetComponent<Animator>()
                 : GetComponentInChildren<Animator>();
@@ -114,6 +119,10 @@ namespace ThePromisedRun.Gameplay {
 
         private void FixedUpdate() {
             _stateMachine.FixedUpdate();
+
+            // Extra safety: ensure physics cannot accumulate angular velocity due to contacts.
+            if (Rb != null)
+                Rb.angularVelocity = Vector3.zero;
 
             // Extra gravity for snappier fall arc
             if (Rb.linearVelocity.y < 0f)
