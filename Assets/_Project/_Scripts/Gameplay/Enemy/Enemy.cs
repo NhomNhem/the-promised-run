@@ -4,6 +4,7 @@ using ThePromisedRun.Core;
 using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Core.Systems;
 using ThePromisedRun.Gameplay.Combat;
+using ThePromisedRun.Gameplay.Enemy.ScriptableObjects;
 
 namespace ThePromisedRun.Gameplay.Enemy {
     /// <summary>
@@ -13,6 +14,9 @@ namespace ThePromisedRun.Gameplay.Enemy {
     /// SOLID: Interface Segregation - Implements only relevant interfaces
     /// </summary>
     public class Enemy : Entity, IEnemyEntity, IAttacker {
+        [Header("Enemy Properties")]
+        [SerializeField] protected EnemyProperties enemyProperties;
+        
         [Header("Enemy Stats")]
         [SerializeField] protected float baseDamage = 15f;
         [SerializeField] protected float attackRange = 2f;

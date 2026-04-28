@@ -1,12 +1,9 @@
 using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
-    /// <summary>
-    /// System Overload state: player has "safety window" where Helper System is muted.
-    /// Player can move freely, attack is stronger, enemies are stunned.
-    /// </summary>
     public class OverloadState : BaseState {
-        private static readonly int OverloadGlitchHash = Animator.StringToHash("Overload_Glitch");
+        private const string OverloadAnim = "Overload_Glitch";
+        private const float  BlendTime    = 0.1f;
 
         public OverloadState(PlayerController playerController, Animator animator)
             : base(playerController, animator) { }
@@ -14,15 +11,8 @@ namespace ThePromisedRun.Gameplay.States {
         public override void OnEnter() {
             base.OnEnter();
             _playerController.InitiateOverload();
-
-            // Only play if state exists in controller
-            if (_animator != null && _animator.HasState(0, OverloadGlitchHash))
-                _animator.Play(OverloadGlitchHash);
-        }
-
-        public override void OnUpdate() {
-            base.OnUpdate();
-            // Player can still move during overload — this is the "safety window"
+            if (_animator.HasState(0, Animator.StringToHash(OverloadAnim)))
+                _animator.CrossFade(OverloadAnim, BlendTime, 0);
         }
 
         public override void OnFixedUpdate() {

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11cb71bcf162f784ab0c2e210b1fa80e, type: 3}
+  m_Name: AgilePlayerProperties
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
+  moveSpeed: 12
+  jumpForce: 15
+  rotationSpeed: 15
+  fallGravityMultiplier: 2
+  airControl: 0.8
+  maxHealth: 75
+  healthRegenRate: 2
+  healthRegenDelay: 2
+  attackCooldown: 0.1
+  comboWindow: 0.8
+  maxComboCount: 4
+  damageMultiplier: 0.8
+  overloadDuration: 2
+  overloadCooldown: 4
+  maxChaosThreshold: 80
+  chaosDecayRate: 15
+  chaosPerHit: 12
+  enemyDetectionRadius: 12
+  enemyDetectionAngle: 150
+  landingImpactForce: 3
+  jumpJuiceDuration: 0.15
+  attackJuiceDuration: 0.1
+  hurtJuiceDuration: 0.25
+  footstepVolume: 0.3
+  jumpVolume: 0.5
+  attackVolume: 0.6
+  hurtVolume: 0.7
+  showDebugInfo: 1
+  showMovementGizmos: 1
+  showDetectionGizmos: 0

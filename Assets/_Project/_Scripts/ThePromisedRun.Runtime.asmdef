@@ -2,7 +2,9 @@
     "name": "ThePromisedRun.Runtime",
     "references": [
         "Unity.InputSystem",
-        "RaycastPro"
+        "RaycastPro",
+        "Unity.TextMeshPro",
+        "OpenUtility"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

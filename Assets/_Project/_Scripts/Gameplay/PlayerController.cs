@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;
-using System.Collections.Generic;
+using OpenUtility.Data;
 using RaycastPro.Detectors;
 using ThePromisedRun.Core.FSM;
 using ThePromisedRun.Core.Interfaces;
@@ -8,43 +8,37 @@ using ThePromisedRun.Gameplay.Combat;
 using ThePromisedRun.Gameplay.Juice;
 using ThePromisedRun.Gameplay.States;
 using ThePromisedRun.Gameplay.Input;
+using ThePromisedRun.Gameplay.Player;
+using ThePromisedRun.Gameplay.Player.ScriptableObjects;
 using UnityEngine.Events;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace ThePromisedRun.Gameplay {
     public class PlayerController : MonoBehaviour, IDamageable {
         #region Inspector Fields
 
-        [Header("Movement Settings")] [SerializeField]
-        private float moveSpeed = 8f;
+        [BoxGroup("Player Properties")] [Required] [SerializeField]
+        private PlayerProperties _playerProperties;
 
-        [SerializeField] private float jumpForce = 12f;
-        [SerializeField] private float rotationSpeed = 10f;
-        [SerializeField] private float fallGravityMultiplier = 2.5f;
+        [BoxGroup("References")] [Header("References")] [SerializeField]
+        private Transform _visual;
 
-        [Header("System Overload Settings")] [SerializeField]
-        private float overloadDuration = 3f;
+        [BoxGroup("References")] [SerializeField]
+        private Transform _detector;
 
-        [SerializeField] private float overloadCooldown = 5f;
-        [SerializeField] private float maxChaosThreshold = 100f;
-        [SerializeField] private float chaosDecayRate = 10f;
+        [BoxGroup("References")] [SerializeField]
+        private RangeDetector _groundDetector;
 
-        [Header("Attack Settings")] [SerializeField]
-        private float comboWindow = 0.6f;
+        [BoxGroup("References")] [SerializeField]
+        private AttackHitbox _attackHitbox;
 
-        [SerializeField] private float attackCooldown = 0.15f;
-        [SerializeField] private float chaosPerHit = 15f;
+        [BoxGroup("Detection")] [SerializeField]
+        private RaycastProEnemyDetector _enemyDetector;
 
-        [Header("References")] [SerializeField]
-        private Transform visual;
-
-        [SerializeField] private Transform detector;
-        [SerializeField] private RangeDetector groundDetector;
-        [SerializeField] private AttackHitbox attackHitbox;
-
-        [Header("RaycastPro Detection")]
-        [SerializeField] private RangeDetector enemyDetector;
-        [SerializeField] private LayerMask enemyLayer;
-        [SerializeField] private float enemyDetectionRadius = 10f;
+        [BoxGroup("ScriptableVariables")] [SerializeField]
+        private ScriptableFloat _chaosMeterVar;
 
         #endregion
 
@@ -54,16 +48,27 @@ namespace ThePromisedRun.Gameplay {
         public Animator Anim { get; private set; }
         public InputReader Input { get; private set; }
         public PlayerJuice Juice { get; private set; }
-        public Transform Visual => visual;
-        public float MoveSpeed => moveSpeed;
-        public float JumpForce => jumpForce;
-        public float RotationSpeed => rotationSpeed;
+        public Transform Visual => _visual;
+        public float MoveSpeed => _moveSpeed;
+        public float JumpForce => _jumpForce;
+        public float RotationSpeed => _rotationSpeed;
         public bool IsGrounded { get; private set; }
         public float OverloadTimer { get; private set; }
         public float CooldownTimer { get; private set; }
         public float ChaosMeter { get; private set; }
         public bool IsOverloaded => OverloadTimer > 0f;
-        public bool IsAlive => true; // Player is always alive
+        public bool IsAlive => true;
+        public float ChaosPerHit => _chaosPerHit;
+        public float[] AttackStepForce => _attackStepForce;
+        public float ComboHitCooldown => _comboHitCooldown;
+        public float AttackExitDelay => _attackExitDelay;
+        public float HitStopDuration => _hitStopDuration;
+        public float HitStopTimeScale => _hitStopTimeScale;
+        public float[] ComboClipDurations => _comboClipDurations;
+        public float ComboChainFraction => _comboChainFraction;
+        public float ComboFinishDelay => _comboFinishDelay;
+        public float AttackBlendTime => _attackBlendTime;
+        public float AttackMoveDamping => _attackMoveDamping;
 
         #endregion
 
@@ -80,12 +85,31 @@ namespace ThePromisedRun.Gameplay {
         private StateMachine _stateMachine;
         private int _groundContacts;
 
-        // Attack combo
-        private static readonly int AttackTriggerHash = Animator.StringToHash("AttackTrigger");
-        private static readonly int ComboIndexHash = Animator.StringToHash("ComboIndex");
-        private int _comboIndex; // 0 = idle, 1-3 = active step
-        private float _comboTimer; // countdown to reset combo
-        private float _attackCooldown; // min time between hits
+        // Backing fields loaded from PlayerProperties SO
+        private float _moveSpeed;
+        private float _jumpForce;
+        private float _rotationSpeed;
+        private float _fallGravityMultiplier;
+        private float _overloadDuration;
+        private float _overloadCooldown;
+        private float _maxChaosThreshold;
+        private float _chaosDecayRate;
+        private float _comboWindow;
+        private float _attackCooldown;
+        private float _chaosPerHit;
+        private float[] _attackStepForce;
+        private float _comboHitCooldown;
+        private float _attackExitDelay;
+        private float _hitStopDuration;
+        private float _hitStopTimeScale;
+        private float[] _comboClipDurations;
+        private float _comboChainFraction;
+        private float _comboFinishDelay;
+        private float _attackBlendTime;
+        private float _attackMoveDamping;
+
+        // Attack state reference for animation event relay
+        private AttackState _attackState;
 
         #endregion
 
@@ -96,42 +120,75 @@ namespace ThePromisedRun.Gameplay {
             Input = GetComponent<InputReader>();
             Juice = GetComponent<PlayerJuice>();
 
-            Anim = visual != null
-                ? visual.GetComponent<Animator>()
-                : GetComponentInChildren<Animator>();
+            Anim = _visual != null
+                ? _visual.GetComponentInChildren<Animator>(true)
+                : GetComponentInChildren<Animator>(true);
 
-            if (detector == null) {
-                detector = Enumerable.Range(0, transform.childCount)
+            // Ensure Animator is enabled
+            if (Anim != null) Anim.enabled = true;
+            else Debug.LogError("[PlayerController] Animator not found!");
+
+            if (_detector == null) {
+                _detector = Enumerable.Range(0, transform.childCount)
                     .Select(i => transform.GetChild(i))
                     .FirstOrDefault(c => c.name == "Detector");
             }
 
-            if (detector != null)
-                groundDetector = detector.GetComponentInChildren<RangeDetector>();
+            if (_detector != null)
+                _groundDetector = _detector.GetComponentInChildren<RangeDetector>();
+
+            LoadPlayerProperties();
+
+            if (_enemyDetector == null)
+                _enemyDetector = GetComponentInChildren<RaycastProEnemyDetector>();
 
             _stateMachine = new StateMachine();
             SetupStateMachine();
         }
 
+        /// <summary>
+        /// Load all player settings from PlayerProperties ScriptableObject.
+        /// SOLID: Open/Closed — config loaded from SO without modifying existing code.
+        /// Req 1.3, 1.4
+        /// </summary>
+        private void LoadPlayerProperties() {
+            _moveSpeed = _playerProperties.moveSpeed;
+            _jumpForce = _playerProperties.jumpForce;
+            _rotationSpeed = _playerProperties.rotationSpeed;
+            _fallGravityMultiplier = _playerProperties.fallGravityMultiplier;
+            _overloadDuration = _playerProperties.overloadDuration;
+            _overloadCooldown = _playerProperties.overloadCooldown;
+            _maxChaosThreshold = _playerProperties.maxChaosThreshold;
+            _chaosDecayRate = _playerProperties.chaosDecayRate;
+            _comboWindow = _playerProperties.comboWindow;
+            _attackCooldown = _playerProperties.attackCooldown;
+            _chaosPerHit = _playerProperties.chaosPerHit;
+            _attackStepForce  = _playerProperties.attackStepForce;
+            _comboHitCooldown = _playerProperties.comboHitCooldown;
+            _attackExitDelay  = _playerProperties.attackExitDelay;
+            _hitStopDuration  = _playerProperties.hitStopDuration;
+            _hitStopTimeScale = _playerProperties.hitStopTimeScale;
+            _comboClipDurations  = _playerProperties.comboClipDurations;
+            _comboChainFraction  = _playerProperties.comboChainFraction;
+            _comboFinishDelay    = _playerProperties.comboFinishDelay;
+            _attackBlendTime     = _playerProperties.attackBlendTime;
+            _attackMoveDamping   = _playerProperties.attackMoveDamping;
+        }
+
         private void Update() {
+            if (_stateMachine == null) return;
             _stateMachine.Update();
             HandleTimers();
-            HandleAttack();
             CheckGround();
         }
 
-        private void LateUpdate() {
-            // Disabled visual rotation reset to prevent spinning issues
-            // The Animator should handle visual rotation properly
-        }
-
         private void FixedUpdate() {
+            if (_stateMachine == null) return;
             _stateMachine.FixedUpdate();
 
-            // Extra gravity for snappier fall arc
             if (Rb.linearVelocity.y < 0f)
                 Rb.linearVelocity +=
-                    Vector3.up * Physics.gravity.y * (fallGravityMultiplier - 1f) * Time.fixedDeltaTime;
+                    Vector3.up * Physics.gravity.y * (_fallGravityMultiplier - 1f) * Time.fixedDeltaTime;
         }
 
         #endregion
@@ -139,17 +196,37 @@ namespace ThePromisedRun.Gameplay {
         #region FSM Setup
 
         private void SetupStateMachine() {
-            var locomotion = new LocomotionState(this, Anim);
-            var jump = new JumpState(this, Anim);
-            var land = new LandState(this, Anim);
-            var overload = new OverloadState(this, Anim);
+            LocomotionState locomotion = new LocomotionState(this, Anim);
+            JumpState jump = new JumpState(this, Anim);
+            LandState land = new LandState(this, Anim);
+            OverloadState overload = new OverloadState(this, Anim);
+            _attackState = new AttackState(this, Anim);
 
+            // Locomotion ↔ Jump ↔ Land
             _stateMachine.AddTransition(locomotion, jump,
                 new FuncPredicate(() => Input.IsJumpPressed && IsGrounded));
             _stateMachine.AddTransition(jump, land, new FuncPredicate(() => jump.CanLand));
             _stateMachine.AddTransition(land, locomotion, new FuncPredicate(() => land.IsLandingComplete));
-            _stateMachine.AddAnyTransition(overload, new FuncPredicate(() => ChaosMeter >= maxChaosThreshold && CooldownTimer <= 0));
-            _stateMachine.AddTransition(overload, locomotion, new FuncPredicate(() => OverloadTimer <= 0 && IsGrounded));
+
+            // Any → Attack (not while overloaded or airborne)
+            _stateMachine.AddTransition(locomotion, _attackState,
+                new FuncPredicate(() => Input.IsAttackPressed && !IsOverloaded));
+            _stateMachine.AddTransition(land, _attackState,
+                new FuncPredicate(() => Input.IsAttackPressed && !IsOverloaded && land.IsLandingComplete));
+
+            // Attack → Locomotion when combo finishes
+            _stateMachine.AddTransition(_attackState, locomotion,
+                new FuncPredicate(() => _attackState.CanExit));
+
+            // Jump cancel from attack
+            _stateMachine.AddTransition(_attackState, jump,
+                new FuncPredicate(() => Input.IsJumpPressed && IsGrounded));
+
+            // Overload
+            _stateMachine.AddAnyTransition(overload,
+                new FuncPredicate(() => ChaosMeter >= _maxChaosThreshold && CooldownTimer <= 0));
+            _stateMachine.AddTransition(overload, locomotion,
+                new FuncPredicate(() => OverloadTimer <= 0 && IsGrounded));
 
             _stateMachine.SetState(locomotion);
         }
@@ -163,200 +240,107 @@ namespace ThePromisedRun.Gameplay {
             if (CooldownTimer > 0f) CooldownTimer -= Time.deltaTime;
 
             if (!IsOverloaded && ChaosMeter > 0f) {
-                ChaosMeter = Mathf.Max(0f, ChaosMeter - chaosDecayRate * Time.deltaTime);
-                OnChaosChanged.Invoke(ChaosMeter / maxChaosThreshold);
+                ChaosMeter = Mathf.Max(0f, ChaosMeter - _chaosDecayRate * Time.deltaTime);
+                _chaosMeterVar?.SetValue(ChaosMeter);
+                OnChaosChanged.Invoke(ChaosMeter / _maxChaosThreshold);
             }
-        }
-
-        /// <summary>
-        /// Combo attack system — runs on Attack animator layer (upper body mask).
-        /// Player can attack while moving/jumping without interrupting locomotion.
-        /// Combo: 1 → 2 → 3 within comboWindow, resets on timeout.
-        /// </summary>
-        private void HandleAttack() {
-            if (_attackCooldown > 0f) {
-                _attackCooldown -= Time.deltaTime;
-                return;
-            }
-
-            if (!Input.IsAttackPressed) {
-                // Tick combo window down
-                if (_comboTimer > 0f) {
-                    _comboTimer -= Time.deltaTime;
-                    if (_comboTimer <= 0f) ResetCombo();
-                }
-
-                return;
-            }
-
-            // Consume input
-            Input.ConsumeAttackInput();
-            _attackCooldown = attackCooldown;
-
-            // Advance combo: 0→1, 1→2, 2→3, 3→1 (loop)
-            _comboIndex = _comboIndex >= 3 ? 1 : _comboIndex + 1;
-            _comboTimer = comboWindow;
-
-            // Drive animator on Attack layer
-            Anim.SetInteger(ComboIndexHash, _comboIndex);
-            Anim.SetTrigger(AttackTriggerHash);
-
-            // Hitbox activation is now handled by animation events
-            // attackHitbox?.Activate();
-            
-            // Juice + chaos
-            Juice?.OnAttackSwing();
-            AddChaos(chaosPerHit, ChaosSource.Attack);
-        }
-
-        private void ResetCombo() {
-            _comboIndex = 0;
-            Anim.SetInteger(ComboIndexHash, 0);
         }
 
         private void CheckGround() {
-            IsGrounded = groundDetector != null
-                ? groundDetector.Performed
+            IsGrounded = _groundDetector != null
+                ? _groundDetector.Performed
                 : _groundContacts > 0;
         }
 
+        #endregion
+
+        #region Enemy Detection — Delegated to IEnemyDetector
+
         /// <summary>
-        /// Enhanced ground detection using RaycastPro RangeDetector
-        /// More precise than simple collider detection
+        /// Returns the nearest enemy in range. Delegates to IEnemyDetector.
+        /// Req 2.4, 2.5
         /// </summary>
-        private bool CheckGroundWithRaycastPro() {
-            if (groundDetector == null) return false;
-            
-            // RaycastPro RangeDetector provides more accurate ground detection
-            bool isGrounded = groundDetector.Performed;
-            
-            // Additional validation: check if detected colliders are actually ground
-            if (isGrounded && groundDetector.DetectedColliders.Count > 0) {
-                foreach (var collider in groundDetector.DetectedColliders) {
-                    if (collider != null && IsGroundLayer(collider.gameObject.layer)) {
-                        return true;
-                    }
-                }
-                return false; // Detected but not ground layer
+        public GameObject GetNearestEnemy() =>
+            _enemyDetector != null ? _enemyDetector.GetNearestEnemy() : null;
+
+        /// <summary>
+        /// Returns all enemies in detection range. Delegates to IEnemyDetector.
+        /// Req 2.4, 2.5
+        /// </summary>
+        public GameObject[] GetEnemiesInRange() =>
+            _enemyDetector != null ? _enemyDetector.GetEnemiesInRange() : new GameObject[0];
+
+        /// <summary>
+        /// Returns true if player is surrounded by enemies. Delegates to IEnemyDetector.
+        /// Req 2.4, 2.5
+        /// </summary>
+        public bool IsSurrounded() =>
+            _enemyDetector != null && _enemyDetector.IsSurrounded();
+
+        #endregion
+
+        #region Public Movement Methods
+
+        public void ApplyMovement() => ApplyMovement(1f);
+
+        /// <summary>Snap rotation toward nearest enemy or move direction.</summary>
+        public void FaceNearestEnemyOrForward() {
+            GameObject nearest = GetNearestEnemy();
+            Vector3 targetDir;
+            if (nearest != null) {
+                targetDir = nearest.transform.position - transform.position;
+                targetDir.y = 0f;
+            } else if (Input.MoveInput.sqrMagnitude > 0.01f) {
+                targetDir = new Vector3(Input.MoveInput.x, 0f, Input.MoveInput.y);
+            } else {
+                return;
             }
-            
-            return isGrounded;
+            if (targetDir.sqrMagnitude > 0.001f)
+                transform.rotation = Quaternion.LookRotation(targetDir.normalized, Vector3.up);
         }
 
-        /// <summary>
-        /// Check if a layer is considered ground
-        /// </summary>
-        private bool IsGroundLayer(int layer) {
-            return layer == LayerMask.NameToLayer("Default") || 
-                   layer == LayerMask.NameToLayer("Ground") ||
-                   layer == LayerMask.NameToLayer("Floor");
+        /// <summary>Forward impulse for attack step. comboIndex is 1-based.</summary>
+        public void ApplyAttackStep(int comboIndex) {
+            if (_attackStepForce == null || _attackStepForce.Length == 0) return;
+            int idx = Mathf.Clamp(comboIndex - 1, 0, _attackStepForce.Length - 1);
+            Rb.linearVelocity = new Vector3(
+                transform.forward.x * _attackStepForce[idx],
+                Rb.linearVelocity.y,
+                transform.forward.z * _attackStepForce[idx]);
         }
-
-        /// <summary>
-        /// Get nearest enemy using RaycastPro RangeDetector
-        /// </summary>
-        public GameObject GetNearestEnemy() {
-            if (enemyDetector == null || !enemyDetector.Performed) return null;
-            
-            Collider nearest = enemyDetector.NearestMember;
-            if (nearest != null && IsEnemyLayer(nearest.gameObject.layer)) {
-                return nearest.gameObject;
-            }
-            
-            // Fallback: check all detected colliders for nearest enemy
-            GameObject nearestEnemy = null;
-            float nearestDistance = float.MaxValue;
-            
-            foreach (var collider in enemyDetector.DetectedColliders) {
-                if (collider != null && IsEnemyLayer(collider.gameObject.layer)) {
-                    float distance = Vector3.Distance(transform.position, collider.transform.position);
-                    if (distance < nearestDistance) {
-                        nearestDistance = distance;
-                        nearestEnemy = collider.gameObject;
-                    }
-                }
-            }
-            
-            return nearestEnemy;
-        }
-
-        /// <summary>
-        /// Check if a layer is considered enemy
-        /// </summary>
-        private bool IsEnemyLayer(int layer) {
-            return ((1 << layer) & enemyLayer) != 0;
-        }
-
-        /// <summary>
-        /// Get all enemies in detection range
-        /// </summary>
-        public GameObject[] GetEnemiesInRange() {
-            if (enemyDetector == null || !enemyDetector.Performed) 
-                return new GameObject[0];
-            
-            var enemies = new List<GameObject>();
-            
-            foreach (var collider in enemyDetector.DetectedColliders) {
-                if (collider != null && IsEnemyLayer(collider.gameObject.layer)) {
-                    enemies.Add(collider.gameObject);
-                }
-            }
-            
-            return enemies.ToArray();
-        }
-
-        /// <summary>
-        /// Check if player is surrounded by enemies
-        /// </summary>
-        public bool IsSurrounded() {
-            var enemies = GetEnemiesInRange();
-            if (enemies.Length < 3) return false; // Need at least 3 enemies to be surrounded
-            
-            int enemiesInFront = 0;
-            int enemiesBehind = 0;
-            
-            foreach (var enemy in enemies) {
-                Vector3 toEnemy = (enemy.transform.position - transform.position).normalized;
-                float dotProduct = Vector3.Dot(transform.forward, toEnemy);
-                
-                if (dotProduct > 0.5f) enemiesInFront++;
-                else if (dotProduct < -0.5f) enemiesBehind++;
-            }
-            
-            return enemiesInFront >= 1 && enemiesBehind >= 1;
-        }
-
-        public void ApplyMovement() {
+        public void ApplyMovement(float speedMultiplier) {
             Vector3 moveDir = new Vector3(Input.MoveInput.x, 0f, Input.MoveInput.y);
+            float speed = _moveSpeed * speedMultiplier;
 
             Rb.linearVelocity = new Vector3(
-                moveDir.x * moveSpeed,
+                moveDir.x * speed,
                 Rb.linearVelocity.y,
-                moveDir.z * moveSpeed);
+                moveDir.z * speed);
 
             // Only rotate when actually moving to prevent spinning
             if (moveDir.sqrMagnitude > 0.01f) {
                 Quaternion targetRot = Quaternion.LookRotation(moveDir.normalized, Vector3.up);
                 transform.rotation = Quaternion.Slerp(
-                    transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
+                    transform.rotation, targetRot, _rotationSpeed * Time.deltaTime);
             }
         }
 
         public void ApplyJump() {
-            Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, jumpForce, Rb.linearVelocity.z);
+            Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, _jumpForce, Rb.linearVelocity.z);
             Input.ConsumeJumpInput();
             AddChaos(20f, ChaosSource.Jump);
         }
 
         public void AddChaos(float amount, ChaosSource source = ChaosSource.Manual) {
             if (IsOverloaded) return;
-            ChaosMeter = Mathf.Min(ChaosMeter + amount, maxChaosThreshold);
-            OnChaosChanged.Invoke(ChaosMeter / maxChaosThreshold);
+            ChaosMeter = Mathf.Min(ChaosMeter + amount, _maxChaosThreshold);
+            _chaosMeterVar?.SetValue(ChaosMeter);
+            OnChaosChanged.Invoke(ChaosMeter / _maxChaosThreshold);
         }
 
         public void InitiateOverload() {
-            OverloadTimer = overloadDuration;
-            CooldownTimer = overloadCooldown;
+            OverloadTimer = _overloadDuration;
+            CooldownTimer = _overloadCooldown;
             ChaosMeter = 0f;
             Juice?.OnOverloadStart();
             OnOverloadStarted.Invoke();
@@ -371,19 +355,17 @@ namespace ThePromisedRun.Gameplay {
 
         #region Animation Event Receivers
 
-        /// <summary>
-        /// Called by animation event to activate attack hitbox
-        /// </summary>
-        public void OnHitboxActivate() {
-            attackHitbox?.Activate();
-        }
+        /// <summary>Called by animation event to activate attack hitbox.</summary>
+        public void OnHitboxActivate() => _attackHitbox?.Activate();
 
-        /// <summary>
-        /// Called by animation event to deactivate attack hitbox
-        /// </summary>
-        public void OnHitboxDeactivate() {
-            attackHitbox?.Deactivate();
-        }
+        /// <summary>Called by animation event to deactivate attack hitbox.</summary>
+        public void OnHitboxDeactivate() => _attackHitbox?.Deactivate();
+
+        /// <summary>Called by animation event: combo window opens, next input accepted.</summary>
+        public void OnComboWindowOpen() => _attackState?.OnComboWindowOpen();
+
+        /// <summary>Called by animation event: combo window closes.</summary>
+        public void OnComboWindowClose() => _attackState?.OnComboWindowClose();
 
         #endregion
 

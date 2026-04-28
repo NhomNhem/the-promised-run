@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using OpenUtility.Data;
 using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Juice;
 
@@ -18,6 +19,9 @@ namespace ThePromisedRun.Gameplay.Combat {
         [SerializeField] private float hitKnockback = 4f;
         [SerializeField] private float cameraShakeStrength = 0.15f;
         [SerializeField] private float cameraShakeDuration = 0.2f;
+
+        [Header("ScriptableVariables")]
+        [SerializeField] private ScriptableFloat _healthVar;
 
         [Header("Events")]
         public UnityEvent<float> OnHealthChangedUnity = new UnityEvent<float>(); // normalized 0-1
@@ -57,6 +61,8 @@ namespace ThePromisedRun.Gameplay.Combat {
 
             _health = Mathf.Max(0f, _health - amount);
             _iFrameTimer = iFrames;
+
+            _healthVar?.SetValue(_health);
 
             OnHealthChangedUnity.Invoke(HealthNorm);
             OnHit.Invoke();
@@ -101,6 +107,7 @@ namespace ThePromisedRun.Gameplay.Combat {
 
         public void Heal(float amount) {
             _health = Mathf.Min(_health + amount, maxHealth);
+            _healthVar?.SetValue(_health);
             OnHealthChangedUnity.Invoke(HealthNorm);
         }
     }
