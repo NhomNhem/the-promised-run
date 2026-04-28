@@ -219,13 +219,15 @@ namespace ThePromisedRun.Gameplay {
                 moveDir.z * moveSpeed);
 
             // Only rotate visual when there's meaningful input (dead zone 0.1)
-            if (moveDir.sqrMagnitude > 0.1f && visual != null) {
-                Quaternion targetRot = Quaternion.LookRotation(moveDir.normalized, Vector3.up);
+            if (moveDir.sqrMagnitude > 0.1f && visual != null)
+            {
+                // Constrain to yaw-only to prevent unintended pitch/roll accumulation that can look like spinning.
+                float targetYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
+                Quaternion targetRot = Quaternion.Euler(0f, targetYaw, 0f);
                 visual.rotation = Quaternion.Slerp(
-                    visual.rotation, targetRot, rotationSpeed * Time.deltaTime);
-            } else if (moveDir.sqrMagnitude <= 0.01f) {
-                // Fully stopped — zero out horizontal velocity cleanly
-                Rb.linearVelocity = new Vector3(0f, Rb.linearVelocity.y, 0f);
+                    visual.rotation,
+                    targetRot,
+                    rotationSpeed * Time.fixedDeltaTime);
             }
         }
 
