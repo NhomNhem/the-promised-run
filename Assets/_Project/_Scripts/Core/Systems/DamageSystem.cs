@@ -68,13 +68,9 @@ namespace ThePromisedRun.Core.Systems {
             // Apply attacker multipliers
             if (attacker != null) {
                 // Check if attacker has damage bonuses
-                var attackerEntity = attacker.GetComponent<Entity>();
-                if (attackerEntity != null) {
-                    // Example: Overload state increases damage
-                    var playerAttacker = attacker.GetComponent<Player>();
-                    if (playerAttacker != null && playerAttacker.IsOverloaded) {
-                        finalDamage *= 3f;
-                    }
+                var attackerEntity = attacker.GetComponent<PlayerController>();
+                if (attackerEntity != null && attackerEntity.IsOverloaded) {
+                    finalDamage *= 3f;
                 }
             }
             

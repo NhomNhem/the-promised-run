@@ -40,7 +40,6 @@ namespace ThePromisedRun.Core {
             
             currentHealth = Mathf.Max(0f, currentHealth - amount);
             OnHealthChanged?.Invoke(currentHealth);
-            OnHealthChanged.Invoke(currentHealth / maxHealth);
             
             if (currentHealth <= 0f) {
                 Die();
@@ -56,7 +55,6 @@ namespace ThePromisedRun.Core {
             
             currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
             OnHealthChanged?.Invoke(currentHealth);
-            OnHealthChanged.Invoke(currentHealth / maxHealth);
         }
         
         /// <summary>
@@ -69,10 +67,10 @@ namespace ThePromisedRun.Core {
             currentHealth = 0f;
             
             OnDeath?.Invoke();
-            OnHealthChanged.Invoke(0f);
+            OnHealthChanged?.Invoke(0f);
             
             // Call derived class death logic
-            OnDeath();
+            HandleDeath();
         }
         
         /// <summary>

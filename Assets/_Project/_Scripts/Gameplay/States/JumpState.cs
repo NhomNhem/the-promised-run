@@ -2,10 +2,10 @@ using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
     public class JumpState : BaseState {
-        private static readonly int JumpStartHash = Animator.StringToHash("Jump_Start");
-        private static readonly int JumpAirHash   = Animator.StringToHash("Jump_Air");
-
-        private const float MinAirTime = 0.15f;
+        private const string JumpStart = "Jump_Start";
+        private const string JumpAir   = "Jump_Air";
+        private const float  BlendTime = 0.05f;
+        private const float  MinAirTime = 0.15f;
 
         private float _airTimer;
         private bool  _isAscending;
@@ -17,8 +17,7 @@ namespace ThePromisedRun.Gameplay.States {
             base.OnEnter();
             _airTimer    = 0f;
             _isAscending = false;
-
-            _animator.Play(JumpStartHash);
+            _animator.CrossFade(JumpStart, BlendTime, 0);
             _playerController.ApplyJump();
             _playerController.Juice?.OnTakeoff();
         }
@@ -26,12 +25,10 @@ namespace ThePromisedRun.Gameplay.States {
         public override void OnUpdate() {
             base.OnUpdate();
             _airTimer += Time.deltaTime;
-
             if (_airTimer < MinAirTime) return;
 
-            // Ascending → play air animation once
             if (_playerController.Rb.linearVelocity.y > 0f && !_isAscending) {
-                _animator.Play(JumpAirHash);
+                _animator.CrossFade(JumpAir, BlendTime, 0);
                 _isAscending = true;
             }
         }
@@ -41,10 +38,6 @@ namespace ThePromisedRun.Gameplay.States {
             _playerController.ApplyMovement();
         }
 
-        /// <summary>
-        /// Ready to transition to LandState: airborne long enough AND touching ground
-        /// while falling.
-        /// </summary>
         public bool CanLand =>
             _airTimer >= MinAirTime &&
             _playerController.IsGrounded &&
