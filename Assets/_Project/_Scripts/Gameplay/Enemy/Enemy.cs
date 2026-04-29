@@ -160,12 +160,10 @@ namespace ThePromisedRun.Gameplay.Enemy {
 
             if (_navAgent != null && _navAgent.isOnNavMesh) {
                 // NavMesh pathfinding
-                Debug.Log($"[Enemy] MoveTowards using NavMeshAgent dest={position} hasPath={_navAgent.hasPath} pathPending={_navAgent.pathPending}");
                 _navAgent.isStopped = false;
                 _navAgent.SetDestination(position);
             } else {
                 string isOnNav = _navAgent != null ? _navAgent.isOnNavMesh.ToString() : "N/A";
-                Debug.Log($"[Enemy] MoveTowards using Rigidbody fallback (navAgent present={_navAgent != null} isOnNavMesh={isOnNav}) dest={position}");
                 // Fallback: direct Rigidbody movement
                 Vector3 direction = (position - transform.position).normalized;
                 rb.MovePosition(transform.position + direction * moveSpeed * Time.deltaTime);
@@ -184,10 +182,8 @@ namespace ThePromisedRun.Gameplay.Enemy {
             if (_navAgent != null && _navAgent.isOnNavMesh) {
                 _navAgent.isStopped = true;
                 _navAgent.ResetPath();
-                Debug.Log($"[Enemy] StopMovement - NavMeshAgent stopped for {gameObject.name}");
             } else if (rb != null) {
                 rb.linearVelocity = Vector3.zero;
-                Debug.Log($"[Enemy] StopMovement - Rigidbody linearVelocity cleared for {gameObject.name}");
             }
         }
         
@@ -216,7 +212,6 @@ namespace ThePromisedRun.Gameplay.Enemy {
             }
             
             OnAttackStarted?.Invoke();
-            Debug.Log($"[{gameObject.name}] Attacking target");
         }
         
         public void SetTarget(IDamageable target) {
@@ -234,7 +229,6 @@ namespace ThePromisedRun.Gameplay.Enemy {
             lastKnownTargetPosition = ((MonoBehaviour)target).transform.position;
             
             OnTargetAcquired?.Invoke(target);
-            Debug.Log($"[{gameObject.name}] Acquired target: {target.GetType().Name}");
         }
         
         public void ClearTarget() {
@@ -248,7 +242,6 @@ namespace ThePromisedRun.Gameplay.Enemy {
             lastKnownTargetPosition = Vector3.zero;
             
             OnTargetLost?.Invoke(null);
-            Debug.Log($"[{gameObject.name}] Lost target");
         }
         
         public bool IsTargetInRange(IDamageable target) {

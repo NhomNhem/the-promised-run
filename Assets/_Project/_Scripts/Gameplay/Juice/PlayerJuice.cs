@@ -19,7 +19,11 @@ namespace ThePromisedRun.Gameplay.Juice {
         [Header("Attack")]
         [SerializeField] private AttackJuice attackJuice;
 
+        [Header("Dash")]
+        [SerializeField] private SquashStretchJuice dashStretch;
+
         public void OnTakeoff() => takeoffStretch?.Play();
+        public void OnDash()    => dashStretch?.Play();
 
         public void OnLand() {
             landSquash?.Play();

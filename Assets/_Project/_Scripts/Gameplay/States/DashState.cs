@@ -1,75 +1,94 @@
 using UnityEngine;
+using ThePromisedRun.Gameplay.Combat;
 
 namespace ThePromisedRun.Gameplay.States {
     /// <summary>
     /// Dash state: 3 units distance, I-frame first 6 frames, 1.2s cooldown.
     /// Dash direction = move input or forward if no input.
+    /// All timing/speed params read from PlayerController (backed by PlayerProperties SO).
     /// </summary>
     public class DashState : BaseState {
-        private const string DashAnim    = "Dash";
-        private const float  BlendTime   = 0.05f;
-        private const float  DashTime    = 0.18f;   // duration of dash movement
-        private const float  IFrameTime  = 6f / 60f; // 6 frames invincibility
-        private const float  DashSpeed   = 16f;      // 3 units / 0.18s ≈ 16.7 u/s
+        private const string DashAnim  = "Dash";
+        private const float  BlendTime = 0.05f;
 
-        private float _dashTimer;
+        // --- 4.1: backing-field timers and direction ---
+        private float   _dashTimer;
+        private float   _iFrameTimer;
         private Vector3 _dashDir;
 
-        public bool IsDashing => _dashTimer > 0f;
-        public bool IsInvincible => _dashTimer > (DashTime - IFrameTime);
+        // --- 4.1: backing-field properties (testable without Time.deltaTime) ---
+        public bool CanExit      { get; private set; }
+        public bool IsInvincible { get; private set; }
 
         public DashState(PlayerController playerController, Animator animator)
             : base(playerController, animator) { }
 
+        // --- 4.2: OnEnter with I-frame, chaos, juice, and SO params ---
         public override void OnEnter() {
-            base.OnEnter();
-            _dashTimer = DashTime;
+            CanExit      = false;
+            IsInvincible = false;
 
-            // Direction: move input or forward
-            Vector2 input = _playerController.Input.MoveInput;
-            _dashDir = input.sqrMagnitude > 0.01f
-                ? new Vector3(input.x, 0f, input.y).normalized
-                : _playerController.transform.forward;
+            // Read params from SO via PlayerController
+            _dashTimer   = _playerController.DashDuration;
+            _iFrameTimer = _playerController.DashIFrameDuration;
+            IsInvincible = true;
 
-            // Face dash direction
-            if (_dashDir.sqrMagnitude > 0.01f)
-                _playerController.transform.rotation =
-                    Quaternion.LookRotation(_dashDir, Vector3.up);
+            // Determine dash direction
+            Vector2 moveInput = _playerController.Input.MoveInput;
+            if (moveInput.sqrMagnitude > 0.01f)
+                _dashDir = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
+            else
+                _dashDir = _playerController.transform.forward;
 
+            // Consume input and start cooldown
             _playerController.Input.ConsumeDashInput();
             _playerController.StartDashCooldown();
 
-            // Play animation if exists, otherwise skip gracefully
-            if (_animator.HasState(0, Animator.StringToHash(DashAnim)))
-                _animator.CrossFade(DashAnim, BlendTime, 0);
+            // Chaos contribution
+            _playerController.AddChaos(_playerController.ChaosPerDash, ChaosSource.Dash);
+
+            // Juice
+            _playerController.Juice?.OnDash();
+
+            // Animation (with null/missing clip guard)
+            if (_animator != null) {
+                int dashHash = Animator.StringToHash(DashAnim);
+                if (_animator.HasState(0, dashHash))
+                    _animator.CrossFade(DashAnim, BlendTime, 0);
+                else
+                    Debug.LogWarning("[DashState] 'Dash' animation clip not found. Skipping CrossFade.");
+            }
         }
 
-        public override void OnFixedUpdate() {
-            base.OnFixedUpdate();
-            if (_dashTimer <= 0f) return;
-
-            // Apply dash velocity (override Y to keep gravity)
-            _playerController.Rb.linearVelocity = new Vector3(
-                _dashDir.x * DashSpeed,
-                _playerController.Rb.linearVelocity.y,
-                _dashDir.z * DashSpeed);
-        }
-
+        // --- 4.3: OnUpdate with separate timer countdown ---
         public override void OnUpdate() {
-            base.OnUpdate();
-            _dashTimer -= Time.deltaTime;
+            _dashTimer   -= Time.deltaTime;
+            _iFrameTimer -= Time.deltaTime;
+
+            if (_iFrameTimer <= 0f && IsInvincible)
+                IsInvincible = false;
+
+            if (_dashTimer <= 0f)
+                CanExit = true;
         }
 
-        public override void OnExit() {
-            base.OnExit();
-            // Bleed off dash velocity
+        // --- 4.4: OnFixedUpdate using DashSpeed from PlayerController ---
+        public override void OnFixedUpdate() {
+            if (CanExit) return;
             _playerController.Rb.linearVelocity = new Vector3(
-                _playerController.Rb.linearVelocity.x * 0.3f,
+                _dashDir.x * _playerController.DashSpeed,
                 _playerController.Rb.linearVelocity.y,
-                _playerController.Rb.linearVelocity.z * 0.3f);
+                _dashDir.z * _playerController.DashSpeed);
         }
 
-        /// <summary>True when dash movement is complete.</summary>
-        public bool CanExit => _dashTimer <= 0f;
+        // --- 4.5: OnExit with invincibility safety clear ---
+        public override void OnExit() {
+            IsInvincible = false; // safety guard for early exit
+            Vector3 vel = _playerController.Rb.linearVelocity;
+            _playerController.Rb.linearVelocity = new Vector3(
+                vel.x * 0.3f,
+                vel.y,
+                vel.z * 0.3f);
+        }
     }
 }

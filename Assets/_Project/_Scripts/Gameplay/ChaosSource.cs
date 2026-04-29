@@ -10,6 +10,7 @@ namespace ThePromisedRun.Gameplay {
         EnemyHit            = 3,
         SystemInterference  = 4,
         Damage              = 5,  // When player takes damage
+        Dash                = 6,
         Manual              = 99
     }
 }
