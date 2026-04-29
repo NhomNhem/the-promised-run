@@ -38,6 +38,9 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
             _navAgent     = EnemyEntity.GameObject.GetComponent<NavMeshAgent>();
             string isOnNavStr = _navAgent != null ? _navAgent.isOnNavMesh.ToString() : "N/A";
             Debug.Log($"[PatrolState] Enter - spawn={_spawnCenter} navAgentPresent={_navAgent != null} isOnNavMesh={isOnNavStr}");
+            // Animation
+            var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
+            anim?.SetBool("IsMoving", false);
             PickNextWaypoint();
         }
 
@@ -75,10 +78,14 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
                 if (dist <= WaypointReach) {
                     // Reached waypoint — wait then pick next
                     EnemyEntity.StopMovement();
+                    var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
+                    anim?.SetBool("IsMoving", false);
                     _waiting   = true;
                     _waitTimer = 0f;
                 } else {
                     EnemyEntity.MoveTowards(_currentWaypoint);
+                    var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
+                    anim?.SetBool("IsMoving", true);
                 }
             }
         }

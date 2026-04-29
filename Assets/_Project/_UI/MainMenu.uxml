@@ -1,0 +1,37 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/_Project/_UI/MainMenu.uss#MainMenu"/>
+    <!-- Màn hình xanh chết chóc (Ẩn mặc định) -->
+    <ui:VisualElement name="BlueScreen" class="blue-screen hidden">
+        <ui:Label name="BsodSmiley" text=":(" class="bsod-smiley" />
+        <ui:Label name="BsodTitle" text="Hệ thống đã gặp sự cố và cần khởi động lại." class="bsod-title" />
+        <ui:Label name="BsodCode" text="ERROR_CODE: SYSTEM_HATES_YOU_SO_MUCH" class="bsod-code" />
+    </ui:VisualElement>
+
+    <!-- Lớp chứa các Popup trễ -->
+    <ui:VisualElement name="PopupLayer" class="popup-layer" />
+
+    <!-- Main Container - Để cuối để render trên cùng -->
+    <ui:VisualElement name="MainContainer" class="main-container">
+        <!-- Lớp phủ hiệu ứng Scanline -->
+        <ui:VisualElement name="Scanline" class="scanline" />
+
+        <!-- Tiêu đề Game -->
+        <ui:Label name="GameTitle" text="THE PROMISED RUN" class="game-title" />
+
+        <!-- Nhóm các nút Menu -->
+        <ui:VisualElement name="MenuButtons" class="button-group">
+            <ui:Button name="BtnStart" text="BẮT ĐẦU PHÁ HỦY" class="menu-button primary" />
+            <ui:Button name="BtnSettings" text="CÀI ĐẶT (VÔ DỤNG)" class="menu-button" />
+            <ui:Button name="BtnInfo" text="THÔNG TIN CHI TIẾT" class="menu-button" />
+            <ui:Button name="BtnQuit" text="THOÁT RA THỰC TẠI" class="menu-button danger" />
+        </ui:VisualElement>
+
+        <!-- Thanh Stress Bar ở góc dưới -->
+        <ui:VisualElement name="StressContainer" class="stress-container">
+            <ui:Label name="StressLabel" text="CPU STRESS: 42%" class="stress-text" />
+            <ui:VisualElement name="StressBarBackground" class="stress-bar-bg">
+                <ui:VisualElement name="StressBarInner" class="stress-bar-inner" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

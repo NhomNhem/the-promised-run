@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ecb07794ec6c00468e865691cc070a6, type: 3}
+  m_Name: GruntProperties
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Enemy.ScriptableObjects.EnemyProperties
+  baseDamage: 10
+  attackRange: 1.8
+  attackCooldown: 1.5
+  attackWindupTime: 0.3
+  attackRecoveryTime: 0.5
+  moveSpeed: 3.5
+  rotationSpeed: 120
+  acceleration: 8
+  deceleration: 10
+  maxSpeed: 8
+  maxHealth: 30
+  healthRegenRate: 0
+  healthRegenDelay: 5
+  damageResistance: 0
+  knockbackResistance: 0
+  stunResistance: 0
+  detectionRadius: 8
+  detectionAngle: 180
+  targetUpdateInterval: 0.5
+  loseTargetTime: 3
+  wanderRadius: 5
+  patrolRadius: 5
+  patrolSpeed: 2
+  patrolWaitTime: 1
+  chaseSpeed: 4
+  chaseUpdateInterval: 0.3
+  hitStunDuration: 0.2
+  deathDuration: 2
+  hitFlashDuration: 0.1
+  deathFadeDuration: 1
+  attackEffectScale: 1.1
+  footstepVolume: 0.3
+  attackVolume: 0.7
+  hurtVolume: 0.8
+  deathVolume: 0.9
+  showDebugInfo: 0
+  showDetectionGizmos: 0
+  showPatrolPath: 0
+  showAttackRange: 0

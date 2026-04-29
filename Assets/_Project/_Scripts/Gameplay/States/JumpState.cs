@@ -13,7 +13,6 @@ namespace ThePromisedRun.Gameplay.States {
 
         private float _airTimer;
         private bool  _isAscending;
-        private bool  _jumpApplied;
 
         public JumpState(PlayerController playerController, Animator animator)
             : base(playerController, animator) { }
@@ -22,11 +21,9 @@ namespace ThePromisedRun.Gameplay.States {
             base.OnEnter();
             _airTimer    = 0f;
             _isAscending = false;
-            _jumpApplied = false;
 
             _animator.CrossFade(JumpStart, BlendTime, 0);
             _playerController.ApplyJump();
-            _jumpApplied = true;
             _playerController.Juice?.OnTakeoff();
         }
 

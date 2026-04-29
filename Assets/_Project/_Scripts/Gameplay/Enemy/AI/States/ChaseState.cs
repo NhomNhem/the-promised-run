@@ -18,6 +18,9 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         
         protected override void OnEnter() {
             _attackDecisionTimer = 0f;
+            // Walk animation
+            var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
+            anim?.SetBool("IsMoving", true);
             Debug.Log($"[{EnemyEntity}] Starting chase of target");
         }
         
@@ -28,6 +31,8 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         protected override void OnUpdate() {
             // Check if still has target
             if (!HasTarget()) {
+                var animStop = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
+                animStop?.SetBool("IsMoving", false);
                 AIController.ChangeState(EnemyAIState.Idle);
                 return;
             }
@@ -35,6 +40,12 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
             // Move towards target
             EnemyEntity.MoveTowards(EnemyEntity.LastKnownTargetPosition);
             EnemyEntity.FaceTarget(EnemyEntity.CurrentTarget);
+            
+            // Drive walk animation based on actual velocity
+            var nav = EnemyEntity.GameObject.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
+            if (anim != null && nav != null)
+                anim.SetBool("IsMoving", nav.velocity.sqrMagnitude > 0.1f);
             
             // Check if should attack
             _attackDecisionTimer -= Time.deltaTime;

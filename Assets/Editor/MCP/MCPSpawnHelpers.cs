@@ -45,7 +45,7 @@ public static class MCPSpawnHelpers {
         }
 
         // Search for existing instance with UniqueIdentifier.Key == uniqueKey
-        var existing = Object.FindObjectsOfType<ThePromisedRun.Gameplay.Enemy.UniqueIdentifier>()
+        var existing = Object.FindObjectsByType<ThePromisedRun.Gameplay.Enemy.UniqueIdentifier>(FindObjectsSortMode.InstanceID)
             .FirstOrDefault(u => u != null && u.Key == uniqueKey);
 
         if (existing != null) {

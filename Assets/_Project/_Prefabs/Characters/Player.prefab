@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6429177041380110986}
+  - component: {fileID: 342240125715994053}
+  - component: {fileID: 1890695566735874157}
   m_Layer: 0
   m_Name: Detector
   m_TagString: Untagged
@@ -32,6 +34,77 @@ Transform:
   - {fileID: 2960780233232244965}
   m_Father: {fileID: 4908871857431204682}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &342240125715994053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990175230528186852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2979db1e4f954ef48dddfdb2c21cb9d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RaycastPro::RaycastPro.Detectors.RangeDetector
+  influence: 1
+  triggerInteraction: 0
+  detectLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  autoUpdate: 1
+  colorProfile: {fileID: 0}
+  gizmosUpdate: 0
+  blockLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  solverType: 0
+  checkLineOfSight: 1
+  usingTagFilter: 0
+  tagFilter: Untagged
+  onCast:
+    m_PersistentCalls:
+      m_Calls: []
+  onDetect:
+    m_PersistentCalls:
+      m_Calls: []
+  pulseTime: 0
+  detectVector: {x: 0, y: 0, z: 0}
+  onDetectCollider:
+    m_PersistentCalls:
+      m_Calls: []
+  onNewCollider:
+    m_PersistentCalls:
+      m_Calls: []
+  onLostCollider:
+    m_PersistentCalls:
+      m_Calls: []
+  ignoreList: []
+  colliders: []
+  boundsSolver: 0
+  boundsCenter: 0
+  collectBlockedLOSHits: 0
+  collectLOSPoints: 0
+  radius: 2
+  height: 0
+  local: 1
+  limited: 0
+  limitCount: 3
+--- !u!114 &1890695566735874157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990175230528186852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ce5c9265f583d24e8925a082c5beb44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.RaycastProEnemyDetector
+  _rangeDetector: {fileID: 342240125715994053}
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &2990838708617104390
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,6 +221,8 @@ Transform:
   m_Children:
   - {fileID: 697831658421500319}
   - {fileID: 6429177041380110986}
+  - {fileID: 8594901196121286252}
+  - {fileID: 70065726595099346}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4587063672172373630
@@ -162,20 +237,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44b8b4ce3a14456a5dec10f44ff7f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThePromisedRun.Gameplay.PlayerController
-  moveSpeed: 8
-  jumpForce: 12
-  rotationSpeed: 10
-  fallGravityMultiplier: 6
-  overloadDuration: 3
-  overloadCooldown: 5
-  maxChaosThreshold: 100
-  chaosDecayRate: 10
-  comboWindow: 0.6
-  attackCooldown: 0.15
-  chaosPerHit: 15
-  visual: {fileID: 697831658421500319}
-  detector: {fileID: 6429177041380110986}
-  groundDetector: {fileID: 8214694393809945069}
+  _playerProperties: {fileID: 0}
+  _visual: {fileID: 0}
+  _detector: {fileID: 0}
+  _groundDetector: {fileID: 0}
+  _attackHitbox: {fileID: 337164870885751837}
+  _enemyDetector: {fileID: 1890695566735874157}
+  _chaosMeterVar: {fileID: 0}
   OnChaosChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -200,6 +268,8 @@ MonoBehaviour:
   <MoveInput>k__BackingField: {x: 0, y: 0}
   <IsJumpPressed>k__BackingField: 0
   <IsAttackPressed>k__BackingField: 0
+  <IsDashPressed>k__BackingField: 0
+  <IsParryPressed>k__BackingField: 0
 --- !u!114 &3020058525125390908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217,6 +287,7 @@ MonoBehaviour:
   landImpact: {fileID: 4449631544888092718}
   overloadJuice: {fileID: 7836705271968213058}
   attackJuice: {fileID: 2098795500036843833}
+  dashStretch: {fileID: 0}
 --- !u!114 &4449631544888092718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,6 +414,82 @@ CapsuleCollider:
   m_Height: 2.09
   m_Direction: 1
   m_Center: {x: 0, y: 1.0467335, z: 0}
+--- !u!1 &4249835154832624105
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8594901196121286252}
+  - component: {fileID: 5468740681856589176}
+  - component: {fileID: 2345106885648379122}
+  m_Layer: 0
+  m_Name: AttackHitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8594901196121286252
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4249835154832624105}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0.8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4908871857431204682}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &5468740681856589176
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4249835154832624105}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2345106885648379122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4249835154832624105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86e0022fcdb996642a2f6fc7c35fd6e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Combat.AttackHitbox
+  baseDamage: 10
+  overloadDamageMultiplier: 3
+  hitLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  juice: {fileID: 0}
+  hitParticle: {fileID: 0}
+  OnHitTarget:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5461972823403280603
 GameObject:
   m_ObjectHideFlags: 0
@@ -353,6 +500,7 @@ GameObject:
   m_Component:
   - component: {fileID: 697831658421500319}
   - component: {fileID: 2037732542014920000}
+  - component: {fileID: 3174021025606501922}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -398,6 +546,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3174021025606501922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5461972823403280603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 077ff6925b1fbb04d923aa810574e71a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.AnimationEventRelay
 --- !u!1 &6208757258206934588
 GameObject:
   m_ObjectHideFlags: 0
@@ -485,6 +645,78 @@ MonoBehaviour:
   local: 1
   limited: 0
   limitCount: 3
+--- !u!1 &6315990234171002717
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 70065726595099346}
+  - component: {fileID: 6366446919714825807}
+  - component: {fileID: 6712424841965950040}
+  m_Layer: 0
+  m_Name: HUD
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &70065726595099346
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6315990234171002717}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4908871857431204682}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6366446919714825807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6315990234171002717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: c1e8d966367735b4481b79b9b00e8a5d, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 650261c15ab70f344ae5ee9d2c85062f, type: 3}
+  m_SortingOrder: 10
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &6712424841965950040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6315990234171002717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7482d37fc21f26e4394ee2bfd445a0ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.GameHUDController
+  _healthVar: {fileID: 11400000, guid: e99e0a136240c2d48a55d3602fb30442, type: 2}
+  _chaosMeterVar: {fileID: 11400000, guid: e9a3ba01dc4627844842a1a0dca07d02, type: 2}
+  _maxHealth: 100
+  _maxChaos: 100
 --- !u!1 &8771324705451498688
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,7 +862,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8995212700073126884, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3747476722068616944}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 590445407143755135}
   m_SourcePrefab: {fileID: 100100000, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
 --- !u!137 &239416842502600974 stripped
 SkinnedMeshRenderer:
@@ -652,6 +887,23 @@ SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 2864905401325474408, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
   m_PrefabInstance: {fileID: 4470255400311590902}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &3659421313234449063 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
+  m_PrefabInstance: {fileID: 4470255400311590902}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &590445407143755135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3659421313234449063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 077ff6925b1fbb04d923aa810574e71a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.AnimationEventRelay
 --- !u!4 &4144209852289607709 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
