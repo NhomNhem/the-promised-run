@@ -2,23 +2,30 @@ using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
     public class LocomotionState : BaseState {
-        private static readonly int LocomotionHash = Animator.StringToHash("Locomotion");
+        private const string StateName  = "Locomotion";
+        private const float  BlendTime  = 0.15f;
 
         public LocomotionState(PlayerController playerController, Animator animator)
             : base(playerController, animator) { }
 
         public override void OnEnter() {
             base.OnEnter();
-            _animator.Play(LocomotionHash);
+            // Set params from actual input immediately — no stale values
+            Vector2 input = _playerController.Input != null
+                ? _playerController.Input.MoveInput
+                : Vector2.zero;
+            _animator.SetFloat("VelocityX", input.x);
+            _animator.SetFloat("VelocityZ", input.magnitude);
+            _animator.CrossFade(StateName, BlendTime, 0);
         }
 
         public override void OnUpdate() {
             base.OnUpdate();
-
-            // Use input magnitude as forward speed — character always faces move direction
-            float speed = _playerController.Input.MoveInput.magnitude;
-            _animator.SetFloat("VelocityZ", Mathf.Clamp01(speed));
-            _animator.SetFloat("VelocityX", 0f);
+            Vector2 input = _playerController.Input != null
+                ? _playerController.Input.MoveInput
+                : Vector2.zero;
+            _animator.SetFloat("VelocityX", input.x);
+            _animator.SetFloat("VelocityZ", input.magnitude);
         }
 
         public override void OnFixedUpdate() {

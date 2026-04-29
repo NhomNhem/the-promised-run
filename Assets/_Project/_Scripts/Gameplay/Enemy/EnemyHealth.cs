@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Combat;
 
 namespace ThePromisedRun.Gameplay.Enemy {
@@ -15,6 +16,10 @@ namespace ThePromisedRun.Gameplay.Enemy {
         private bool  _isDead;
 
         public bool IsAlive => !_isDead;
+        public float Health => _currentHealth;
+        public float MaxHealth => _maxHealth;
+        public System.Action<float> OnHealthChanged { get; set; } = (health) => { };
+        public System.Action OnDeath { get; set; } = () => { };
 
         private void Awake() {
             _currentHealth = _maxHealth;

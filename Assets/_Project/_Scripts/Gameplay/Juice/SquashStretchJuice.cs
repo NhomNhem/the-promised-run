@@ -7,6 +7,7 @@ namespace ThePromisedRun.Gameplay.Juice {
     /// </summary>
     public class SquashStretchJuice : MonoBehaviour, IJuice {
         [Header("Target")]
+        [Tooltip("Assign the root visual Transform. If left empty, uses this GameObject's transform.")]
         [SerializeField] private Transform visual;
 
         [Header("Settings")]
@@ -17,7 +18,7 @@ namespace ThePromisedRun.Gameplay.Juice {
 
         private void Awake() {
             if (visual == null)
-                visual = transform.Find("Visual");
+                visual = transform;
         }
 
         private void Update() {

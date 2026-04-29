@@ -1,18 +1,14 @@
 using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
-    /// <summary>
-    /// Handles the landing phase: plays Jump_Land animation, fires juice,
-    /// briefly locks movement, then transitions to Locomotion.
-    /// </summary>
     public class LandState : BaseState {
-        private static readonly int JumpLandHash = Animator.StringToHash("Jump_Land");
+        private const string LandAnim  = "Jump_Land";
+        private const float  BlendTime = 0.05f;
 
-        private float _landDuration = 0.2f;
-
+        private readonly float _landDuration;
         private float _landTimer;
 
-        public LandState(PlayerController playerController, Animator animator, float landDuration = 0.2f)
+        public LandState(PlayerController playerController, Animator animator, float landDuration = 0.25f)
             : base(playerController, animator) {
             _landDuration = landDuration;
         }
@@ -20,15 +16,11 @@ namespace ThePromisedRun.Gameplay.States {
         public override void OnEnter() {
             base.OnEnter();
             _landTimer = 0f;
-
-            // Stop horizontal velocity — landing plants the character
             _playerController.Rb.linearVelocity = new Vector3(
-                0f,
-                _playerController.Rb.linearVelocity.y,
-                0f
-            );
-
-            _animator.Play(JumpLandHash);
+                0f, _playerController.Rb.linearVelocity.y, 0f);
+            _animator.SetFloat("VelocityX", 0f);
+            _animator.SetFloat("VelocityZ", 0f);
+            _animator.CrossFade(LandAnim, BlendTime, 0);
             _playerController.Juice?.OnLand();
         }
 
@@ -37,7 +29,6 @@ namespace ThePromisedRun.Gameplay.States {
             _landTimer += Time.deltaTime;
         }
 
-        /// <summary>True when the landing animation window has elapsed.</summary>
         public bool IsLandingComplete => _landTimer >= _landDuration;
     }
 }

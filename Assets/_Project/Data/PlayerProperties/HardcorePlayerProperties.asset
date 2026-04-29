@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11cb71bcf162f784ab0c2e210b1fa80e, type: 3}
+  m_Name: HardcorePlayerProperties
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
+  moveSpeed: 6
+  jumpForce: 10
+  rotationSpeed: 8
+  fallGravityMultiplier: 3.5
+  airControl: 0.3
+  maxHealth: 60
+  healthRegenRate: 0
+  healthRegenDelay: 10
+  attackCooldown: 0.3
+  comboWindow: 0.3
+  maxComboCount: 2
+  damageMultiplier: 0.7
+  overloadDuration: 5
+  overloadCooldown: 8
+  maxChaosThreshold: 60
+  chaosDecayRate: 5
+  chaosPerHit: 25
+  enemyDetectionRadius: 6
+  enemyDetectionAngle: 60
+  landingImpactForce: 2
+  jumpJuiceDuration: 0.1
+  attackJuiceDuration: 0.1
+  hurtJuiceDuration: 0.15
+  footstepVolume: 0.2
+  jumpVolume: 0.4
+  attackVolume: 0.5
+  hurtVolume: 0.6
+  showDebugInfo: 0
+  showMovementGizmos: 0
+  showDetectionGizmos: 0

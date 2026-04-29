@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Juice;
 
 namespace ThePromisedRun.Gameplay.Combat {
