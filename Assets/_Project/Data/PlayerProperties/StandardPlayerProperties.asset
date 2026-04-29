@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11cb71bcf162f784ab0c2e210b1fa80e, type: 3}
+  m_Name: StandardPlayerProperties
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
+  moveSpeed: 8
+  jumpForce: 12
+  rotationSpeed: 10
+  fallGravityMultiplier: 2.5
+  airControl: 0.5
+  maxHealth: 100
+  healthRegenRate: 0
+  healthRegenDelay: 3
+  attackCooldown: 0.15
+  comboWindow: 0.6
+  maxComboCount: 3
+  damageMultiplier: 1
+  attackStepForce:
+  - 2.5
+  - 3.5
+  - 5
+  comboHitCooldown: 0.12
+  attackExitDelay: 0.5
+  hitStopDuration: 0.06
+  hitStopTimeScale: 0.05
+  comboClipDurations:
+  - 1.17
+  - 0.93
+  - 1.37
+  comboChainFraction: 0.5
+  comboFinishDelay: 0.15
+  attackBlendTime: 0.05
+  attackMoveDamping: 0.3
+  overloadDuration: 3
+  overloadCooldown: 5
+  maxChaosThreshold: 100
+  chaosDecayRate: 10
+  chaosPerHit: 15
+  enemyDetectionRadius: 10
+  enemyDetectionAngle: 120
+  landingImpactForce: 5
+  jumpJuiceDuration: 0.2
+  attackJuiceDuration: 0.15
+  hurtJuiceDuration: 0.3
+  footstepVolume: 0.5
+  jumpVolume: 0.7
+  attackVolume: 0.8
+  hurtVolume: 0.9
+  showDebugInfo: 1
+  showMovementGizmos: 0
+  showDetectionGizmos: 0

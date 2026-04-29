@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11cb71bcf162f784ab0c2e210b1fa80e, type: 3}
+  m_Name: BeginnerPlayerProperties
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
+  moveSpeed: 10
+  jumpForce: 14
+  rotationSpeed: 12
+  fallGravityMultiplier: 2
+  airControl: 0.7
+  maxHealth: 120
+  healthRegenRate: 5
+  healthRegenDelay: 1
+  attackCooldown: 0.1
+  comboWindow: 1
+  maxComboCount: 5
+  damageMultiplier: 1.2
+  overloadDuration: 2.5
+  overloadCooldown: 3
+  maxChaosThreshold: 150
+  chaosDecayRate: 20
+  chaosPerHit: 8
+  enemyDetectionRadius: 15
+  enemyDetectionAngle: 180
+  landingImpactForce: 4
+  jumpJuiceDuration: 0.3
+  attackJuiceDuration: 0.25
+  hurtJuiceDuration: 0.35
+  footstepVolume: 0.6
+  jumpVolume: 0.8
+  attackVolume: 0.9
+  hurtVolume: 0.95
+  showDebugInfo: 1
+  showMovementGizmos: 1
+  showDetectionGizmos: 1

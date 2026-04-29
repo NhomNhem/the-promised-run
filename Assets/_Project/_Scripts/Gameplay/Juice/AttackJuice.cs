@@ -9,8 +9,8 @@ namespace ThePromisedRun.Gameplay.Juice {
     /// </summary>
     public class AttackJuice : MonoBehaviour, IJuice {
         [Header("Swing (on input)")]
-        [SerializeField] private Vector3 swingScale    = new Vector3(1.1f, 0.92f, 1.1f);
-        [SerializeField] private float   swingRecovery = 18f;
+        [SerializeField] private Vector3 swingScale = new Vector3(1.1f, 0.92f, 1.1f);
+        [SerializeField] private float   swingRecovery = 18f; // reserved for when attack juice is implemented
 
         [Header("Hit (on confirmed contact)")]
         [SerializeField] private float hitStopDuration  = 0.07f;
@@ -25,7 +25,7 @@ namespace ThePromisedRun.Gameplay.Juice {
         private float _recoverySpeed;
 
         private void Awake() {
-            if (visual == null) visual = transform.Find("Visual");
+            if (visual == null) visual = transform;
         }
 
         private void Update() {
@@ -41,13 +41,14 @@ namespace ThePromisedRun.Gameplay.Juice {
         /// <summary>IJuice.Play — defaults to swing.</summary>
         public void Play() => OnSwing();
 
-        /// <summary>Light punch on attack input.</summary>
-        public void OnSwing() => ApplyScale(swingScale, swingRecovery);
+        /// <summary>Light punch on attack input. Disabled until attack juice is implemented.</summary>
+        public void OnSwing() { /* TODO: implement attack swing juice */ }
 
         /// <summary>Heavy hit-stop + punch on confirmed hitbox contact.</summary>
         public void OnHit() {
             ApplyScale(hitScale, hitRecovery);
-            StartCoroutine(HitStop());
+            // Disabled HitStop to prevent spinning issues
+            // StartCoroutine(HitStop());
         }
 
         private void ApplyScale(Vector3 target, float recovery) {
