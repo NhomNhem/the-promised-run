@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace _Project._Scripts.UI.Editor {
+namespace ThePromisedRun.UI.Editor {
     public static class SettingsPrefabGenerator {
         private const string PrefabFolder = "Assets/_Project/_Prefabs/UI";
         private const string PrefabPath = PrefabFolder + "/SettingsPanel.prefab";

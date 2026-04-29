@@ -1,46 +1,51 @@
 using UnityEngine;
-using TMPro;
+using UnityEngine.UIElements;
 
 namespace ThePromisedRun.UI {
     /// <summary>
-    /// Combo counter HUD — GDD §4.2:
-    /// - Shows current combo hit count
-    /// - Flickers (half opacity) when popup interrupts combo (suspended state)
-    /// - Resets when combo ends
-    /// Call SetCombo() from AttackState each hit.
-    /// Call SetSuspended(true) when popup interrupts.
+    /// Combo counter HUD — GDD §4.2.
+    /// Receives its VisualElement root from HUDManager (shared UIDocument).
+    /// Queries combo-counter and combo-text from the gameplay-layer.
     /// </summary>
     public class ComboCounterUI : MonoBehaviour {
-        [Header("References")]
-        [SerializeField] private TextMeshProUGUI _comboText;
-        [SerializeField] private CanvasGroup     _canvasGroup;
-
         [Header("Config")]
-        [SerializeField] private float _flickerSpeed  = 12f;
-        [SerializeField] private float _hideDelay     = 1.5f;  // hide after combo ends
+        [SerializeField] private float _flickerSpeed = 12f;
+        [SerializeField] private float _hideDelay    = 1.5f;
+
+        private VisualElement _comboRoot;
+        private Label         _comboLabel;
 
         private int   _comboCount;
         private bool  _suspended;
         private float _hideTimer;
         private bool  _visible;
 
-        private void Awake() {
-            if (_canvasGroup == null) _canvasGroup = GetComponent<CanvasGroup>();
+        /// <summary>Called by HUDManager with the shared UIDocument root.</summary>
+        public void Initialize(VisualElement root) {
+            if (root == null) {
+                Debug.LogWarning("[ComboCounterUI] Initialize called with null root.");
+                return;
+            }
+
+            _comboRoot  = root.Q<VisualElement>("combo-counter");
+            _comboLabel = root.Q<Label>("combo-text");
+
+            if (_comboRoot == null)
+                Debug.LogWarning("[ComboCounterUI] 'combo-counter' element not found in HUD root.");
+
             SetVisible(false);
         }
 
         private void Update() {
-            if (!_visible) return;
+            if (!_visible || _comboRoot == null) return;
 
             if (_suspended) {
-                // Flicker at half opacity
                 float flicker = 0.4f + 0.3f * Mathf.Sin(Time.time * _flickerSpeed);
-                if (_canvasGroup != null) _canvasGroup.alpha = flicker;
+                _comboRoot.style.opacity = new StyleFloat(flicker);
             } else {
-                if (_canvasGroup != null) _canvasGroup.alpha = 1f;
+                _comboRoot.style.opacity = new StyleFloat(1f);
             }
 
-            // Auto-hide after delay
             if (_hideTimer > 0f) {
                 _hideTimer -= Time.deltaTime;
                 if (_hideTimer <= 0f) SetVisible(false);
@@ -53,10 +58,10 @@ namespace ThePromisedRun.UI {
             _suspended  = false;
             _hideTimer  = 0f;
 
-            if (_comboText != null)
-                _comboText.text = count > 1 ? $"×{count}" : "";
+            if (_comboLabel != null)
+                _comboLabel.text = count > 1 ? $"×{count}" : "";
 
-            SetVisible(count > 0);
+            SetVisible(count > 1);
         }
 
         /// <summary>Called when combo ends — start hide countdown.</summary>
@@ -66,14 +71,17 @@ namespace ThePromisedRun.UI {
         }
 
         /// <summary>Called when popup interrupts combo (suspended, not reset).</summary>
-        public void SetSuspended(bool suspended) {
-            _suspended = suspended;
-        }
+        public void SetSuspended(bool suspended) => _suspended = suspended;
 
         private void SetVisible(bool visible) {
             _visible = visible;
-            if (_canvasGroup != null) _canvasGroup.alpha = visible ? 1f : 0f;
-            gameObject.SetActive(visible);
+            if (_comboRoot == null) return;
+            if (visible) {
+                _comboRoot.RemoveFromClassList("hidden");
+                _comboRoot.style.opacity = new StyleFloat(1f);
+            } else {
+                _comboRoot.AddToClassList("hidden");
+            }
         }
     }
 }

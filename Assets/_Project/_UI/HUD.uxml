@@ -1,0 +1,54 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/_UI/HUD.uss" />
+
+    <!--
+        Single HUD document — all layers share one UIDocument / PanelSettings.
+        Z-order (bottom → top): gameplay-layer → popup-layer → death-layer
+        Each MonoBehaviour queries its own named root element.
+    -->
+    <ui:VisualElement name="hud-root" class="hud-root">
+
+        <!-- ── Gameplay Layer: health, chaos, overload, combo ── -->
+        <ui:VisualElement name="gameplay-layer" class="layer">
+
+            <ui:VisualElement name="health-container" class="health-container">
+                <ui:Label name="health-label" text="HP" class="health-label"/>
+                <ui:VisualElement name="health-bar-bg" class="health-bar-bg">
+                    <ui:VisualElement name="health-bar-fill" class="health-bar-fill"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="chaos-container" class="chaos-container">
+                <ui:Label name="chaos-label" text="CHAOS" class="chaos-label"/>
+                <ui:VisualElement name="chaos-bar-bg" class="chaos-bar-bg">
+                    <ui:VisualElement name="chaos-bar-fill" class="chaos-bar-fill"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="overload-banner" class="overload-banner hidden">
+                <ui:Label name="overload-text" text="⚡ SYSTEM OVERLOAD ⚡" class="overload-text"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="combo-counter" class="combo-counter hidden">
+                <ui:Label name="combo-text" class="combo-text" text="×0"/>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <!-- ── Popup Layer: floating CRT popup windows ── -->
+        <ui:VisualElement name="popup-layer" class="layer">
+            <ui:VisualElement name="popup-window" class="popup-window hidden">
+                <ui:Label name="popup-message" class="popup-message" text=""/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- ── Death Layer: full-screen overlay (topmost) ── -->
+        <ui:VisualElement name="death-layer" class="layer">
+            <ui:VisualElement name="death-root" class="death-root hidden">
+                <ui:Label name="status-text" class="status-text" text=""/>
+                <ui:Label name="cause-text"  class="cause-text"  text=""/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
