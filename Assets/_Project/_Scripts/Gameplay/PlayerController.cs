@@ -73,6 +73,13 @@ namespace ThePromisedRun.Gameplay {
         public float AttackBlendTime => _attackBlendTime;
         public float AttackMoveDamping => _attackMoveDamping;
 
+        // Dash properties
+        public bool  IsDashInvincible   { get; private set; }
+        public float DashSpeed          => _dashSpeed;
+        public float DashDuration       => _dashDuration;
+        public float DashIFrameDuration => _dashIFrameDuration;
+        public float ChaosPerDash       => _chaosPerDash;
+
         #endregion
 
         #region Events
@@ -117,7 +124,12 @@ namespace ThePromisedRun.Gameplay {
 
         // Dash cooldown
         private float _dashCooldownTimer;
-        private const float DashCooldown = 1.2f;
+
+        // Dash backing fields (loaded from PlayerProperties SO)
+        private float _dashSpeed;
+        private float _dashDuration;
+        private float _dashIFrameDuration;
+        private float _chaosPerDash;
 
         // Coyote time
         private bool  _wasGrounded;
@@ -186,6 +198,12 @@ namespace ThePromisedRun.Gameplay {
             _comboFinishDelay    = _playerProperties.comboFinishDelay;
             _attackBlendTime     = _playerProperties.attackBlendTime;
             _attackMoveDamping   = _playerProperties.attackMoveDamping;
+
+            // Dash fields
+            _dashSpeed          = _playerProperties.dashDistance / _playerProperties.dashDuration;
+            _dashDuration       = _playerProperties.dashDuration;
+            _dashIFrameDuration = _playerProperties.dashIFrameDuration;
+            _chaosPerDash       = _playerProperties.chaosPerDash;
         }
 
         private void Update() {
@@ -381,7 +399,9 @@ namespace ThePromisedRun.Gameplay {
             AddChaos(20f, ChaosSource.Jump);
         }
 
-        public void StartDashCooldown() => _dashCooldownTimer = DashCooldown;
+        public void StartDashCooldown() => _dashCooldownTimer = _playerProperties.dashCooldown;
+
+        public void SetDashInvincible(bool value) => IsDashInvincible = value;
 
         public void AddChaos(float amount, ChaosSource source = ChaosSource.Manual) {
             if (IsOverloaded) return;
@@ -435,6 +455,7 @@ namespace ThePromisedRun.Gameplay {
         public System.Action OnDeath { get; set; } = () => { };
 
         public void TakeDamage(float amount, DamageInfo info) {
+            if (IsDashInvincible) return;
             AddChaos(amount * 0.5f, ChaosSource.Damage);
         }
 

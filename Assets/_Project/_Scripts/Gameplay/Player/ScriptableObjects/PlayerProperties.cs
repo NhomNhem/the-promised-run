@@ -211,6 +211,42 @@ namespace ThePromisedRun.Gameplay.Player.ScriptableObjects {
 
         #endregion
 
+        #region Dash
+
+        #if ODIN_INSPECTOR
+        [FoldoutGroup("Dash")]
+        #else
+        [Header("Dash Settings")]
+        #endif
+        [Min(0.5f)]
+        public float dashDistance = 3f;
+
+        #if ODIN_INSPECTOR
+        [FoldoutGroup("Dash")]
+        #endif
+        [Min(0.05f)]
+        public float dashDuration = 0.18f;
+
+        #if ODIN_INSPECTOR
+        [FoldoutGroup("Dash")]
+        #endif
+        [Min(0.1f)]
+        public float dashCooldown = 1.2f;
+
+        #if ODIN_INSPECTOR
+        [FoldoutGroup("Dash")]
+        #endif
+        [Min(0f)]
+        public float dashIFrameDuration = 0.1f;   // 6f / 60f
+
+        #if ODIN_INSPECTOR
+        [FoldoutGroup("Dash")]
+        #endif
+        [Min(0f)]
+        public float chaosPerDash = 10f;
+
+        #endregion
+
         #region Detection
 
         #if ODIN_INSPECTOR

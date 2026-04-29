@@ -3,19 +3,23 @@ using NUnit.Framework;
 using System.Reflection;
 using ThePromisedRun.Gameplay;
 using ThePromisedRun.Gameplay.Input;
+using ThePromisedRun.Gameplay.Player.ScriptableObjects;
 
 namespace ThePromisedRun.Tests {
     public class PlayerControllerMovementTests {
-        private GameObject _root;
+        private GameObject       _root;
         private PlayerController _controller;
-        private Transform _visual;
-        private Rigidbody _rb;
-        private InputReader _inputReader;
+        private Transform        _visual;
+        private Rigidbody        _rb;
+        private InputReader      _inputReader;
+        private PlayerProperties _props;
 
         [SetUp]
         public void SetUp() {
-            // Create root Player GameObject
+            // Disable root so AddComponent<PlayerController> does NOT auto-trigger Awake().
+            // This lets us inject _playerProperties before Awake() runs.
             _root = new GameObject("Player");
+            _root.SetActive(false);
 
             // Add Rigidbody (required by ApplyMovement)
             _rb = _root.AddComponent<Rigidbody>();
@@ -29,34 +33,30 @@ namespace ThePromisedRun.Tests {
             visualGO.AddComponent<Animator>();
             _visual = visualGO.transform;
 
-            // Add PlayerController to root
+            // Add PlayerController while root is inactive — Awake() will NOT fire yet
             _controller = _root.AddComponent<PlayerController>();
 
-            // In EditMode tests, Awake() is not called automatically by AddComponent.
-            // Invoke it manually so Rb, Input, and Anim are initialized.
+            // Inject PlayerProperties BEFORE invoking Awake() so LoadPlayerProperties() doesn't NPE.
+            _props = ScriptableObject.CreateInstance<PlayerProperties>();
+            typeof(PlayerController)
+                .GetField("_playerProperties", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(_controller, _props);
+
+            // Now manually invoke Awake() — _playerProperties is set so it succeeds
             typeof(PlayerController)
                 .GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance)
                 .Invoke(_controller, null);
 
-            // Use reflection to set private 'visual' field on PlayerController
-            // (must be done AFTER Awake so it overrides whatever Awake resolved)
-            FieldInfo visualField = typeof(PlayerController).GetField(
-                "visual",
-                BindingFlags.NonPublic | BindingFlags.Instance
-            );
-            visualField.SetValue(_controller, _visual);
-
-            // Use reflection to set private 'moveSpeed' field
-            FieldInfo moveSpeedField = typeof(PlayerController).GetField(
-                "moveSpeed",
-                BindingFlags.NonPublic | BindingFlags.Instance
-            );
-            moveSpeedField.SetValue(_controller, 8f);
+            // Override _moveSpeed to the expected test value (8f)
+            typeof(PlayerController)
+                .GetField("_moveSpeed", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(_controller, 8f);
         }
 
         [TearDown]
         public void TearDown() {
             Object.DestroyImmediate(_root);
+            Object.DestroyImmediate(_props);
         }
 
         private void SetMoveInput(float x, float y) {
@@ -170,7 +170,7 @@ namespace ThePromisedRun.Tests {
         [Test]
         public void ApplyMovement_NullVisual_DoesNotThrow() {
             typeof(PlayerController)
-                .GetField("visual", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetField("_visual", BindingFlags.NonPublic | BindingFlags.Instance)
                 .SetValue(_controller, null);
             SetMoveInput(-1f, 0f);
             Assert.DoesNotThrow(() => _controller.ApplyMovement());
