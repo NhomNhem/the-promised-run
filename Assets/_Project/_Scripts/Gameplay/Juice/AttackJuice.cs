@@ -10,7 +10,9 @@ namespace ThePromisedRun.Gameplay.Juice {
     public class AttackJuice : MonoBehaviour, IJuice {
         [Header("Swing (on input)")]
         [SerializeField] private Vector3 swingScale = new Vector3(1.1f, 0.92f, 1.1f);
+#pragma warning disable CS0414
         [SerializeField] private float   swingRecovery = 18f; // reserved for when attack juice is implemented
+#pragma warning restore CS0414
 
         [Header("Hit (on confirmed contact)")]
         [SerializeField] private float hitStopDuration  = 0.07f;

@@ -14,6 +14,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
         [Header("Components")]
         [SerializeField] private Enemy enemy;
         [SerializeField] private EnemyAIController aiController;
+        [SerializeField] private EnemyAttackHitbox attackHitbox;
         
         [Header("Debug")]
         [SerializeField] private bool showDebugInfo = true;
@@ -26,6 +27,8 @@ namespace ThePromisedRun.Gameplay.Enemy {
             // Get components if not assigned
             if (enemy == null) enemy = GetComponent<Enemy>();
             if (aiController == null) aiController = GetComponent<EnemyAIController>();
+            // Try to find the hitbox on children if not assigned in inspector
+            if (attackHitbox == null) attackHitbox = GetComponentInChildren<EnemyAttackHitbox>();
             
             // Setup event handlers
             SetupEventHandlers();
@@ -76,11 +79,19 @@ namespace ThePromisedRun.Gameplay.Enemy {
                         Debug.Log("[EnemyController] Attack started");
                     }
                 });
+                // Also ensure the physical hitbox is activated when the Enemy raises its attack event
+                enemy.OnAttackStarted.AddListener(() => {
+                    if (attackHitbox != null) attackHitbox.Activate();
+                });
                 
                 enemy.OnAttackCompleted.AddListener(() => {
                     if (showDebugInfo) {
                         Debug.Log("[EnemyController] Attack completed");
                     }
+                });
+                // Deactivate physical hitbox when attack completes
+                enemy.OnAttackCompleted.AddListener(() => {
+                    if (attackHitbox != null) attackHitbox.Deactivate();
                 });
                 
                 enemy.OnTargetAcquired.AddListener((target) => {
@@ -109,14 +120,24 @@ namespace ThePromisedRun.Gameplay.Enemy {
         
         // Animation event handlers
         public void OnHitboxActivate() {
-            if (enemy != null) {
+            // Prefer activating the physical hitbox if present (so animation events toggle the collider)
+            if (attackHitbox != null) {
+                attackHitbox.Activate();
+                if (showDebugInfo) Debug.Log("[EnemyController] Attack hitbox activated via animation event");
+            } else if (enemy != null) {
+                // Fallback: invoke enemy events so other systems can react
                 enemy.OnAttackStarted?.Invoke();
+                if (showDebugInfo) Debug.LogWarning("[EnemyController] No EnemyAttackHitbox found; invoked Enemy.OnAttackStarted instead");
             }
         }
         
         public void OnHitboxDeactivate() {
-            if (enemy != null) {
+            if (attackHitbox != null) {
+                attackHitbox.Deactivate();
+                if (showDebugInfo) Debug.Log("[EnemyController] Attack hitbox deactivated via animation event");
+            } else if (enemy != null) {
                 enemy.OnAttackCompleted?.Invoke();
+                if (showDebugInfo) Debug.LogWarning("[EnemyController] No EnemyAttackHitbox found; invoked Enemy.OnAttackCompleted instead");
             }
         }
         

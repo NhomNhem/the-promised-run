@@ -13,7 +13,7 @@ namespace ThePromisedRun.Editor {
     public static class EnemySceneDiagnostics {
         [MenuItem("Tools/Enemy Diagnostics/Print NavMesh Status", priority = 1000)]
         public static void PrintNavMeshStatus() {
-            var enemies = Object.FindObjectsOfType<Enemy>();
+            var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.InstanceID);
             if (enemies == null || enemies.Length == 0) {
                 Debug.Log("[EnemyDiagnostics] No Enemy instances found in the current scene.");
                 return;

@@ -1,4 +1,14 @@
-/* ===== Health Bar ===== */
+#hud-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+}
+
 .health-container {
     position: absolute;
     bottom: 32px;
@@ -17,12 +27,17 @@
 
 .health-bar-bg {
     width: 100%;
-    height: 12px;
+    height: 18px;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 6px;
     border-width: 1px;
     border-color: rgba(255, 255, 255, 0.2);
     overflow: hidden;
+    background-image: url("project://database/Assets/_Project/_Art/UI/Layer%20Lab/GUI%20Pro-FantasyRPG/ResourcesData/Sprites/Component/Slider/Slider_Border_EdgeDeco_03_Border.png?fileID=21300000&guid=9ad0c7e01f6b8448e887bdf16932ba60&type=3#Slider_Border_EdgeDeco_03_Border");
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
 }
 
 .health-bar-fill {
@@ -34,10 +49,14 @@
     transition-duration: 0.2s;
 }
 
-.health-bar-fill.medium { background-color: rgb(220, 200, 50); }
-.health-bar-fill.low    { background-color: rgb(220, 60, 60);  }
+.health-bar-fill.medium {
+    background-color: rgb(220, 200, 50);
+}
 
-/* ===== Chaos Container ===== */
+.health-bar-fill.low {
+    background-color: rgb(220, 60, 60);
+}
+
 .chaos-container {
     position: absolute;
     bottom: 32px;
@@ -74,12 +93,22 @@
     transition-duration: 0.15s;
 }
 
-.chaos-bar-fill.low    { background-color: rgb(80, 200, 255); }
-.chaos-bar-fill.medium { background-color: rgb(255, 180, 30); }
-.chaos-bar-fill.high   { background-color: rgb(255, 80, 30);  }
-.chaos-bar-fill.full   { background-color: rgb(255, 40, 200); }
+.chaos-bar-fill.low {
+    background-color: rgb(80, 200, 255);
+}
 
-/* ===== Overload Banner ===== */
+.chaos-bar-fill.medium {
+    background-color: rgb(255, 180, 30);
+}
+
+.chaos-bar-fill.high {
+    background-color: rgb(255, 80, 30);
+}
+
+.chaos-bar-fill.full {
+    background-color: rgb(255, 40, 200);
+}
+
 .overload-banner {
     position: absolute;
     top: 30%;

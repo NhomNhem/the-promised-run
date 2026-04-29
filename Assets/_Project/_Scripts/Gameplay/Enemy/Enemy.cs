@@ -85,6 +85,13 @@ namespace ThePromisedRun.Gameplay.Enemy {
         public Vector3 LastKnownTargetPosition => lastKnownTargetPosition;
         public float TimeSinceLastSeenTarget => timeSinceLastSeenTarget;
         public bool IsAttacking => isAttacking;
+        /// <summary>Exposes the cached Animator for FSM states.</summary>
+        public Animator Animator => animator;
+
+        /// <summary>Resets attack cooldown timer — called by EnemyAttackFSMState.OnExit().</summary>
+        public void ResetAttackCooldown() {
+            attackCooldownTimer = attackCooldown;
+        }
         
         protected override void Awake() {
             base.Awake();
@@ -104,6 +111,19 @@ namespace ThePromisedRun.Gameplay.Enemy {
             if (rb == null) rb = GetComponent<Rigidbody>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
             if (visual == null) visual = GetComponentInChildren<Transform>();
+
+            // Ensure animator is enabled and ready to play
+            if (animator != null) {
+                animator.enabled = true;
+                try {
+                    animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                } catch {
+                    // Some Unity versions or animator setups may not allow changing culling mode at runtime; ignore safely
+                }
+                if (animator.runtimeAnimatorController == null) {
+                    Debug.LogWarning($"[Enemy] Animator found on {gameObject.name} but no RuntimeAnimatorController is assigned. Animations will not play.");
+                }
+            }
             
             // Cache NavMeshAgent if present — used for pathfinding movement
             _navAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
@@ -127,17 +147,11 @@ namespace ThePromisedRun.Gameplay.Enemy {
                         _navAgent = null; // disable agent usage at runtime
                     }
                 } else {
-                    // Let NavMeshAgent control position; disable Rigidbody physics
+                    // EnemyBrain uses direct Rigidbody movement — keep physics enabled
+                    // NavMeshAgent is kept for obstacle avoidance only
                     if (rb != null) {
-                        rb.isKinematic = true;
-                        rb.useGravity  = false;
-                    }
-                    // Apply properties if available
-                    if (enemyProperties != null) {
-                        _navAgent.speed           = enemyProperties.moveSpeed;
-                        _navAgent.angularSpeed    = enemyProperties.rotationSpeed;
-                        _navAgent.acceleration    = enemyProperties.acceleration;
-                        _navAgent.stoppingDistance = enemyProperties.attackRange * 0.8f;
+                        rb.isKinematic = false;
+                        rb.useGravity  = true;
                     }
                 }
             }
@@ -209,6 +223,8 @@ namespace ThePromisedRun.Gameplay.Enemy {
             // Trigger attack animation
             if (animator != null) {
                 animator.SetTrigger("Attack");
+            } else {
+                Debug.LogWarning($"[Enemy] Animator missing on {gameObject.name} - attack animation will not play. Falling back to event-driven hitbox activation.");
             }
             
             OnAttackStarted?.Invoke();

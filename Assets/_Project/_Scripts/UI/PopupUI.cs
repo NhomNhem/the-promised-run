@@ -49,8 +49,9 @@ namespace ThePromisedRun.UI {
         }
 
         private void Update() {
-            // F key or RB to dismiss
-            if (_visible && UnityEngine.Input.GetKeyDown(KeyCode.F)) {
+            // F key to dismiss (New Input System compatible)
+            if (_visible && UnityEngine.InputSystem.Keyboard.current != null &&
+                UnityEngine.InputSystem.Keyboard.current.fKey.wasPressedThisFrame) {
                 StartCoroutine(DismissRoutine());
             }
 

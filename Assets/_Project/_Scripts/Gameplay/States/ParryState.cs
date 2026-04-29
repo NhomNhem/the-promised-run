@@ -19,7 +19,9 @@ namespace ThePromisedRun.Gameplay.States {
         private const float  CounterTime  = 0.5f;       // counter animation duration
 
         private float _timer;
-        private bool  _parrySuccess;
+#pragma warning disable CS0414
+        private bool  _parrySuccess; // reserved for future: tracking parry success for UI/effects
+#pragma warning restore CS0414
         private bool  _parryChecked;
 
         public bool CanExit { get; private set; }
