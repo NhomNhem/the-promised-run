@@ -24,6 +24,7 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         private float   _scanTimer;
         private EnemyDetector _detector;
         private NavMeshAgent  _navAgent;
+        private Animator      _anim; // cached once in OnEnter
 
         public PatrolState(IEnemyEntity enemyEntity, IEnemyAI aiController)
             : base(enemyEntity, aiController, EnemyAIState.Patrol) { }
@@ -36,11 +37,10 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
             _scanTimer    = 0f;
             _detector     = EnemyEntity.GameObject.GetComponent<EnemyDetector>();
             _navAgent     = EnemyEntity.GameObject.GetComponent<NavMeshAgent>();
+            _anim         = EnemyEntity.GameObject.GetComponentInChildren<Animator>(); // cache once
             string isOnNavStr = _navAgent != null ? _navAgent.isOnNavMesh.ToString() : "N/A";
             Debug.Log($"[PatrolState] Enter - spawn={_spawnCenter} navAgentPresent={_navAgent != null} isOnNavMesh={isOnNavStr}");
-            // Animation
-            var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
-            anim?.SetBool("IsMoving", false);
+            _anim?.SetBool("IsMoving", false);
             PickNextWaypoint();
         }
 
@@ -76,16 +76,13 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
                     EnemyEntity.GameObject.transform.position, _currentWaypoint);
 
                 if (dist <= WaypointReach) {
-                    // Reached waypoint — wait then pick next
                     EnemyEntity.StopMovement();
-                    var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
-                    anim?.SetBool("IsMoving", false);
+                    _anim?.SetBool("IsMoving", false);
                     _waiting   = true;
                     _waitTimer = 0f;
                 } else {
                     EnemyEntity.MoveTowards(_currentWaypoint);
-                    var anim = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
-                    anim?.SetBool("IsMoving", true);
+                    _anim?.SetBool("IsMoving", true);
                 }
             }
         }

@@ -1,9 +1,15 @@
 using UnityEngine;
+using OpenUtility.Data;
 
 namespace ThePromisedRun.Audio {
     /// <summary>
-    /// Simple AudioManager for Game Jam — BGM + SFX.
-    /// Attach to a GameObject in each scene.
+    /// AudioManager — BGM + SFX for Scene_Manager (persistent, DontDestroyOnLoad).
+    ///
+    /// Decoupled from PlayerController via ScriptableVariable:
+    ///   _overloadStateVar (ScriptableBool) — PlayerController writes, AudioManager reads.
+    ///
+    /// No FindFirstObjectByType, no direct PlayerController reference.
+    /// Safe for multi-scene additive loading.
     /// </summary>
     public class AudioManager : MonoBehaviour {
         public static AudioManager Instance { get; private set; }
@@ -13,15 +19,18 @@ namespace ThePromisedRun.Audio {
         [SerializeField] private AudioClip   _bgmClip;
         [SerializeField] [Range(0f,1f)] private float _bgmVolume = 0.4f;
 
-        [Header("SFX — Popup")]
+        [Header("SFX")]
         [SerializeField] private AudioSource _sfxSource;
-        [SerializeField] private AudioClip   _popupSFX;       // Windows XP error vibe
-        [SerializeField] private AudioClip   _overloadSFX;    // Static burst
-        [SerializeField] private AudioClip   _overloadSilence; // Short silence clip
+        [SerializeField] private AudioClip   _popupSFX;
+        [SerializeField] private AudioClip   _overloadSFX;
+
+        [Header("ScriptableVariables")]
+        [SerializeField] private ScriptableBool _overloadStateVar; // PlayerController → AudioManager
 
         private void Awake() {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            DontDestroyOnLoad(gameObject);
 
             if (_bgmSource == null) _bgmSource = gameObject.AddComponent<AudioSource>();
             if (_sfxSource == null) _sfxSource = gameObject.AddComponent<AudioSource>();
@@ -30,6 +39,16 @@ namespace ThePromisedRun.Audio {
             _bgmSource.volume      = _bgmVolume;
             _bgmSource.playOnAwake = false;
             _sfxSource.playOnAwake = false;
+        }
+
+        private void OnEnable() {
+            if (_overloadStateVar != null)
+                _overloadStateVar.ValueChanged.AddListener(OnOverloadStateChanged);
+        }
+
+        private void OnDisable() {
+            if (_overloadStateVar != null)
+                _overloadStateVar.ValueChanged.RemoveListener(OnOverloadStateChanged);
         }
 
         private void Start() {
@@ -49,14 +68,17 @@ namespace ThePromisedRun.Audio {
 
         public void SetBGMVolume(float vol) => _bgmSource.volume = vol;
 
-        /// <summary>Called on Overload start — duck BGM, play static.</summary>
-        public void OnOverloadStart() {
+        private void OnOverloadStateChanged(bool isOverloaded) {
+            if (isOverloaded) OnOverloadStart();
+            else              OnOverloadEnd();
+        }
+
+        private void OnOverloadStart() {
             PlayOverloadSFX();
             _bgmSource.volume = 0f;
         }
 
-        /// <summary>Called on Overload end — restore BGM.</summary>
-        public void OnOverloadEnd() {
+        private void OnOverloadEnd() {
             _bgmSource.volume = _bgmVolume;
         }
     }

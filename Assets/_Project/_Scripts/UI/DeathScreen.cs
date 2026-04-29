@@ -1,21 +1,14 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine.UIElements;
+using System.Threading;
 
 namespace ThePromisedRun.UI {
     /// <summary>
-    /// Death screen — GDD §9.4.
-    /// Shows "HERO #47 PERFORMANCE REVIEW" with System Blame messages.
-    /// System never admits fault. Always blames external factors.
-    /// Fades in, waits, then triggers respawn.
+    /// Death screen — GDD §9.4. "HERO #47 PERFORMANCE REVIEW".
+    /// Receives its VisualElement root from HUDManager (shared UIDocument).
+    /// Queries death-root, status-text, cause-text from the death-layer.
     /// </summary>
     public class DeathScreen : MonoBehaviour {
-        [Header("References")]
-        [SerializeField] private CanvasGroup    _canvasGroup;
-        [SerializeField] private TextMeshProUGUI _causeText;
-        [SerializeField] private TextMeshProUGUI _statusText;
-
         [Header("Config")]
         [SerializeField] private float _fadeInDuration  = 0.5f;
         [SerializeField] private float _displayDuration = 3.0f;
@@ -24,7 +17,6 @@ namespace ThePromisedRun.UI {
         [Header("Respawn")]
         [SerializeField] private Gameplay.CheckpointSystem _checkpoint;
 
-        // System Blame death messages — System never admits fault
         private static readonly string[] CauseMessages = {
             "CAUSE: Gravity malfunction (unrelated to System)",
             "CAUSE: Sword calibration error — investigating",
@@ -36,50 +28,86 @@ namespace ThePromisedRun.UI {
             "CAUSE: Temporal misalignment — not our fault",
         };
 
-        private void Awake() {
-            if (_canvasGroup == null) _canvasGroup = GetComponent<CanvasGroup>();
-            if (_checkpoint == null)  _checkpoint  = FindFirstObjectByType<Gameplay.CheckpointSystem>();
-            gameObject.SetActive(false);
+        private VisualElement _deathRoot;
+        private Label         _statusLabel;
+        private Label         _causeLabel;
+        private CancellationTokenSource _cts;
+
+        /// <summary>Called by HUDManager with the shared UIDocument root.</summary>
+        public void Initialize(VisualElement root) {
+            if (root == null) {
+                Debug.LogWarning("[DeathScreen] Initialize called with null root.");
+                return;
+            }
+
+            _deathRoot   = root.Q<VisualElement>("death-root");
+            _statusLabel = root.Q<Label>("status-text");
+            _causeLabel  = root.Q<Label>("cause-text");
+
+            _deathRoot?.AddToClassList("hidden");
+
+            // _checkpoint must be assigned in Inspector — no FindFirstObjectByType
+            // (breaks multi-scene additive loading)
+            if (_checkpoint == null)
+                Debug.LogWarning("[DeathScreen] CheckpointSystem not assigned. Drag it into Inspector. Respawn will be skipped.");
+        }
+
+        private void OnDisable() {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
         }
 
         /// <summary>Show death screen then respawn. Call from PlayerHealth.OnDeathUnity.</summary>
         public void Show() {
-            gameObject.SetActive(true);
-            StartCoroutine(DeathSequence());
+            if (_deathRoot == null) return;
+
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            _ = DeathSequenceAsync(_cts.Token);
         }
 
-        private IEnumerator DeathSequence() {
-            // Set text
-            if (_statusText != null)
-                _statusText.text = "HERO #47 PERFORMANCE REVIEW\n\nStatus: TERMINATED\n\nResuming from last checkpoint...\n\"ANOMALY DETECTED. Restarting session.\"";
+        private async Awaitable DeathSequenceAsync(CancellationToken ct) {
+            if (_statusLabel != null)
+                _statusLabel.text = "HERO #47 PERFORMANCE REVIEW\n\nStatus: TERMINATED\n\nResuming from last checkpoint...\n\"ANOMALY DETECTED. Restarting session.\"";
 
-            if (_causeText != null)
-                _causeText.text = CauseMessages[Random.Range(0, CauseMessages.Length)];
+            if (_causeLabel != null)
+                _causeLabel.text = CauseMessages[Random.Range(0, CauseMessages.Length)];
 
-            // Fade in
-            yield return Fade(0f, 1f, _fadeInDuration);
+            _deathRoot.RemoveFromClassList("hidden");
+            _deathRoot.style.opacity = 0f;
 
-            // Display
-            yield return new WaitForSecondsRealtime(_displayDuration);
+            await FadeAsync(0f, 1f, _fadeInDuration, ct);
+            if (ct.IsCancellationRequested) return;
 
-            // Respawn
+            try { await Awaitable.WaitForSecondsAsync(_displayDuration, ct); }
+            catch (System.OperationCanceledException) { return; }
+
             _checkpoint?.Respawn();
 
-            // Fade out
-            yield return Fade(1f, 0f, _fadeOutDuration);
+            await FadeAsync(1f, 0f, _fadeOutDuration, ct);
+            if (ct.IsCancellationRequested) return;
 
-            gameObject.SetActive(false);
+            _deathRoot.AddToClassList("hidden");
         }
 
-        private IEnumerator Fade(float from, float to, float duration) {
-            float t = 0f;
-            while (t < duration) {
-                t += Time.unscaledDeltaTime;
-                if (_canvasGroup != null)
-                    _canvasGroup.alpha = Mathf.Lerp(from, to, t / duration);
-                yield return null;
+        private async Awaitable FadeAsync(float from, float to, float duration, CancellationToken ct) {
+            if (_deathRoot == null) return;
+
+            float elapsed = 0f;
+            _deathRoot.style.opacity = from;
+
+            while (elapsed < duration) {
+                if (ct.IsCancellationRequested) return;
+                elapsed += Time.unscaledDeltaTime;
+                _deathRoot.style.opacity = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration));
+                try { await Awaitable.NextFrameAsync(ct); }
+                catch (System.OperationCanceledException) { return; }
             }
-            if (_canvasGroup != null) _canvasGroup.alpha = to;
+
+            _deathRoot.style.opacity = to;
         }
     }
 }

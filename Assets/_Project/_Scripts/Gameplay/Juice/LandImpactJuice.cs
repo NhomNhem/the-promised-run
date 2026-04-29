@@ -17,6 +17,7 @@ namespace ThePromisedRun.Gameplay.Juice {
         private bool      _punching;
 
         private void Awake() {
+            // Camera.main is safe — Camera lives in Scene_GamePlay with Player.
             var mainCam = Camera.main;
             if (mainCam != null) {
                 _camTransform = mainCam.transform;
@@ -25,7 +26,16 @@ namespace ThePromisedRun.Gameplay.Juice {
         }
 
         private void LateUpdate() {
-            if (!_punching || _camTransform == null) return;
+            if (!_punching) return;
+
+            // Re-cache if lost
+            if (_camTransform == null) {
+                var mainCam = Camera.main;
+                if (mainCam != null) {
+                    _camTransform = mainCam.transform;
+                    _camOriginalLocalPos = _camTransform.localPosition;
+                } else return;
+            }
 
             _punchTimer += Time.deltaTime;
             float t = _punchTimer / punchDuration;

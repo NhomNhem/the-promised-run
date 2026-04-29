@@ -22,27 +22,41 @@ namespace ThePromisedRun.UI {
         }
 
         private void Start() {
+            // Lazy cache — Camera.main is safe when Camera is in same scene (Scene_GamePlay)
             _cam = Camera.main?.transform;
 
             var root = _doc?.rootVisualElement;
             _fill = root?.Q<VisualElement>("hp-bar-fill");
 
+            // Use Initialize(EnemyHealth) if called externally; fallback to GetComponentInParent
             var eh = GetComponentInParent<Gameplay.Enemy.EnemyHealth>();
-            if (eh != null) {
-                eh.OnDamaged.AddListener(SetFill);
-                eh.OnDied.AddListener(HideBar);
-            }
+            if (eh != null) BindToEnemyHealth(eh);
 
-            SetFill(1f); // start full
+            SetFill(1f);
         }
 
         private void LateUpdate() {
-            // Billboard — match camera Y rotation only
+            // Re-cache camera if lost (e.g. scene reload)
+            if (_cam == null) _cam = Camera.main?.transform;
+
             if (_cam != null)
                 transform.rotation = Quaternion.Euler(0f, _cam.eulerAngles.y, 0f);
 
-            // Keep offset above enemy root
             transform.localPosition = _offset;
+        }
+
+        /// <summary>
+        /// Optional explicit initialization — call from enemy setup code
+        /// to avoid GetComponentInParent coupling.
+        /// </summary>
+        public void Initialize(Gameplay.Enemy.EnemyHealth enemyHealth, Transform cameraTransform = null) {
+            if (cameraTransform != null) _cam = cameraTransform;
+            if (enemyHealth != null) BindToEnemyHealth(enemyHealth);
+        }
+
+        private void BindToEnemyHealth(Gameplay.Enemy.EnemyHealth eh) {
+            eh.OnDamaged.AddListener(SetFill);
+            eh.OnDied.AddListener(HideBar);
         }
 
         public void SetFill(float normalizedHP) {

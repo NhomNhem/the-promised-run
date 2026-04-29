@@ -87,6 +87,8 @@ namespace ThePromisedRun.Gameplay.Combat {
         }
 
         private void ShakeCamera(float strength, float duration) {
+            // Camera.main is safe — Camera lives in Scene_GamePlay with Player.
+            // Re-cache if null (e.g. after scene reload).
             var cam = Camera.main?.transform;
             if (cam == null) return;
             StartCoroutine(CameraShakeRoutine(cam, strength, duration));

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using OpenUtility.Data;
 
 namespace ThePromisedRun.Gameplay.HelperSystem {
     /// <summary>
@@ -36,6 +37,12 @@ namespace ThePromisedRun.Gameplay.HelperSystem {
         [Header("References")]
         [SerializeField] private PlayerController _player;
         [SerializeField] private Combat.PlayerHealth _playerHealth;
+
+        [Header("ScriptableVariables")]
+        [SerializeField] private ScriptableBool  _overloadStateVar;  // written by PlayerController
+        [SerializeField] private ScriptableFloat _healthVar;         // read for HP check
+        [SerializeField] private ScriptableString _popupMessageVar;  // written here → PopupUI reads
+        [SerializeField] private ScriptableBool   _popupMutedVar;    // written here → PopupUI reads
 
         [Header("Events")]
         public UnityEvent              OnPopupSpawn     = new UnityEvent();
@@ -111,16 +118,25 @@ namespace ThePromisedRun.Gameplay.HelperSystem {
             if (_config == null)
                 Debug.LogWarning("[HelperSystem] No config assigned — using defaults.");
 
-            _player.OnOverloadStarted.AddListener(OnOverloadStarted);
-            _player.OnOverloadEnded.AddListener(OnOverloadEnded);
+            // Subscribe to overload state via ScriptableVariable (scene-safe)
+            if (_overloadStateVar != null)
+                _overloadStateVar.ValueChanged.AddListener(OnOverloadStateChanged);
+            else {
+                // Fallback: direct UnityEvent subscription (single-scene only)
+                _player?.OnOverloadStarted.AddListener(OnOverloadStarted);
+                _player?.OnOverloadEnded.AddListener(OnOverloadEnded);
+            }
 
             ScheduleNextPopup();
         }
 
         private void OnDestroy() {
-            if (_player == null) return;
-            _player.OnOverloadStarted.RemoveListener(OnOverloadStarted);
-            _player.OnOverloadEnded.RemoveListener(OnOverloadEnded);
+            if (_overloadStateVar != null)
+                _overloadStateVar.ValueChanged.RemoveListener(OnOverloadStateChanged);
+            else if (_player != null) {
+                _player.OnOverloadStarted.RemoveListener(OnOverloadStarted);
+                _player.OnOverloadEnded.RemoveListener(OnOverloadEnded);
+            }
         }
 
         private void Update() {
@@ -161,6 +177,9 @@ namespace ThePromisedRun.Gameplay.HelperSystem {
             OnPopupType.Invoke(type);
             OnPopupSpawn.Invoke();
 
+            // Write to ScriptableVariable — PopupUI subscribes to this
+            _popupMessageVar?.SetValue(msg);
+
             _popupActive        = true;
             _popupOnScreenTimer = 0f;
 
@@ -187,8 +206,12 @@ namespace ThePromisedRun.Gameplay.HelperSystem {
             if (inCombat)
                 return Random.value < 0.6f ? PopupType.FakeQuest : PopupType.FakeLevelUp;
 
-            // Low HP
-            float hpNorm = _playerHealth != null ? _playerHealth.HealthNorm : 1f;
+            // Low HP — read from ScriptableVariable if available, else fallback to PlayerHealth
+            float hpNorm;
+            if (_healthVar != null)
+                hpNorm = Mathf.Clamp01(_healthVar.GetValue() / 100f);
+            else
+                hpNorm = _playerHealth != null ? _playerHealth.HealthNorm : 1f;
             if (hpNorm < 0.3f)
                 return Random.value < 0.7f ? PopupType.FakeHealRecommend : PopupType.FakeHealRecommend;
 
@@ -240,6 +263,7 @@ namespace ThePromisedRun.Gameplay.HelperSystem {
         private void OnOverloadStarted() {
             _isMuted     = true;
             _popupActive = false;
+            _popupMutedVar?.SetValue(true);  // notify PopupUI to hide
             OnSystemMuted.Invoke();
         }
 
@@ -247,8 +271,15 @@ namespace ThePromisedRun.Gameplay.HelperSystem {
             _isMuted           = false;
             _isPostOverload    = true;
             _postOverloadTimer = PostOverloadTime;
+            _popupMutedVar?.SetValue(false); // notify PopupUI to resume
             ScheduleNextPopup();
             OnSystemRestored.Invoke();
+        }
+
+        /// <summary>Called when overloadState ScriptableBool changes.</summary>
+        private void OnOverloadStateChanged(bool isOverloaded) {
+            if (isOverloaded) OnOverloadStarted();
+            else              OnOverloadEnded();
         }
 
         public void SetAggressiveness(float multiplier) {

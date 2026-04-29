@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-namespace _Project._Scripts.UI {
+namespace ThePromisedRun.UI {
     public class SettingsPanel : MonoBehaviour {
         [Header("Volume")]
         [SerializeField] private Slider volumeSlider;

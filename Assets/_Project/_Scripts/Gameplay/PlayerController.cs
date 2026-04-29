@@ -40,6 +40,9 @@ namespace ThePromisedRun.Gameplay {
         [BoxGroup("ScriptableVariables")] [SerializeField]
         private ScriptableFloat _chaosMeterVar;
 
+        [BoxGroup("ScriptableVariables")] [SerializeField]
+        private ScriptableBool _overloadStateVar;  // written here, read by AudioManager + HelperSystem
+
         #endregion
 
         #region Public Properties
@@ -60,7 +63,7 @@ namespace ThePromisedRun.Gameplay {
         public float CooldownTimer { get; private set; }
         public float ChaosMeter { get; private set; }
         public bool IsOverloaded => OverloadTimer > 0f;
-        public bool IsAlive => true;
+        public bool IsAlive => true; // Health managed by PlayerHealth component
         public float ChaosPerHit => _chaosPerHit;
         public float[] AttackStepForce => _attackStepForce;
         public float ComboHitCooldown => _comboHitCooldown;
@@ -84,9 +87,9 @@ namespace ThePromisedRun.Gameplay {
 
         #region Events
 
-        public UnityEvent<float> OnChaosChanged = new UnityEvent<float>();
+        // OnChaosChanged removed — use _chaosMeterVar.ValueChanged instead (ScriptableVariable pattern)
         public UnityEvent OnOverloadStarted = new UnityEvent();
-        public UnityEvent OnOverloadEnded = new UnityEvent();
+        public UnityEvent OnOverloadEnded   = new UnityEvent();
 
         #endregion
 
@@ -297,7 +300,7 @@ namespace ThePromisedRun.Gameplay {
             if (!IsOverloaded && ChaosMeter > 0f) {
                 ChaosMeter = Mathf.Max(0f, ChaosMeter - _chaosDecayRate * Time.deltaTime);
                 _chaosMeterVar?.SetValue(ChaosMeter);
-                OnChaosChanged.Invoke(ChaosMeter / _maxChaosThreshold);
+                // OnChaosChanged removed — subscribers use _chaosMeterVar.ValueChanged
             }
         }
 
@@ -407,24 +410,26 @@ namespace ThePromisedRun.Gameplay {
             if (IsOverloaded) return;
             ChaosMeter = Mathf.Min(ChaosMeter + amount, _maxChaosThreshold);
             _chaosMeterVar?.SetValue(ChaosMeter);
-            OnChaosChanged.Invoke(ChaosMeter / _maxChaosThreshold);
+            // Subscribers use _chaosMeterVar.ValueChanged — no UnityEvent needed
         }
 
         public void ResetChaos() {
             ChaosMeter = 0f;
             _chaosMeterVar?.SetValue(0f);
-            OnChaosChanged.Invoke(0f);
         }
 
         public void InitiateOverload() {
             OverloadTimer = _overloadDuration;
             CooldownTimer = _overloadCooldown;
             ChaosMeter = 0f;
+            _chaosMeterVar?.SetValue(0f);
+            _overloadStateVar?.SetValue(true);   // notify AudioManager + HelperSystem
             Juice?.OnOverloadStart();
             OnOverloadStarted.Invoke();
         }
 
         public void EndOverload() {
+            _overloadStateVar?.SetValue(false);  // notify AudioManager + HelperSystem
             Juice?.OnOverloadEnd();
             OnOverloadEnded.Invoke();
         }
@@ -449,14 +454,17 @@ namespace ThePromisedRun.Gameplay {
 
         #region IDamageable
 
-        public float Health => 100f; // Player has full health system in PlayerHealth component
-        public float MaxHealth => 100f;
-        public System.Action<float> OnHealthChanged { get; set; } = (health) => { };
+        // Health is managed by PlayerHealth component (source of truth).
+        // PlayerController.TakeDamage() delegates to PlayerHealth to avoid duplicate logic.
+        public float Health    => GetComponent<Combat.PlayerHealth>()?.Health ?? 0f;
+        public float MaxHealth => GetComponent<Combat.PlayerHealth>()?.MaxHealth ?? 100f;
+        public System.Action<float> OnHealthChanged { get; set; } = _ => { };
         public System.Action OnDeath { get; set; } = () => { };
 
         public void TakeDamage(float amount, DamageInfo info) {
             if (IsDashInvincible) return;
-            AddChaos(amount * 0.5f, ChaosSource.Damage);
+            // Delegate to PlayerHealth — it owns health state and _healthVar
+            GetComponent<Combat.PlayerHealth>()?.TakeDamage(amount, info);
         }
 
         #endregion

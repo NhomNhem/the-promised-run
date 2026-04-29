@@ -26,8 +26,12 @@ namespace ThePromisedRun.Gameplay {
         private float   _autoSaveTimer;
 
         private void Awake() {
-            if (_player == null)       _player       = FindFirstObjectByType<PlayerController>();
-            if (_playerHealth == null) _playerHealth = FindFirstObjectByType<Combat.PlayerHealth>();
+            // References must be assigned in Inspector or injected by scene bootstrap.
+            // FindFirstObjectByType is intentionally removed — breaks multi-scene additive loading.
+            if (_player == null)
+                Debug.LogWarning("[CheckpointSystem] PlayerController not assigned. Drag Player prefab into Inspector.");
+            if (_playerHealth == null)
+                Debug.LogWarning("[CheckpointSystem] PlayerHealth not assigned. Drag Player prefab into Inspector.");
         }
 
         private void Start() {

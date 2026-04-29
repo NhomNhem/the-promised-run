@@ -4,11 +4,9 @@ using OpenUtility.Data;
 
 namespace ThePromisedRun.UI {
     /// <summary>
-    /// Game HUD — UI Toolkit, lives on the Player prefab.
-    /// Binds health-bar-fill and chaos-bar-fill to ScriptableFloat events.
-    /// Loaded additively via Scene_HUD or embedded in Player prefab UIDocument.
+    /// Game HUD — binds health-bar and chaos-bar to ScriptableFloat events.
+    /// Receives its VisualElement root from HUDManager (shared UIDocument).
     /// </summary>
-    [RequireComponent(typeof(UIDocument))]
     public class GameHUDController : MonoBehaviour {
         [Header("ScriptableVariables")]
         [SerializeField] private ScriptableFloat _healthVar;
@@ -21,14 +19,36 @@ namespace ThePromisedRun.UI {
         private VisualElement _healthFill;
         private VisualElement _chaosFill;
         private VisualElement _overloadBanner;
+        private bool          _initialized;
 
-        private void OnEnable() {
-            var root = GetComponent<UIDocument>()?.rootVisualElement;
-            if (root == null) return;
+        /// <summary>Called by HUDManager with the shared UIDocument root.</summary>
+        public void Initialize(VisualElement root) {
+            if (root == null) {
+                Debug.LogWarning("[GameHUDController] Initialize called with null root.");
+                return;
+            }
 
             _healthFill     = root.Q<VisualElement>("health-bar-fill");
             _chaosFill      = root.Q<VisualElement>("chaos-bar-fill");
             _overloadBanner = root.Q<VisualElement>("overload-banner");
+            _initialized    = true;
+
+            BindEvents();
+        }
+
+        private void OnEnable() {
+            // Re-bind if already initialized (e.g. GameObject re-enabled)
+            if (_initialized) BindEvents();
+        }
+
+        private void OnDisable() {
+            _healthVar?.ValueChanged.RemoveListener(OnHealthChanged);
+            _chaosMeterVar?.ValueChanged.RemoveListener(OnChaosChanged);
+        }
+
+        private void BindEvents() {
+            _healthVar?.ValueChanged.RemoveListener(OnHealthChanged);
+            _chaosMeterVar?.ValueChanged.RemoveListener(OnChaosChanged);
 
             if (_healthVar != null) {
                 _healthVar.ValueChanged.AddListener(OnHealthChanged);
@@ -38,11 +58,6 @@ namespace ThePromisedRun.UI {
                 _chaosMeterVar.ValueChanged.AddListener(OnChaosChanged);
                 OnChaosChanged(_chaosMeterVar.GetValue());
             }
-        }
-
-        private void OnDisable() {
-            _healthVar?.ValueChanged.RemoveListener(OnHealthChanged);
-            _chaosMeterVar?.ValueChanged.RemoveListener(OnChaosChanged);
         }
 
         private void OnHealthChanged(float value) {
