@@ -41,7 +41,8 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
             // Look for player in detection radius
             var player = FindPlayerInRadius();
             if (player != null) {
-                EnemyEntity.SetTarget(player);
+                Debug.Log($"[IdleState] Player found by overlap at {((MonoBehaviour)player).transform.position}");
+                AIController.SetTarget(player);
             }
         }
         

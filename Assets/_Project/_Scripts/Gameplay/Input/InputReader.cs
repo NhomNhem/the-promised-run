@@ -6,11 +6,27 @@ namespace ThePromisedRun.Gameplay.Input {
         [field: SerializeField] public Vector2 MoveInput      { get; private set; }
         [field: SerializeField] public bool    IsJumpPressed   { get; private set; }
         [field: SerializeField] public bool    IsAttackPressed { get; private set; }
+        [field: SerializeField] public bool    IsDashPressed   { get; private set; }
+        [field: SerializeField] public bool    IsParryPressed  { get; private set; }
+
+        /// <summary>True for 6 frames after jump was pressed (jump buffer).</summary>
+        public bool HasJumpBuffer { get; private set; }
 
         public Vector3 MoveInput3D => new Vector3(MoveInput.x, 0, MoveInput.y);
 
+        private const float JumpBufferTime = 6f / 60f; // 6 frames at 60fps
+        private float _jumpBufferTimer;
+
         private PlayerInputActions _inputActions;
         private InputAction        _attackAction;
+        private InputAction        _dashAction;
+
+        private void Update() {
+            if (_jumpBufferTimer > 0f) {
+                _jumpBufferTimer -= Time.deltaTime;
+                HasJumpBuffer = _jumpBufferTimer > 0f;
+            }
+        }
 
         private void OnEnable() {
             if (_inputActions == null) {
@@ -22,13 +38,24 @@ namespace ThePromisedRun.Gameplay.Input {
                 _inputActions.Gameplay.Jump.started   += OnJump;
                 _inputActions.Gameplay.Jump.canceled  += OnJump;
 
-                // Attack action — find by name since it may not be in typed accessor yet
                 _attackAction = _inputActions.asset.FindAction("Gameplay/Attack");
                 if (_attackAction != null) {
                     _attackAction.started  += OnAttack;
                     _attackAction.canceled += OnAttack;
                 } else {
-                    Debug.LogWarning("[InputReader] 'Gameplay/Attack' action not found in InputActionAsset.");
+                    Debug.LogWarning("[InputReader] 'Gameplay/Attack' action not found.");
+                }
+
+                _dashAction = _inputActions.asset.FindAction("Gameplay/Dash");
+                if (_dashAction != null) {
+                    _dashAction.started  += OnDash;
+                    _dashAction.canceled += OnDash;
+                }
+
+                var parryAction = _inputActions.asset.FindAction("Gameplay/Parry");
+                if (parryAction != null) {
+                    parryAction.started  += ctx => { if (ctx.started) IsParryPressed = true; };
+                    parryAction.canceled += ctx => IsParryPressed = false;
                 }
             }
             _inputActions.Enable();
@@ -42,7 +69,11 @@ namespace ThePromisedRun.Gameplay.Input {
             MoveInput = ctx.ReadValue<Vector2>();
 
         public void OnJump(InputAction.CallbackContext ctx) {
-            if (ctx.started)  IsJumpPressed = true;
+            if (ctx.started) {
+                IsJumpPressed    = true;
+                _jumpBufferTimer = JumpBufferTime;
+                HasJumpBuffer    = true;
+            }
             if (ctx.canceled) IsJumpPressed = false;
         }
 
@@ -51,7 +82,18 @@ namespace ThePromisedRun.Gameplay.Input {
             if (ctx.canceled) IsAttackPressed = false;
         }
 
-        public void ConsumeJumpInput()   => IsJumpPressed   = false;
+        public void OnDash(InputAction.CallbackContext ctx) {
+            if (ctx.started)  IsDashPressed = true;
+            if (ctx.canceled) IsDashPressed = false;
+        }
+
+        public void ConsumeJumpInput() {
+            IsJumpPressed    = false;
+            HasJumpBuffer    = false;
+            _jumpBufferTimer = 0f;
+        }
         public void ConsumeAttackInput() => IsAttackPressed = false;
+        public void ConsumeDashInput()   => IsDashPressed   = false;
+        public void ConsumeParryInput()  => IsParryPressed  = false;
     }
 }

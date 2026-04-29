@@ -1,14 +1,19 @@
 using UnityEngine;
 
 namespace ThePromisedRun.Gameplay.States {
+    /// <summary>
+    /// Handles jump arc: Jump_Start → Jump_Air → CanLand.
+    /// Coyote time: player can jump for 8 frames after leaving ground.
+    /// </summary>
     public class JumpState : BaseState {
-        private const string JumpStart = "Jump_Start";
-        private const string JumpAir   = "Jump_Air";
-        private const float  BlendTime = 0.05f;
+        private const string JumpStart  = "Jump_Start";
+        private const string JumpAir    = "Jump_Air";
+        private const float  BlendTime  = 0.05f;
         private const float  MinAirTime = 0.15f;
 
         private float _airTimer;
         private bool  _isAscending;
+        private bool  _jumpApplied;
 
         public JumpState(PlayerController playerController, Animator animator)
             : base(playerController, animator) { }
@@ -17,14 +22,18 @@ namespace ThePromisedRun.Gameplay.States {
             base.OnEnter();
             _airTimer    = 0f;
             _isAscending = false;
+            _jumpApplied = false;
+
             _animator.CrossFade(JumpStart, BlendTime, 0);
             _playerController.ApplyJump();
+            _jumpApplied = true;
             _playerController.Juice?.OnTakeoff();
         }
 
         public override void OnUpdate() {
             base.OnUpdate();
             _airTimer += Time.deltaTime;
+
             if (_airTimer < MinAirTime) return;
 
             if (_playerController.Rb.linearVelocity.y > 0f && !_isAscending) {

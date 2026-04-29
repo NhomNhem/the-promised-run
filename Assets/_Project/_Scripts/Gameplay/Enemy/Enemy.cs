@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 using ThePromisedRun.Core;
 using ThePromisedRun.Core.Interfaces;
@@ -13,6 +14,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
     /// SOLID: Open/Closed - Can be extended without modification
     /// SOLID: Interface Segregation - Implements only relevant interfaces
     /// </summary>
+    [DisallowMultipleComponent]
     public class Enemy : Entity, IEnemyEntity, IAttacker {
         [Header("Enemy Properties")]
         [SerializeField] protected EnemyProperties enemyProperties;
@@ -28,6 +30,9 @@ namespace ThePromisedRun.Gameplay.Enemy {
         [SerializeField] protected Rigidbody rb;
         [SerializeField] protected Animator animator;
         [SerializeField] protected Transform visual;
+
+        // Cached NavMeshAgent — used when present, falls back to Rigidbody movement
+        private UnityEngine.AI.NavMeshAgent _navAgent;
         
         [Header("Detection")]
         [SerializeField] protected LayerMask targetLayers;
@@ -99,6 +104,47 @@ namespace ThePromisedRun.Gameplay.Enemy {
             if (rb == null) rb = GetComponent<Rigidbody>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
             if (visual == null) visual = GetComponentInChildren<Transform>();
+            
+            // Cache NavMeshAgent if present — used for pathfinding movement
+            _navAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (_navAgent != null) {
+                Debug.Log($"[Enemy] NavMeshAgent found on {gameObject.name} - isOnNavMesh={_navAgent.isOnNavMesh}");
+
+                // If agent isn't on the NavMesh, try to warp it to nearest NavMesh point.
+                if (!_navAgent.isOnNavMesh) {
+                    NavMeshHit hit;
+                    bool found = NavMesh.SamplePosition(transform.position, out hit, 2f, NavMesh.AllAreas);
+                    if (found) {
+                        _navAgent.Warp(hit.position);
+                        Debug.Log($"[Enemy] Warped NavMeshAgent to nearest NavMesh at {hit.position}");
+                    } else {
+                        // No NavMesh nearby — fall back to Rigidbody movement by keeping physics enabled
+                        Debug.LogWarning($"[Enemy] NavMeshAgent present but not on NavMesh and no nearby NavMesh found for {gameObject.name}. Falling back to Rigidbody.");
+                        if (rb != null) {
+                            rb.isKinematic = false;
+                            rb.useGravity = true;
+                        }
+                        _navAgent = null; // disable agent usage at runtime
+                    }
+                } else {
+                    // Let NavMeshAgent control position; disable Rigidbody physics
+                    if (rb != null) {
+                        rb.isKinematic = true;
+                        rb.useGravity  = false;
+                    }
+                    // Apply properties if available
+                    if (enemyProperties != null) {
+                        _navAgent.speed           = enemyProperties.moveSpeed;
+                        _navAgent.angularSpeed    = enemyProperties.rotationSpeed;
+                        _navAgent.acceleration    = enemyProperties.acceleration;
+                        _navAgent.stoppingDistance = enemyProperties.attackRange * 0.8f;
+                    }
+                }
+            }
+
+            // Runtime debug summary for scene checks
+            string navStatus = _navAgent != null ? (_navAgent.isOnNavMesh ? "OnNavMesh" : "NotOnNavMesh") : "NoAgent";
+            Debug.Log($"[Enemy][RuntimeSummary] {gameObject.name} - nav={navStatus} rbPresent={(rb != null)} detectionRadius={detectionRadius} loseTargetTime={loseTargetTime}");
         }
         
         public virtual void Update() {
@@ -111,23 +157,38 @@ namespace ThePromisedRun.Gameplay.Enemy {
         #region IEnemyEntity Implementation
         public void MoveTowards(Vector3 position) {
             if (!IsAlive) return;
-            
-            Vector3 direction = (position - transform.position).normalized;
-            Vector3 movement = direction * moveSpeed * Time.deltaTime;
-            
-            rb.MovePosition(movement);
-            
-            // Rotate to face target
-            if (direction.sqrMagnitude > 0.01f) {
-                Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
-                transform.rotation = Quaternion.Slerp(
-                    transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+            if (_navAgent != null && _navAgent.isOnNavMesh) {
+                // NavMesh pathfinding
+                Debug.Log($"[Enemy] MoveTowards using NavMeshAgent dest={position} hasPath={_navAgent.hasPath} pathPending={_navAgent.pathPending}");
+                _navAgent.isStopped = false;
+                _navAgent.SetDestination(position);
+            } else {
+                string isOnNav = _navAgent != null ? _navAgent.isOnNavMesh.ToString() : "N/A";
+                Debug.Log($"[Enemy] MoveTowards using Rigidbody fallback (navAgent present={_navAgent != null} isOnNavMesh={isOnNav}) dest={position}");
+                // Fallback: direct Rigidbody movement
+                Vector3 direction = (position - transform.position).normalized;
+                rb.MovePosition(transform.position + direction * moveSpeed * Time.deltaTime);
+
+                if (direction.sqrMagnitude > 0.01f) {
+                    Quaternion targetRot = Quaternion.LookRotation(direction, Vector3.up);
+                    transform.rotation = Quaternion.Slerp(
+                        transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
+                }
             }
         }
         
         public void StopMovement() {
             if (!IsAlive) return;
-            rb.linearVelocity = Vector3.zero;
+
+            if (_navAgent != null && _navAgent.isOnNavMesh) {
+                _navAgent.isStopped = true;
+                _navAgent.ResetPath();
+                Debug.Log($"[Enemy] StopMovement - NavMeshAgent stopped for {gameObject.name}");
+            } else if (rb != null) {
+                rb.linearVelocity = Vector3.zero;
+                Debug.Log($"[Enemy] StopMovement - Rigidbody linearVelocity cleared for {gameObject.name}");
+            }
         }
         
         public void FaceTarget(IDamageable target) {
@@ -208,13 +269,16 @@ namespace ThePromisedRun.Gameplay.Enemy {
                 return;
             }
             
-            // Update last known position
-            lastKnownTargetPosition = ((MonoBehaviour)currentTarget).transform.position;
-            timeSinceLastSeenTarget = 0f;
-            
-            // Check if target is out of detection range
-            float distance = Vector3.Distance(transform.position, lastKnownTargetPosition);
-            if (distance > detectionRadius) {
+            // Update last known position only when target is within detection radius
+            var targetPos = ((MonoBehaviour)currentTarget).transform.position;
+            float distance = Vector3.Distance(transform.position, targetPos);
+
+            if (distance <= detectionRadius) {
+                // Target is still in detection range: refresh last known position and reset timer
+                lastKnownTargetPosition = targetPos;
+                timeSinceLastSeenTarget = 0f;
+            } else {
+                // Target is out of detection range: accumulate time since last seen
                 timeSinceLastSeenTarget += Time.deltaTime;
                 if (timeSinceLastSeenTarget >= loseTargetTime) {
                     ClearTarget();

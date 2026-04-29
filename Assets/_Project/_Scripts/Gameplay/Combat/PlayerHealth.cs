@@ -110,5 +110,13 @@ namespace ThePromisedRun.Gameplay.Combat {
             _healthVar?.SetValue(_health);
             OnHealthChangedUnity.Invoke(HealthNorm);
         }
+
+        /// <summary>Restore to a specific HP value (used by checkpoint respawn).</summary>
+        public void RestoreHealth(float hp) {
+            _health      = Mathf.Clamp(hp, 0f, maxHealth);
+            _iFrameTimer = 0f;
+            _healthVar?.SetValue(_health);
+            OnHealthChangedUnity.Invoke(HealthNorm);
+        }
     }
 }
