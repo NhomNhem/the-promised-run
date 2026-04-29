@@ -11,6 +11,7 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
     /// SOLID: Open/Closed - Easy to add new states
     /// SOLID: Dependency Inversion - Depends on IEnemyEntity interface
     /// </summary>
+    [DisallowMultipleComponent]
     public class EnemyAIController : MonoBehaviour, IEnemyAI {
         [Header("AI Configuration")]
         [SerializeField] private LayerMask targetLayers = -1;
@@ -29,6 +30,7 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
         private IEnemyEntity _enemy;
         private Dictionary<EnemyAIState, EnemyStateBase> _states;
         private EnemyStateBase _currentStateInstance;
+        private bool _isInitialized = false;
         
         // Properties
         public IEnemyEntity Enemy => _enemy;
@@ -58,10 +60,40 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
         }
         
         #region IEnemyAI Implementation
+        public bool IsInitialized => _isInitialized;
+
         public void Initialize(IEnemyEntity enemy) {
+            if (_isInitialized) {
+                // If already initialized for the same enemy, noop
+                if (_enemy != null && enemy != null && _enemy.GameObject == enemy.GameObject) {
+                    if (debugMode) Debug.Log($"[EnemyAIController] Initialize called but already initialized for {_enemy.GameObject.name}");
+                    return;
+                }
+
+                // If initialized for a different enemy (possible via MCP or editor), reinitialize
+                if (debugMode) Debug.Log($"[EnemyAIController] Re-initializing AI controller from {_enemy?.GameObject?.name ?? "<null>"} to {enemy?.GameObject?.name ?? "<null>"}");
+                _isInitialized = false;
+            }
+
             _enemy = enemy;
-            ChangeState(EnemyAIState.Idle);
-            
+            CreateStates(); // Must create states before ChangeState
+
+            // Defensive: ensure enemy is valid
+            if (enemy == null || enemy.GameObject == null) {
+                ChangeState(EnemyAIState.Idle);
+                return;
+            }
+
+            // Start in Patrol if the enemy has a NavMeshAgent that is on the NavMesh; otherwise default to Idle
+            var go = enemy.GameObject;
+            var nav = go.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (nav != null && nav.isOnNavMesh) {
+                ChangeState(EnemyAIState.Patrol);
+            } else {
+                ChangeState(EnemyAIState.Idle);
+            }
+            _isInitialized = true;
+
             if (debugMode) {
                 Debug.Log($"[EnemyAIController] Initialized for {_enemy.GameObject.name}");
             }
@@ -98,6 +130,8 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
             if (_enemy != null) {
                 _enemy.SetTarget(target);
                 OnTargetAcquired?.Invoke(target);
+                Debug.Log($"[EnemyAIController] SetTarget called - switching to Chase for {_enemy.GameObject.name}");
+                ChangeState(EnemyAIState.Chase);
             }
         }
         
@@ -125,7 +159,10 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
         
         private void CreateStates() {
             if (_enemy == null) return;
-            
+
+            if (_states == null) _states = new Dictionary<EnemyAIState, EnemyStateBase>();
+            else _states.Clear();
+
             // Create state instances
             _states[EnemyAIState.Idle] = new IdleState(_enemy, this);
             _states[EnemyAIState.Chase] = new ChaseState(_enemy, this);
@@ -133,7 +170,7 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
             _states[EnemyAIState.Dead] = new DeadState(_enemy, this);
             _states[EnemyAIState.Stunned] = new StunnedState(_enemy, this);
             _states[EnemyAIState.Patrol] = new PatrolState(_enemy, this);
-            
+
             if (debugMode) {
                 Debug.Log($"[EnemyAIController] Created {_states.Count} states");
             }

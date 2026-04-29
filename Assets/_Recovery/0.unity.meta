@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/_Recovery/0.unity.meta
 guid: a9bd8be758662ff49895265d43d3a68d
+========
+guid: 48e08dc33330d11e9d4a1b246c52e4f6
+>>>>>>>> 9a8e9b3f (feat: add meta files for new assets and scripts, implement UniqueIdentifier and RockTrap components, and update asset import settings):Assets/Plugins/Sirenix/Demos/Custom Drawers.unitypackage.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

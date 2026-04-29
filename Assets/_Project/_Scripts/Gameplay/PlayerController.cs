@@ -53,6 +53,9 @@ namespace ThePromisedRun.Gameplay {
         public float JumpForce => _jumpForce;
         public float RotationSpeed => _rotationSpeed;
         public bool IsGrounded { get; private set; }
+        /// <summary>True for 8 frames after leaving ground (coyote time).</summary>
+        public bool HasCoyoteTime { get; private set; }
+        public bool IsDashReady => _dashCooldownTimer <= 0f;
         public float OverloadTimer { get; private set; }
         public float CooldownTimer { get; private set; }
         public float ChaosMeter { get; private set; }
@@ -110,6 +113,16 @@ namespace ThePromisedRun.Gameplay {
 
         // Attack state reference for animation event relay
         private AttackState _attackState;
+        private DashState   _dashState;
+
+        // Dash cooldown
+        private float _dashCooldownTimer;
+        private const float DashCooldown = 1.2f;
+
+        // Coyote time
+        private bool  _wasGrounded;
+        private float _coyoteTimer;
+        private const float CoyoteTime = 8f / 60f; // 8 frames
 
         #endregion
 
@@ -197,28 +210,45 @@ namespace ThePromisedRun.Gameplay {
 
         private void SetupStateMachine() {
             LocomotionState locomotion = new LocomotionState(this, Anim);
-            JumpState jump = new JumpState(this, Anim);
-            LandState land = new LandState(this, Anim);
-            OverloadState overload = new OverloadState(this, Anim);
-            _attackState = new AttackState(this, Anim);
+            JumpState       jump       = new JumpState(this, Anim);
+            LandState       land       = new LandState(this, Anim);
+            OverloadState   overload   = new OverloadState(this, Anim);
+            _attackState               = new AttackState(this, Anim);
+            _dashState                 = new DashState(this, Anim);
+            var parryState             = new ParryState(this, Anim);
 
-            // Locomotion ↔ Jump ↔ Land
+            // Locomotion ↔ Jump (coyote time + jump buffer)
             _stateMachine.AddTransition(locomotion, jump,
-                new FuncPredicate(() => Input.IsJumpPressed && IsGrounded));
+                new FuncPredicate(() => (Input.IsJumpPressed || Input.HasJumpBuffer)
+                                        && (IsGrounded || HasCoyoteTime)));
             _stateMachine.AddTransition(jump, land, new FuncPredicate(() => jump.CanLand));
             _stateMachine.AddTransition(land, locomotion, new FuncPredicate(() => land.IsLandingComplete));
 
-            // Any → Attack (not while overloaded or airborne)
+            // Dash — from Locomotion, Jump, Land (not during attack or overload)
+            _stateMachine.AddTransition(locomotion, _dashState,
+                new FuncPredicate(() => Input.IsDashPressed && IsDashReady && !IsOverloaded));
+            _stateMachine.AddTransition(jump, _dashState,
+                new FuncPredicate(() => Input.IsDashPressed && IsDashReady && !IsOverloaded));
+            _stateMachine.AddTransition(land, _dashState,
+                new FuncPredicate(() => Input.IsDashPressed && IsDashReady && !IsOverloaded));
+            _stateMachine.AddTransition(_dashState, locomotion,
+                new FuncPredicate(() => _dashState.CanExit && IsGrounded));
+            _stateMachine.AddTransition(_dashState, jump,
+                new FuncPredicate(() => _dashState.CanExit && !IsGrounded));
+
+            // Parry — from Locomotion only, not during attack/dash/overload
+            _stateMachine.AddTransition(locomotion, parryState,
+                new FuncPredicate(() => Input.IsParryPressed && !IsOverloaded && !parryState.IsLockedOut));
+            _stateMachine.AddTransition(parryState, locomotion,
+                new FuncPredicate(() => parryState.CanExit));
+
+            // Attack
             _stateMachine.AddTransition(locomotion, _attackState,
                 new FuncPredicate(() => Input.IsAttackPressed && !IsOverloaded));
             _stateMachine.AddTransition(land, _attackState,
                 new FuncPredicate(() => Input.IsAttackPressed && !IsOverloaded && land.IsLandingComplete));
-
-            // Attack → Locomotion when combo finishes
             _stateMachine.AddTransition(_attackState, locomotion,
                 new FuncPredicate(() => _attackState.CanExit));
-
-            // Jump cancel from attack
             _stateMachine.AddTransition(_attackState, jump,
                 new FuncPredicate(() => Input.IsJumpPressed && IsGrounded));
 
@@ -238,6 +268,13 @@ namespace ThePromisedRun.Gameplay {
         private void HandleTimers() {
             if (OverloadTimer > 0f) OverloadTimer -= Time.deltaTime;
             if (CooldownTimer > 0f) CooldownTimer -= Time.deltaTime;
+            if (_dashCooldownTimer > 0f) _dashCooldownTimer -= Time.deltaTime;
+
+            // Coyote time countdown
+            if (_coyoteTimer > 0f) {
+                _coyoteTimer -= Time.deltaTime;
+                HasCoyoteTime = _coyoteTimer > 0f;
+            }
 
             if (!IsOverloaded && ChaosMeter > 0f) {
                 ChaosMeter = Mathf.Max(0f, ChaosMeter - _chaosDecayRate * Time.deltaTime);
@@ -247,9 +284,22 @@ namespace ThePromisedRun.Gameplay {
         }
 
         private void CheckGround() {
-            IsGrounded = _groundDetector != null
+            bool grounded = _groundDetector != null
                 ? _groundDetector.Performed
                 : _groundContacts > 0;
+
+            // Coyote time: start countdown when leaving ground
+            if (_wasGrounded && !grounded) {
+                _coyoteTimer  = CoyoteTime;
+                HasCoyoteTime = true;
+            }
+            if (grounded) {
+                HasCoyoteTime = false;
+                _coyoteTimer  = 0f;
+            }
+
+            _wasGrounded = grounded;
+            IsGrounded   = grounded;
         }
 
         #endregion
@@ -331,11 +381,19 @@ namespace ThePromisedRun.Gameplay {
             AddChaos(20f, ChaosSource.Jump);
         }
 
+        public void StartDashCooldown() => _dashCooldownTimer = DashCooldown;
+
         public void AddChaos(float amount, ChaosSource source = ChaosSource.Manual) {
             if (IsOverloaded) return;
             ChaosMeter = Mathf.Min(ChaosMeter + amount, _maxChaosThreshold);
             _chaosMeterVar?.SetValue(ChaosMeter);
             OnChaosChanged.Invoke(ChaosMeter / _maxChaosThreshold);
+        }
+
+        public void ResetChaos() {
+            ChaosMeter = 0f;
+            _chaosMeterVar?.SetValue(0f);
+            OnChaosChanged.Invoke(0f);
         }
 
         public void InitiateOverload() {

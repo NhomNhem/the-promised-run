@@ -1,5 +1,7 @@
 # **🎮 The Promised Run 🐶**
 
+> **⚠️ This file is the original GDD (v1.0). See `Docs/GDD_Final.md` for the complete v3.0 design document.**
+
 ## **1\. Tổng quan**
 
 * **Thể loại:** Platformer, Comedy, Chaos  

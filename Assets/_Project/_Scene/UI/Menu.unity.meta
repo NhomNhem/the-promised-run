@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/_Project/_Scene/UI/Menu.unity.meta
 guid: eb8cde77055d05a46832fa24834aadcb
+========
+guid: f597f19f656ba56eae4f6a3a7cc528f4
+>>>>>>>> 9a8e9b3f (feat: add meta files for new assets and scripts, implement UniqueIdentifier and RockTrap components, and update asset import settings):Assets/Plugins/Sirenix/Demos/Custom Attribute Processors.unitypackage.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

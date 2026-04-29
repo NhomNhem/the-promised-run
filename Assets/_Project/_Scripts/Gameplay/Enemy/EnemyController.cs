@@ -9,6 +9,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
     /// SOLID: Single Responsibility - Only coordinates components
     /// SOLID: Dependency Inversion - Depends on interfaces
     /// </summary>
+    [DisallowMultipleComponent]
     public class EnemyController : MonoBehaviour {
         [Header("Components")]
         [SerializeField] private Enemy enemy;
@@ -33,10 +34,14 @@ namespace ThePromisedRun.Gameplay.Enemy {
         private void Start() {
             // Initialize AI controller with enemy entity
             if (aiController != null && enemy != null) {
-                aiController.Initialize(enemy);
-                
-                if (showDebugInfo) {
-                    Debug.Log($"[EnemyController] Initialized {enemy.name} with AI controller");
+                // Initialize AI controller only if it hasn't been initialized already
+                if (!aiController.IsInitialized) {
+                    aiController.Initialize(enemy);
+                    if (showDebugInfo) {
+                        Debug.Log($"[EnemyController] Initialized {enemy.name} with AI controller");
+                    }
+                } else if (showDebugInfo) {
+                    Debug.Log($"[EnemyController] AI controller already initialized for {enemy.name}");
                 }
             }
         }
@@ -82,6 +87,15 @@ namespace ThePromisedRun.Gameplay.Enemy {
                     if (showDebugInfo) {
                         Debug.Log($"[EnemyController] Enemy acquired target: {target.GetType().Name}");
                     }
+                    // Notify AIController when Enemy acquires target directly (detectors or other systems)
+                    if (aiController != null) {
+                        aiController.SetTarget(target);
+                    }
+                });
+
+                enemy.OnTargetLost.AddListener((target) => {
+                    if (showDebugInfo) Debug.Log("[EnemyController] Enemy lost target (from Enemy event)");
+                    if (aiController != null) aiController.ClearTarget();
                 });
             }
         }
