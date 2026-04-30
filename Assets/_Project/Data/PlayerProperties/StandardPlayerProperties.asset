@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: StandardPlayerProperties
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
   moveSpeed: 8
-  jumpForce: 12
+  jumpForce: 7
   rotationSpeed: 10
-  fallGravityMultiplier: 2.5
+  fallGravityMultiplier: 3.5
   airControl: 0.5
   maxHealth: 100
   healthRegenRate: 0
@@ -45,6 +45,11 @@ MonoBehaviour:
   maxChaosThreshold: 100
   chaosDecayRate: 10
   chaosPerHit: 15
+  dashDistance: 3
+  dashDuration: 0.18
+  dashCooldown: 1.2
+  dashIFrameDuration: 0.1
+  chaosPerDash: 10
   enemyDetectionRadius: 10
   enemyDetectionAngle: 120
   landingImpactForce: 5

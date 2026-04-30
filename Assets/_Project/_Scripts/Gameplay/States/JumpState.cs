@@ -4,6 +4,7 @@ namespace ThePromisedRun.Gameplay.States {
     /// <summary>
     /// Handles jump arc: Jump_Start → Jump_Air → CanLand.
     /// Coyote time: player can jump for 8 frames after leaving ground.
+    /// Variable jump height: releasing jump early cuts vertical velocity.
     /// </summary>
     public class JumpState : BaseState {
         private const string JumpStart  = "Jump_Start";
@@ -11,16 +12,21 @@ namespace ThePromisedRun.Gameplay.States {
         private const float  BlendTime  = 0.05f;
         private const float  MinAirTime = 0.15f;
 
+        // Variable jump: when player releases jump button early, cut upward velocity
+        private const float JumpCutMultiplier = 0.4f; // retain 40% of upward velocity on early release
+
         private float _airTimer;
         private bool  _isAscending;
+        private bool  _jumpCutApplied;
 
         public JumpState(PlayerController playerController, Animator animator)
             : base(playerController, animator) { }
 
         public override void OnEnter() {
             base.OnEnter();
-            _airTimer    = 0f;
-            _isAscending = false;
+            _airTimer       = 0f;
+            _isAscending    = false;
+            _jumpCutApplied = false;
 
             _animator.CrossFade(JumpStart, BlendTime, 0);
             _playerController.ApplyJump();
@@ -32,6 +38,15 @@ namespace ThePromisedRun.Gameplay.States {
             _airTimer += Time.deltaTime;
 
             if (_airTimer < MinAirTime) return;
+
+            // Variable jump height: cut velocity when jump button released while ascending
+            if (!_jumpCutApplied &&
+                _playerController.Rb.linearVelocity.y > 0f &&
+                !_playerController.Input.IsJumpHeld) {
+                var vel = _playerController.Rb.linearVelocity;
+                _playerController.Rb.linearVelocity = new Vector3(vel.x, vel.y * JumpCutMultiplier, vel.z);
+                _jumpCutApplied = true;
+            }
 
             if (_playerController.Rb.linearVelocity.y > 0f && !_isAscending) {
                 _animator.CrossFade(JumpAir, BlendTime, 0);

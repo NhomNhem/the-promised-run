@@ -2,6 +2,7 @@
 using System.Linq;
 using OpenUtility.Data;
 using RaycastPro.Detectors;
+using Sirenix.OdinInspector;
 using ThePromisedRun.Core.FSM;
 using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Combat;
@@ -129,6 +130,7 @@ namespace ThePromisedRun.Gameplay {
 
         // Dash cooldown
         private float _dashCooldownTimer;
+        private bool  _airDashUsed; // prevent infinite air dash spam
 
         // Dash backing fields (loaded from PlayerProperties SO)
         private float _dashSpeed;
@@ -253,7 +255,7 @@ namespace ThePromisedRun.Gameplay {
             _stateMachine.AddTransition(locomotion, _dashState,
                 new FuncPredicate(() => Input.IsDashPressed && IsDashReady && !IsOverloaded));
             _stateMachine.AddTransition(jump, _dashState,
-                new FuncPredicate(() => Input.IsDashPressed && IsDashReady && !IsOverloaded));
+                new FuncPredicate(() => Input.IsDashPressed && IsDashReady && !IsOverloaded && !_airDashUsed));
             _stateMachine.AddTransition(land, _dashState,
                 new FuncPredicate(() => Input.IsDashPressed && IsDashReady && !IsOverloaded));
             _stateMachine.AddTransition(_dashState, locomotion,
@@ -325,6 +327,9 @@ namespace ThePromisedRun.Gameplay {
 
             _wasGrounded = grounded;
             IsGrounded   = grounded;
+
+            // Reset air dash when landing
+            if (grounded) _airDashUsed = false;
         }
 
         #endregion
@@ -407,6 +412,8 @@ namespace ThePromisedRun.Gameplay {
         }
 
         public void StartDashCooldown() => _dashCooldownTimer = _playerProperties.dashCooldown;
+
+        public void ConsumeAirDash() => _airDashUsed = true;
 
         public void SetDashInvincible(bool value) => IsDashInvincible = value;
 

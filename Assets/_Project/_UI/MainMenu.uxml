@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/_Project/_UI/MainMenu.uss#MainMenu"/>
+    <ui:Style src="project://database/Assets/_Project/_UI/MainMenu.uss#MainMenu"/>
     <!-- Màn hình xanh chết chóc (Ẩn mặc định) -->
     <ui:VisualElement name="BlueScreen" class="blue-screen hidden">
         <ui:Label name="BsodSmiley" text=":(" class="bsod-smiley" />
@@ -9,6 +9,14 @@
 
     <!-- Lớp chứa các Popup trễ -->
     <ui:VisualElement name="PopupLayer" class="popup-layer" />
+
+    <!-- Loading Overlay - Hiển thị khi đang load scene -->
+    <ui:VisualElement name="LoadingOverlay" class="loading-overlay">
+        <ui:Label name="LoadingLabel" text="LOADING..." class="loading-label" />
+        <ui:VisualElement name="LoadingBarBg" class="loading-bar-bg">
+            <ui:VisualElement name="LoadingBarFill" class="loading-bar-fill" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 
     <!-- Main Container - Để cuối để render trên cùng -->
     <ui:VisualElement name="MainContainer" class="main-container">

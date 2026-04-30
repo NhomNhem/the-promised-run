@@ -5,6 +5,7 @@ namespace ThePromisedRun.Gameplay.Input {
     public class InputReader : MonoBehaviour {
         [field: SerializeField] public Vector2 MoveInput      { get; private set; }
         [field: SerializeField] public bool    IsJumpPressed   { get; private set; }
+        [field: SerializeField] public bool    IsJumpHeld      { get; private set; } // true while jump button held
         [field: SerializeField] public bool    IsAttackPressed { get; private set; }
         [field: SerializeField] public bool    IsDashPressed   { get; private set; }
         [field: SerializeField] public bool    IsParryPressed  { get; private set; }
@@ -71,10 +72,14 @@ namespace ThePromisedRun.Gameplay.Input {
         public void OnJump(InputAction.CallbackContext ctx) {
             if (ctx.started) {
                 IsJumpPressed    = true;
+                IsJumpHeld       = true;
                 _jumpBufferTimer = JumpBufferTime;
                 HasJumpBuffer    = true;
             }
-            if (ctx.canceled) IsJumpPressed = false;
+            if (ctx.canceled) {
+                IsJumpPressed = false;
+                IsJumpHeld    = false;
+            }
         }
 
         public void OnAttack(InputAction.CallbackContext ctx) {

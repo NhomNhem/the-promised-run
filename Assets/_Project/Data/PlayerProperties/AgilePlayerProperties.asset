@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: AgilePlayerProperties
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
   moveSpeed: 12
-  jumpForce: 15
+  jumpForce: 7
   rotationSpeed: 15
-  fallGravityMultiplier: 2
+  fallGravityMultiplier: 3.5
   airControl: 0.8
   maxHealth: 75
   healthRegenRate: 2
@@ -24,11 +24,32 @@ MonoBehaviour:
   comboWindow: 0.8
   maxComboCount: 4
   damageMultiplier: 0.8
+  attackStepForce:
+  - 2.5
+  - 3.5
+  - 5
+  comboHitCooldown: 0.12
+  attackExitDelay: 0.5
+  hitStopDuration: 0.06
+  hitStopTimeScale: 0.05
+  comboClipDurations:
+  - 1.17
+  - 0.93
+  - 1.37
+  comboChainFraction: 0.5
+  comboFinishDelay: 0.15
+  attackBlendTime: 0.05
+  attackMoveDamping: 0.3
   overloadDuration: 2
   overloadCooldown: 4
   maxChaosThreshold: 80
   chaosDecayRate: 15
   chaosPerHit: 12
+  dashDistance: 3
+  dashDuration: 0.18
+  dashCooldown: 1.2
+  dashIFrameDuration: 0.1
+  chaosPerDash: 10
   enemyDetectionRadius: 12
   enemyDetectionAngle: 150
   landingImpactForce: 3

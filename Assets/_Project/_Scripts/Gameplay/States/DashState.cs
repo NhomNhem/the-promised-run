@@ -44,6 +44,10 @@ namespace ThePromisedRun.Gameplay.States {
             _playerController.Input.ConsumeDashInput();
             _playerController.StartDashCooldown();
 
+            // Mark air dash used if not grounded (prevents spam)
+            if (!_playerController.IsGrounded)
+                _playerController.ConsumeAirDash();
+
             // Chaos contribution
             _playerController.AddChaos(_playerController.ChaosPerDash, ChaosSource.Dash);
 
