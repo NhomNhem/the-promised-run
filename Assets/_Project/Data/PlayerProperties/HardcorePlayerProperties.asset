@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HardcorePlayerProperties
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
   moveSpeed: 6
-  jumpForce: 10
+  jumpForce: 7
   rotationSpeed: 8
   fallGravityMultiplier: 3.5
   airControl: 0.3
@@ -24,11 +24,32 @@ MonoBehaviour:
   comboWindow: 0.3
   maxComboCount: 2
   damageMultiplier: 0.7
+  attackStepForce:
+  - 2.5
+  - 3.5
+  - 5
+  comboHitCooldown: 0.12
+  attackExitDelay: 0.5
+  hitStopDuration: 0.06
+  hitStopTimeScale: 0.05
+  comboClipDurations:
+  - 1.17
+  - 0.93
+  - 1.37
+  comboChainFraction: 0.5
+  comboFinishDelay: 0.15
+  attackBlendTime: 0.05
+  attackMoveDamping: 0.3
   overloadDuration: 5
   overloadCooldown: 8
   maxChaosThreshold: 60
   chaosDecayRate: 5
   chaosPerHit: 25
+  dashDistance: 3
+  dashDuration: 0.18
+  dashCooldown: 1.2
+  dashIFrameDuration: 0.1
+  chaosPerDash: 10
   enemyDetectionRadius: 6
   enemyDetectionAngle: 60
   landingImpactForce: 2

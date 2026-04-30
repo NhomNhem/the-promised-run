@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: TankPlayerProperties
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
   moveSpeed: 5
-  jumpForce: 8
+  jumpForce: 7
   rotationSpeed: 8
-  fallGravityMultiplier: 3
+  fallGravityMultiplier: 3.5
   airControl: 0.3
   maxHealth: 150
   healthRegenRate: 3
@@ -24,11 +24,32 @@ MonoBehaviour:
   comboWindow: 0.4
   maxComboCount: 2
   damageMultiplier: 1.5
+  attackStepForce:
+  - 2.5
+  - 3.5
+  - 5
+  comboHitCooldown: 0.12
+  attackExitDelay: 0.5
+  hitStopDuration: 0.06
+  hitStopTimeScale: 0.05
+  comboClipDurations:
+  - 1.17
+  - 0.93
+  - 1.37
+  comboChainFraction: 0.5
+  comboFinishDelay: 0.15
+  attackBlendTime: 0.05
+  attackMoveDamping: 0.3
   overloadDuration: 4
   overloadCooldown: 6
   maxChaosThreshold: 120
   chaosDecayRate: 8
   chaosPerHit: 20
+  dashDistance: 3
+  dashDuration: 0.18
+  dashCooldown: 1.2
+  dashIFrameDuration: 0.1
+  chaosPerDash: 10
   enemyDetectionRadius: 8
   enemyDetectionAngle: 90
   landingImpactForce: 8

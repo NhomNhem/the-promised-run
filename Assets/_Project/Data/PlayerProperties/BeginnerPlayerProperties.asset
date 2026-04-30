@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: BeginnerPlayerProperties
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Player.ScriptableObjects.PlayerProperties
   moveSpeed: 10
-  jumpForce: 14
+  jumpForce: 7
   rotationSpeed: 12
-  fallGravityMultiplier: 2
+  fallGravityMultiplier: 3.5
   airControl: 0.7
   maxHealth: 120
   healthRegenRate: 5
@@ -24,11 +24,32 @@ MonoBehaviour:
   comboWindow: 1
   maxComboCount: 5
   damageMultiplier: 1.2
+  attackStepForce:
+  - 2.5
+  - 3.5
+  - 5
+  comboHitCooldown: 0.12
+  attackExitDelay: 0.5
+  hitStopDuration: 0.06
+  hitStopTimeScale: 0.05
+  comboClipDurations:
+  - 1.17
+  - 0.93
+  - 1.37
+  comboChainFraction: 0.5
+  comboFinishDelay: 0.15
+  attackBlendTime: 0.05
+  attackMoveDamping: 0.3
   overloadDuration: 2.5
   overloadCooldown: 3
   maxChaosThreshold: 150
   chaosDecayRate: 20
   chaosPerHit: 8
+  dashDistance: 3
+  dashDuration: 0.18
+  dashCooldown: 1.2
+  dashIFrameDuration: 0.1
+  chaosPerDash: 10
   enemyDetectionRadius: 15
   enemyDetectionAngle: 180
   landingImpactForce: 4

@@ -30,6 +30,10 @@ public class MainMenuController : MonoBehaviour {
     private Button _btnInfo;
     private Button _btnQuit;
 
+    private VisualElement _loadingOverlay;
+    private VisualElement _loadingBarFill;
+    private Label _loadingLabel;
+
     private Material _glitchMaterial;
     private CancellationTokenSource _cts;
     private bool _isLoading = false;
@@ -75,6 +79,11 @@ public class MainMenuController : MonoBehaviour {
         _btnInfo = _root.Q<Button>("BtnInfo");
         _btnQuit = _root.Q<Button>("BtnQuit");
 
+        _loadingOverlay = _root.Q<VisualElement>("LoadingOverlay");
+        _loadingBarFill = _root.Q<VisualElement>("LoadingBarFill");
+        _loadingLabel   = _root.Q<Label>("LoadingLabel");
+        if (_loadingOverlay != null) _loadingOverlay.style.display = DisplayStyle.None;
+
         if (_titleLabel != null) {
             _titleLabel.RegisterCallback<GeometryChangedEvent>(OnTitleGeometryChanged);
         }
@@ -106,6 +115,9 @@ public class MainMenuController : MonoBehaviour {
 
         SceneLoadManager.Instance.OnProgressChanged += OnLoadingProgress;
 
+        // Show loading overlay before scenes start loading
+        if (_loadingOverlay != null) _loadingOverlay.style.display = DisplayStyle.Flex;
+
         // All scenes load additively — Scene_MainMenu is unloaded last
         // Order: HUD → GamePlay → Level → unload MainMenu
         await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_hudSceneName);
@@ -116,6 +128,9 @@ public class MainMenuController : MonoBehaviour {
         var levelScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(_defaultLevelSceneName);
         if (levelScene.IsValid())
             UnityEngine.SceneManagement.SceneManager.SetActiveScene(levelScene);
+
+        // Hide loading overlay before unloading MainMenu
+        if (_loadingOverlay != null) _loadingOverlay.style.display = DisplayStyle.None;
 
         // Unload MainMenu last (after all gameplay scenes are ready)
         await SceneLoadManager.Instance.UnloadSceneAsync("Scene_MainMenu");
@@ -132,6 +147,12 @@ public class MainMenuController : MonoBehaviour {
         }
         if (_stressLabel != null) {
             _stressLabel.text = $"CPU STRESS: {Mathf.RoundToInt(progress * 100)}%";
+        }
+        if (_loadingBarFill != null) {
+            _loadingBarFill.style.width = new Length(progress * 100f, LengthUnit.Percent);
+        }
+        if (_loadingLabel != null) {
+            _loadingLabel.text = $"LOADING... {Mathf.RoundToInt(progress * 100)}%";
         }
     }
 

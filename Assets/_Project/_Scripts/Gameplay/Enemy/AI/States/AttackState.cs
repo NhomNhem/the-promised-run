@@ -16,7 +16,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         
         protected override void OnEnter() {
             _attackTimer = 0f;
-            Debug.Log($"[{EnemyEntity}] Entering attack state");
         }
         
         protected override void OnExit() {
@@ -49,7 +48,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         
         private void PerformAttack() {
             EnemyEntity.Attack();
-            Debug.Log($"[{EnemyEntity}] Attacking target");
         }
     }
 }

@@ -3,6 +3,7 @@ using UnityEngine.Events;
 using OpenUtility.Data;
 using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Juice;
+using ThePromisedRun.UI;
 
 namespace ThePromisedRun.Gameplay.Combat {
     /// <summary>
@@ -25,6 +26,9 @@ namespace ThePromisedRun.Gameplay.Combat {
 
         [Header("Death")]
         [SerializeField] private ThePromisedRun.UI.DeathScreen _deathScreen;
+
+        [Header("Hit Flash")]
+        [SerializeField] private OverloadFlashEffect _hitFlashEffect;
 
         [Header("Events")]
         public UnityEvent<float> OnHealthChangedUnity = new UnityEvent<float>(); // normalized 0-1
@@ -69,6 +73,10 @@ namespace ThePromisedRun.Gameplay.Combat {
 
             OnHealthChangedUnity.Invoke(HealthNorm);
             OnHit.Invoke();
+
+            // Hit animation & screen flash
+            _player.Anim?.SetTrigger("Hit");
+            _hitFlashEffect?.TriggerFlash();
 
             // Knockback away from attacker
             if (info.Attacker != null) {

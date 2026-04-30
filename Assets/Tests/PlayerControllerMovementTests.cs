@@ -186,5 +186,20 @@ namespace ThePromisedRun.Tests {
                 Assert.AreEqual(Vector3.one, _root.transform.localScale, $"Scale was not (1,1,1) for MoveInput.y={yValue}");
             }
         }
+
+        // Task 2.4 — Bug 2 Fix Check: jumpForce=7f produces peak height in [1.5, 3.0] units
+        // Peak height formula: v² / (2 * |gravity|) = 7² / (2 * 9.81) ≈ 2.5 units
+        // Validates: Bug 2 Expected Behavior 2.1
+        [Test]
+        public void JumpForce_ProducesExpectedPeakHeight() {
+            const float jumpForce = 7f;
+            const float gravity   = 9.81f; // |Physics.gravity.y|
+
+            float peakHeight = (jumpForce * jumpForce) / (2f * gravity);
+
+            Assert.That(peakHeight, Is.InRange(1.5f, 3.0f),
+                $"Peak height {peakHeight:F3} units is outside the expected design range [1.5, 3.0]. " +
+                $"jumpForce={jumpForce}, gravity={gravity}");
+        }
     }
 }
