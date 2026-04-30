@@ -41,7 +41,11 @@ namespace ThePromisedRun.UI {
             GetComponent<GameHUDController>()?.Initialize(_root);
             GetComponent<ComboCounterUI>()?.Initialize(_root);
             GetComponent<PopupUI>()?.Initialize(_root);
+            GetComponent<PopupSpawner>()?.Initialize(_root);
             GetComponent<DeathScreen>()?.Initialize(_root);
+            GetComponent<OLGaugeController>()?.Initialize(_root);
+            GetComponent<EndingSequenceController>()?.Initialize(_root);
+            GetComponent<OverloadFlashEffect>()?.Initialize(_root);
         }
     }
 }

@@ -71,6 +71,10 @@ namespace ThePromisedRun.Gameplay.Combat {
             damageable.TakeDamage(damage, info);
             OnHitTarget.Invoke(damageable);
 
+            // Boss hit — delegate to BossController for Overload-gated damage
+            var boss = other.GetComponentInParent<Enemy.BossController>();
+            boss?.TakeDamage(damage);
+
             // Juice on confirmed hit
             juice?.OnAttackHit();
             SpawnHitParticle(info.HitPoint, info.HitNormal);

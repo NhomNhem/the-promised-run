@@ -43,8 +43,10 @@ namespace ThePromisedRun.Gameplay.Juice {
         /// <summary>IJuice.Play — defaults to swing.</summary>
         public void Play() => OnSwing();
 
-        /// <summary>Light punch on attack input. Disabled until attack juice is implemented.</summary>
-        public void OnSwing() { /* TODO: implement attack swing juice */ }
+        /// <summary>Light squash-stretch punch on attack input.</summary>
+        public void OnSwing() {
+            ApplyScale(swingScale, swingRecovery);
+        }
 
         /// <summary>Heavy hit-stop + punch on confirmed hitbox contact.</summary>
         public void OnHit() {

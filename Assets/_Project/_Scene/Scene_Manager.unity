@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 304212017}
   - component: {fileID: 304212018}
+  - component: {fileID: 304212019}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -166,6 +167,21 @@ MonoBehaviour:
   _playerPrefab: {fileID: 3073531796263142347, guid: 810a1f141de1cae46be754696e817594, type: 3}
   _playerTag: Player
   _spawnPointTag: SpawnPoint
+--- !u!114 &304212019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 304212016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 131598ebab95a65498916e8480aee99c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.OverloadSystem
+  _gaugeDuration: 4
+  _cooldownDuration: 8
+  _chaosMeterVar: {fileID: 11400000, guid: e9a3ba01dc4627844842a1a0dca07d02, type: 2}
 --- !u!1 &1090532596
 GameObject:
   m_ObjectHideFlags: 0

@@ -50,5 +50,25 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <!-- ── OL Gauge Layer: right edge ── -->
+        <ui:VisualElement name="ol-gauge-container" class="ol-gauge-container">
+            <ui:VisualElement name="ol-gauge-label" class="ol-gauge-label">
+                <ui:Label text="OL" class="ol-label-text"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="ol-gauge-bar-bg" class="ol-gauge-bar-bg">
+                <ui:VisualElement name="ol-gauge-bar" class="ol-gauge-bar"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- ── Ending Layer: full-screen ending sequence ── -->
+        <ui:VisualElement name="ending-root" class="ending-root hidden">
+            <ui:VisualElement name="ending-bg" class="ending-bg">
+                <ui:Label name="ending-text" class="ending-text" text=""/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- ── Screen Fade Layer: topmost, for cutscene transitions ── -->
+        <ui:VisualElement name="screen-fade" class="screen-fade"/>
+
     </ui:VisualElement>
 </ui:UXML>

@@ -11501,7 +11501,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 792c526d55516fa4abb79dcb63899b05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Level.LevelExitTrigger
-  _nextSceneName: 
+  _nextLevelSceneName: Scene_Level07_SystemCore
   _transitionDelay: 1
   _exitVisual: {fileID: 0}
   OnPlayerReachedExit:
