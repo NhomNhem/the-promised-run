@@ -12,12 +12,19 @@ namespace RaycastPro.Editor
         private void OnEnable()
         {
             profile = this;
+
+            // Unity does not allow querying EditorGUIUtility.isProSkin (used by RCProEditor.Aqua)
+            // from ScriptableObject constructors/field initializers. Apply defaults here instead.
+            // Only set if value is uninitialized to avoid overwriting user settings.
+            if (DefaultColor.a <= 0f)
+                DefaultColor = RCProEditor.Aqua;
         }
 
         public bool realtimeEditor = true;
         public bool rcProInspector = false;
         
-        public Color DefaultColor = RCProEditor.Aqua;
+        // Constant fallback; theme-aware value is applied in OnEnable.
+        public Color DefaultColor = new Color(0.17f, 0.87f, 0.92f, 1f);
         public Color DetectColor = new Color(.3f, 1, .3f, 1f);
         public Color HelperColor = new Color(1f, .7f, .0f, 1f);
         public Color BlockColor = new Color(1f, .2f, .2f, 1f);
