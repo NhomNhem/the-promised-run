@@ -7,9 +7,12 @@ This document provides guidelines for AI agents working on this Unity 2D game pr
 ## 1. Build & Development Commands
 
 ### Unity Editor
-- Open the project in Unity Hub (2022.3 LTS or later recommended)
+- Open the project in Unity Hub. Use the project's configured editor version (see `ProjectSettings/ProjectVersion.txt`: `m_EditorVersion: 6000.3.11f1`) — install the matching editor via Unity Hub when possible.
 - Press **Play** in Editor to build and run
 - Use **Ctrl+B** (Cmd+B on Mac) to build standalone player
+  
+- Project includes an MCP (Model Context Protocol) integration for editor automation: see `Packages/manifest.json` entry `com.coplaydev.unity-mcp` (MCP for Unity, repo: `https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main`).
+- The repository also contains Editor-side helpers for MCP automation at `Assets/Editor/MCP/MCPSpawnHelpers.cs` (Menu: `MCP/Spawn Unique Enemy`). Agents can call `MCPSpawnHelpers.SpawnUniqueByPrefabPath(prefabAssetPath, position, uniqueKey)` from an MCP server or editor script to spawn prefabs without creating duplicates.
 
 ### Running Tests
 - Tests use Unity Test Framework (`com.unity.test-framework`)
@@ -148,10 +151,11 @@ Assets/
 
 ## 5. Important Dependencies
 
-- **Unity 2022.3 LTS** or later
+- Use the project's configured Unity Editor (see `ProjectSettings/ProjectVersion.txt` — `m_EditorVersion: 6000.3.11f1`)
 - **com.unity.inputsystem** - New Input System
 - **com.unity.test-framework** - Unity Test Framework
 - **com.unity.render-pipelines.universal** - URP rendering
+ - **com.coplaydev.unity-mcp** - MCP for Unity (project has an entry in `Packages/manifest.json`; package URL: `https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main`) — enables programmatic Editor automation and is used together with the editor helpers in `Assets/Editor/MCP/`.
 
 ---
 

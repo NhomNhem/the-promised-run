@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/_Scene/Level/Level_01_WelcomeHall.unity
     guid: 55a7c2bc005e5414abc5f0a024d7ab07
+  - enabled: 1
+    path: Assets/_Project/_Scene/Level/Scene_Level07_SystemCore.unity
+    guid: f98842fc0ce35004d87b1164e4df8a4d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: b256aaabde1b57c4a87cbc89f6c95dce, type: 3}
   m_UseUCBPForAssetBundles: 0

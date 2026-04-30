@@ -15,21 +15,38 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         protected override void OnEnter() {
             EnemyEntity.StopMovement();
             Debug.Log($"[{EnemyEntity}] Entering dead state");
-            
+
+            // Disable NavMeshAgent and collider immediately
+            var nav = EnemyEntity.GameObject.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (nav != null) nav.enabled = false;
+
+            var col = EnemyEntity.GameObject.GetComponent<UnityEngine.CapsuleCollider>();
+            if (col != null) col.enabled = false;
+
             // Play death animation if available
             var animator = EnemyEntity.GameObject.GetComponentInChildren<Animator>();
             if (animator != null) {
                 animator.SetTrigger("Death");
             }
-            
+
             // Disable physics
             var rigidbody = EnemyEntity.GameObject.GetComponent<Rigidbody>();
             if (rigidbody != null) {
                 rigidbody.isKinematic = true;
             }
-            
+
             // Clear target
             EnemyEntity.ClearTarget();
+
+            // Destroy enemy after death animation (2.5s)
+            var mono = EnemyEntity.GameObject.GetComponent<UnityEngine.MonoBehaviour>();
+            mono?.StartCoroutine(DestroyAfterDelay(2.5f));
+        }
+
+        private System.Collections.IEnumerator DestroyAfterDelay(float delay) {
+            yield return new UnityEngine.WaitForSeconds(delay);
+            if (EnemyEntity?.GameObject != null)
+                UnityEngine.Object.Destroy(EnemyEntity.GameObject);
         }
         
         protected override void OnExit() {

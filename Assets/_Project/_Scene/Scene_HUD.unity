@@ -134,6 +134,10 @@ GameObject:
   - component: {fileID: 1858727474}
   - component: {fileID: 1858727473}
   - component: {fileID: 1858727472}
+  - component: {fileID: 1858727481}
+  - component: {fileID: 1858727480}
+  - component: {fileID: 1858727479}
+  - component: {fileID: 1858727482}
   m_Layer: 0
   m_Name: HUD
   m_TagString: Untagged
@@ -254,6 +258,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1858727479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858727471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdb27ad37bce747acde49d4d4c6dc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.EndingSequenceController
+  _footstepClip: {fileID: 0}
+  _footstepVolume: 0.8
+--- !u!114 &1858727480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858727471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddeed5b0526b59f44b0c31175a533c83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.OLGaugeController
+  _overloadSystem: {fileID: 0}
+  _transitionSpeed: 5
+--- !u!114 &1858727481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858727471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1169ab90ef764e44db4b64a56c7ebea3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.PopupSpawner
+  _spawnRate: 0.33
+  _angryMultiplier: 1.5
+  _angryDuration: 10
+  _displayDuration: 4
+  _gaugePerSecond: 5
+  _overloadSystem: {fileID: 0}
+--- !u!114 &1858727482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858727471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f1447d156f9c24c99b817d951fc993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.OverloadFlashEffect
+  _flashDuration: 0.08
+  _fadeDuration: 0.15
+  _overloadStateVar: {fileID: 11400000, guid: 6f1a03790d94edf45b95971e567ff61e, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

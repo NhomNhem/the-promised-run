@@ -1,16 +1,16 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 namespace ThePromisedRun.Gameplay.Level {
     /// <summary>
     /// Level exit trigger — GDD §9.1.
     /// Player walks into trigger zone → level complete → load next scene.
+    /// Uses SceneLoadManager for proper multi-scene additive loading.
     /// </summary>
     public class LevelExitTrigger : MonoBehaviour {
         [Header("Config")]
-        [SerializeField] private string _nextSceneName = "";
-        [SerializeField] private float  _transitionDelay = 1.0f;
+        [SerializeField] private string _nextLevelSceneName = "";
+        [SerializeField] private float  _transitionDelay    = 1.0f;
 
         [Header("Visual")]
         [SerializeField] private GameObject _exitVisual;
@@ -26,14 +26,34 @@ namespace ThePromisedRun.Gameplay.Level {
 
             _triggered = true;
             OnPlayerReachedExit.Invoke();
-            Debug.Log("[LevelExit] Player reached exit!");
+            Debug.Log($"[LevelExit] Player reached exit! Next: {_nextLevelSceneName}");
 
-            if (!string.IsNullOrEmpty(_nextSceneName))
-                Invoke(nameof(LoadNextScene), _transitionDelay);
+            if (!string.IsNullOrEmpty(_nextLevelSceneName))
+                Invoke(nameof(LoadNextLevel), _transitionDelay);
+            else
+                Debug.LogWarning("[LevelExit] _nextLevelSceneName is empty — assign it in Inspector.");
         }
 
-        private void LoadNextScene() {
-            SceneManager.LoadScene(_nextSceneName);
+        private async void LoadNextLevel() {
+            var slm = UI.SceneLoadManager.Instance;
+            if (slm == null) {
+                Debug.LogError("[LevelExit] SceneLoadManager.Instance is null.");
+                return;
+            }
+
+            // Get current level scene name to unload it
+            string currentLevel = gameObject.scene.name;
+
+            // Load next level additively
+            await slm.LoadSceneAdditiveAsync(_nextLevelSceneName);
+
+            // Set new level as active scene
+            var nextScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(_nextLevelSceneName);
+            if (nextScene.IsValid())
+                UnityEngine.SceneManagement.SceneManager.SetActiveScene(nextScene);
+
+            // Unload current level
+            await slm.UnloadSceneAsync(currentLevel);
         }
 
         private void OnDrawGizmos() {

@@ -125,6 +125,7 @@ namespace ThePromisedRun.Gameplay {
         // Attack state reference for animation event relay
         private AttackState _attackState;
         private DashState   _dashState;
+        private Combat.PlayerHealth _playerHealth; // cached to avoid GetComponent per call
 
         // Dash cooldown
         private float _dashCooldownTimer;
@@ -149,6 +150,7 @@ namespace ThePromisedRun.Gameplay {
             Input = GetComponent<InputReader>();
             Juice = GetComponent<PlayerJuice>();
             ComboUI = GetComponentInChildren<UI.ComboCounterUI>(true);
+            _playerHealth = GetComponent<Combat.PlayerHealth>();
 
             Anim = _visual != null
                 ? _visual.GetComponentInChildren<Animator>(true)
@@ -458,15 +460,15 @@ namespace ThePromisedRun.Gameplay {
 
         // Health is managed by PlayerHealth component (source of truth).
         // PlayerController.TakeDamage() delegates to PlayerHealth to avoid duplicate logic.
-        public float Health    => GetComponent<Combat.PlayerHealth>()?.Health ?? 0f;
-        public float MaxHealth => GetComponent<Combat.PlayerHealth>()?.MaxHealth ?? 100f;
+        public float Health    => _playerHealth?.Health ?? 0f;
+        public float MaxHealth => _playerHealth?.MaxHealth ?? 100f;
         public System.Action<float> OnHealthChanged { get; set; } = _ => { };
         public System.Action OnDeath { get; set; } = () => { };
 
         public void TakeDamage(float amount, DamageInfo info) {
             if (IsDashInvincible) return;
             // Delegate to PlayerHealth — it owns health state and _healthVar
-            GetComponent<Combat.PlayerHealth>()?.TakeDamage(amount, info);
+            _playerHealth?.TakeDamage(amount, info);
         }
 
         #endregion
