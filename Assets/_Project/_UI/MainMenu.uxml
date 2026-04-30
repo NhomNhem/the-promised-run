@@ -1,44 +1,31 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Style src="project://database/Assets/_Project/_UI/MainMenu.uss#MainMenu"/>
-    <!-- Màn hình xanh chết chóc (Ẩn mặc định) -->
+    <Style src="project://database/Assets/_Project/_UI/MainMenu.uss?fileID=7433441132597879392&amp;guid=8e6be307dc3a6d64b857be0780949c90&amp;type=3#MainMenu"/>
     <ui:VisualElement name="BlueScreen" class="blue-screen hidden">
-        <ui:Label name="BsodSmiley" text=":(" class="bsod-smiley" />
-        <ui:Label name="BsodTitle" text="Hệ thống đã gặp sự cố và cần khởi động lại." class="bsod-title" />
-        <ui:Label name="BsodCode" text="ERROR_CODE: SYSTEM_HATES_YOU_SO_MUCH" class="bsod-code" />
+        <ui:Label name="BsodSmiley" text=":(" class="bsod-smiley"/>
+        <ui:Label name="BsodTitle" text="Hệ thống đã gặp sự cố và cần khởi động lại." class="bsod-title"/>
+        <ui:Label name="BsodCode" text="ERROR_CODE: SYSTEM_HATES_YOU_SO_MUCH" class="bsod-code"/>
     </ui:VisualElement>
-
-    <!-- Lớp chứa các Popup trễ -->
-    <ui:VisualElement name="PopupLayer" class="popup-layer" />
-
-    <!-- Loading Overlay - Hiển thị khi đang load scene -->
-    <ui:VisualElement name="LoadingOverlay" class="loading-overlay">
-        <ui:Label name="LoadingLabel" text="LOADING..." class="loading-label" />
-        <ui:VisualElement name="LoadingBarBg" class="loading-bar-bg">
-            <ui:VisualElement name="LoadingBarFill" class="loading-bar-fill" />
-        </ui:VisualElement>
-    </ui:VisualElement>
-
-    <!-- Main Container - Để cuối để render trên cùng -->
-    <ui:VisualElement name="MainContainer" class="main-container">
-        <!-- Lớp phủ hiệu ứng Scanline -->
-        <ui:VisualElement name="Scanline" class="scanline" />
-
-        <!-- Tiêu đề Game -->
-        <ui:Label name="GameTitle" text="THE PROMISED RUN" class="game-title" />
-
-        <!-- Nhóm các nút Menu -->
+    <ui:VisualElement name="PopupLayer" class="popup-layer"/>
+    <ui:VisualElement name="MainContainer" class="main-container" style="background-color: rgb(255, 255, 255); background-image: url(&quot;project://database/Assets/_Project/_Art/UI/MainMenu_BG.png?fileID=21300000&amp;guid=4b3e19024706b9e488b7f876d035e3b0&amp;type=3#MainMenu_BG&quot;);">
+        <ui:VisualElement name="Scanline" class="scanline"/>
+        <ui:Label name="GameTitle" text="THE PROMISED RUN" class="game-title"/>
         <ui:VisualElement name="MenuButtons" class="button-group">
-            <ui:Button name="BtnStart" text="BẮT ĐẦU PHÁ HỦY" class="menu-button primary" />
-            <ui:Button name="BtnSettings" text="CÀI ĐẶT (VÔ DỤNG)" class="menu-button" />
-            <ui:Button name="BtnInfo" text="THÔNG TIN CHI TIẾT" class="menu-button" />
-            <ui:Button name="BtnQuit" text="THOÁT RA THỰC TẠI" class="menu-button danger" />
+            <ui:Button name="BtnStart" text="BẮT ĐẦU PHÁ HỦY" class="menu-button primary"/>
+            <ui:Button name="BtnSettings" text="CÀI ĐẶT (VÔ DỤNG)" class="menu-button"/>
+            <ui:Button name="BtnInfo" text="THÔNG TIN CHI TIẾT" class="menu-button"/>
+            <ui:Button name="BtnQuit" text="THOÁT RA THỰC TẠI" class="menu-button danger"/>
         </ui:VisualElement>
-
-        <!-- Thanh Stress Bar ở góc dưới -->
         <ui:VisualElement name="StressContainer" class="stress-container">
-            <ui:Label name="StressLabel" text="CPU STRESS: 42%" class="stress-text" />
+            <ui:Label name="StressLabel" text="CPU STRESS: 42%" class="stress-text"/>
             <ui:VisualElement name="StressBarBackground" class="stress-bar-bg">
-                <ui:VisualElement name="StressBarInner" class="stress-bar-inner" />
+                <ui:VisualElement name="StressBarInner" class="stress-bar-inner"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <!-- Loading Overlay — inside MainContainer so position:absolute fills correctly -->
+        <ui:VisualElement name="LoadingOverlay" class="loading-overlay">
+            <ui:Label name="LoadingLabel" text="LOADING..." class="loading-label"/>
+            <ui:VisualElement name="LoadingBarBg" class="loading-bar-bg">
+                <ui:VisualElement name="LoadingBarFill" class="loading-bar-fill"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

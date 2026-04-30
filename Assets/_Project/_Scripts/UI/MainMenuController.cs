@@ -16,6 +16,16 @@ public class MainMenuController : MonoBehaviour {
     [SerializeField] private float _lateAdviceDelay = 1.5f;
     [SerializeField] private float _stressLevel = 42f;
 
+    [Header("Loading Screen")]
+    [SerializeField] private float _loadingFadeInDuration      = 0.3f;
+    [SerializeField] private float _loadingFadeOutDuration     = 0.4f;
+    [SerializeField] private float _loadingMinDisplayTime      = 0.8f;  // prevent flash on fast loads
+    [SerializeField] private float _loadingBarCompleteDuration = 0.5f;  // animate bar to 100% after load
+    [SerializeField] private float _loadingCompleteHoldTime    = 0.4f;  // hold at 100% before fade-out
+
+    // Tracks the current displayed progress (0-1) for smooth bar animation
+    private float _displayedProgress = 0f;
+
     private UIDocument _uiDocument;
     private VisualElement _root;
     private VisualElement _popupContainer;
@@ -82,7 +92,10 @@ public class MainMenuController : MonoBehaviour {
         _loadingOverlay = _root.Q<VisualElement>("LoadingOverlay");
         _loadingBarFill = _root.Q<VisualElement>("LoadingBarFill");
         _loadingLabel   = _root.Q<Label>("LoadingLabel");
-        if (_loadingOverlay != null) _loadingOverlay.style.display = DisplayStyle.None;
+        if (_loadingOverlay != null) {
+            _loadingOverlay.style.display = DisplayStyle.None;
+            _loadingOverlay.style.opacity = 0f;
+        }
 
         if (_titleLabel != null) {
             _titleLabel.RegisterCallback<GeometryChangedEvent>(OnTitleGeometryChanged);
@@ -113,14 +126,12 @@ public class MainMenuController : MonoBehaviour {
             return;
         }
 
+        // Step 1: Fade-in overlay — wait until fully visible before loading
+        await ShowLoadingOverlayAsync();
+
         SceneLoadManager.Instance.OnProgressChanged += OnLoadingProgress;
 
-        // Show loading overlay before scenes start loading
-        if (_loadingOverlay != null) _loadingOverlay.style.display = DisplayStyle.Flex;
-
-        // All scenes load additively — Scene_MainMenu is unloaded last
-        // Order: HUD → GamePlay → Level → unload MainMenu
-        await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_hudSceneName);
+        // Step 2: Load gameplay scenes only (NOT HUD — it would render over loading screen)
         await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_gameplaySceneName);
         await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_defaultLevelSceneName);
 
@@ -129,31 +140,122 @@ public class MainMenuController : MonoBehaviour {
         if (levelScene.IsValid())
             UnityEngine.SceneManagement.SceneManager.SetActiveScene(levelScene);
 
-        // Hide loading overlay before unloading MainMenu
-        if (_loadingOverlay != null) _loadingOverlay.style.display = DisplayStyle.None;
-
-        // Unload MainMenu last (after all gameplay scenes are ready)
-        await SceneLoadManager.Instance.UnloadSceneAsync("Scene_MainMenu");
-
         SceneLoadManager.Instance.OnProgressChanged -= OnLoadingProgress;
+
+        // Step 3: Animate bar to 100% — gives "completion" feel even if load was instant
+        await AnimateProgressToCompleteAsync();
+
+        // Step 4: Hold at 100% briefly so user sees the completed state
+        await Awaitable.WaitForSecondsAsync(_loadingCompleteHoldTime);
+
+        // Step 5: Fade-out overlay
+        await HideLoadingOverlayAsync();
+
+        // Step 6: Load HUD scene NOW — after loading screen is gone, so it never overlaps
+        await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_hudSceneName);
+
+        // Step 7: Fade-in HUD with animation
+        HUDManager hudManager = FindFirstObjectByType<HUDManager>();
+        hudManager?.FadeIn();
+
+        // Step 8: Unload MainMenu last (after all gameplay scenes are ready)
+        await SceneLoadManager.Instance.UnloadSceneAsync("Scene_MainMenu");
 
         _isLoading = false;
     }
 
+    /// <summary>Fade-in the loading overlay using DOTween.</summary>
+    private async Awaitable ShowLoadingOverlayAsync() {
+        if (_loadingOverlay == null) return;
+
+        _displayedProgress = 0f;
+        _loadingOverlay.style.opacity = 0f;
+        _loadingOverlay.style.display = DisplayStyle.Flex;
+
+        if (_loadingBarFill != null)
+            _loadingBarFill.style.width = new Length(0f, LengthUnit.Percent);
+        if (_loadingLabel != null)
+            _loadingLabel.text = "LOADING... 0%";
+
+        // Animate opacity 0 → 1 and wait for completion
+        bool done = false;
+        DOTween.To(
+            () => _loadingOverlay.style.opacity.value,
+            x  => _loadingOverlay.style.opacity = x,
+            1f, _loadingFadeInDuration
+        ).SetEase(Ease.OutCubic)
+         .SetUpdate(true)
+         .OnComplete(() => done = true);
+
+        while (!done)
+            await Awaitable.NextFrameAsync();
+    }
+
+    /// <summary>
+    /// Animate progress bar from current displayed value to 100%.
+    /// Skipped if already at 100% to avoid double-completion flash.
+    /// </summary>
+    private async Awaitable AnimateProgressToCompleteAsync() {
+        if (_loadingBarFill == null) return;
+
+        // Already at 100% — no need to animate again
+        if (_displayedProgress >= 1f) return;
+
+        float startProgress = _displayedProgress;
+        bool done = false;
+
+        DOTween.To(
+            () => startProgress,
+            x  => {
+                startProgress = x;
+                if (_loadingBarFill != null)
+                    _loadingBarFill.style.width = new Length(x * 100f, LengthUnit.Percent);
+                if (_loadingLabel != null)
+                    _loadingLabel.text = $"LOADING... {Mathf.RoundToInt(x * 100)}%";
+            },
+            1f, _loadingBarCompleteDuration
+        ).SetEase(Ease.OutQuart)
+         .SetUpdate(true)
+         .OnComplete(() => done = true);
+
+        while (!done)
+            await Awaitable.NextFrameAsync();
+    }
+
+    /// <summary>Fade-out the loading overlay using DOTween, then hide it.</summary>
+    private async Awaitable HideLoadingOverlayAsync() {
+        if (_loadingOverlay == null) return;
+
+        bool done = false;
+        DOTween.To(
+            () => _loadingOverlay.style.opacity.value,
+            x  => _loadingOverlay.style.opacity = x,
+            0f, _loadingFadeOutDuration
+        ).SetEase(Ease.InCubic)
+         .SetUpdate(true)
+         .OnComplete(() => done = true);
+
+        while (!done)
+            await Awaitable.NextFrameAsync();
+
+        _loadingOverlay.style.display = DisplayStyle.None;
+    }
+
     private void OnLoadingProgress(float progress) {
+        // Update stress bar (decorative)
         if (_stressBarInner != null) {
             float bgWidth = _stressBarBg?.resolvedStyle.width ?? 200f;
             _stressBarInner.style.width = new Length(progress * bgWidth / 2f, LengthUnit.Pixel);
         }
-        if (_stressLabel != null) {
+        if (_stressLabel != null)
             _stressLabel.text = $"CPU STRESS: {Mathf.RoundToInt(progress * 100)}%";
-        }
-        if (_loadingBarFill != null) {
+
+        // Track real progress — AnimateProgressToCompleteAsync will pick up from here
+        _displayedProgress = progress;
+        if (_loadingBarFill != null)
             _loadingBarFill.style.width = new Length(progress * 100f, LengthUnit.Percent);
-        }
-        if (_loadingLabel != null) {
+        if (_loadingLabel != null)
             _loadingLabel.text = $"LOADING... {Mathf.RoundToInt(progress * 100)}%";
-        }
     }
 
     private void RegisterButtonEffects(Button btn) {
