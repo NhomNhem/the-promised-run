@@ -137,7 +137,7 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
                         }
                     }
                 }
-                
+
                 if (playerLayer != -1) {
                     var cols = Physics.OverlapSphere(
                         EnemyEntity.GameObject.transform.position,
@@ -145,19 +145,15 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
                         1 << playerLayer);
                     foreach (var col in cols) {
                         var dmg = col.GetComponentInParent<IDamageable>();
-                        if (dmg != null && dmg.IsAlive) { player = dmg; break; }
+                        if (dmg != null && dmg.IsAlive) {
+                            player = dmg;
+                            break;
+                        }
                     }
-                    Debug.Log($"[PatrolState] Fallback scan - found player: {player != null}");
-                } else {
-                    // No Player layer - log warning
-                    Debug.LogWarning($"[PatrolState] No Player layer found! Layers: Default={LayerMask.NameToLayer("Default")}, Player={LayerMask.NameToLayer("Player")}");
                 }
             }
 
-            if (player != null) {
-                Debug.Log($"[PatrolState] ScanForPlayer - acquiring target and notifying AIController for {EnemyEntity.GameObject.name}");
-                AIController.SetTarget(player);
-            }
+            if (player != null) AIController.SetTarget(player);
         }
     }
 }
