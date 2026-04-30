@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 304212017}
+  - component: {fileID: 304212018}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -150,6 +151,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &304212018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 304212016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 589d6506ad2b2394fae187c0da72e196, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Core.GameManager
+  _playerPrefab: {fileID: 3073531796263142347, guid: 810a1f141de1cae46be754696e817594, type: 3}
+  _playerTag: Player
+  _spawnPointTag: SpawnPoint
 --- !u!1 &1090532596
 GameObject:
   m_ObjectHideFlags: 0
@@ -159,6 +175,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1090532597}
+  - component: {fileID: 1090532598}
   m_Layer: 0
   m_Name: SceneLoader
   m_TagString: Untagged
@@ -181,6 +198,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1090532598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090532596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e65d50da06027e4aa75a28115c1030e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.SceneLoadManager
 --- !u!1 &1602524071
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,6 +220,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1602524073}
   - component: {fileID: 1602524072}
+  - component: {fileID: 1602524074}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -216,7 +246,7 @@ MonoBehaviour:
   _sfxSource: {fileID: 0}
   _popupSFX: {fileID: 0}
   _overloadSFX: {fileID: 0}
-  _overloadSilence: {fileID: 0}
+  _overloadStateVar: {fileID: 11400000, guid: 6f1a03790d94edf45b95971e567ff61e, type: 2}
 --- !u!4 &1602524073
 Transform:
   m_ObjectHideFlags: 0
@@ -232,6 +262,14 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!81 &1602524074
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602524071}
+  m_Enabled: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

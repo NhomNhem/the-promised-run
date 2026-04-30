@@ -1,8 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <ui:Style src="project://database/Assets/_Project/_UI/EnemyHPBar.uss" />
-    <ui:VisualElement name="hp-bar-root" class="hp-bar-root">
-        <ui:VisualElement name="hp-bar-bg" class="hp-bar-bg">
-            <ui:VisualElement name="hp-bar-fill" class="hp-bar-fill" />
+    <Style src="project://database/Assets/_Project/_UI/EnemyHPBar.uss?fileID=7433441132597879392&amp;guid=078ce2c504e06004080108e3ddfe4b87&amp;type=3#EnemyHPBar"/>
+    <ui:VisualElement name="hp-bar-root" class="hp-bar-root" style="align-self: center; align-content: center; justify-content: center; flex-grow: 0; top: 50%; left: 50%; width: 100px; height: 40px;">
+        <ui:VisualElement name="hp-bar-bg" class="hp-bar-bg" style="height: 30%;">
+            <ui:VisualElement name="hp-bar-fill" class="hp-bar-fill"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -5,6 +5,7 @@ using ThePromisedRun.UI;
 using System.Threading;
 using System;
 
+namespace ThePromisedRun.UI {
 public class MainMenuController : MonoBehaviour {
     [Header("Scene Config")]
     [SerializeField] private string _gameplaySceneName = "Scene_GamePlay";
@@ -97,11 +98,27 @@ public class MainMenuController : MonoBehaviour {
 
         Debug.Log($"[MainMenu] Loading: {_hudSceneName} → {_gameplaySceneName} → {_defaultLevelSceneName}");
 
+        if (SceneLoadManager.Instance == null) {
+            Debug.LogError("[MainMenu] SceneLoadManager.Instance is null. Aborting.");
+            _isLoading = false;
+            return;
+        }
+
         SceneLoadManager.Instance.OnProgressChanged += OnLoadingProgress;
 
+        // All scenes load additively — Scene_MainMenu is unloaded last
+        // Order: HUD → GamePlay → Level → unload MainMenu
         await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_hudSceneName);
-        await SceneLoadManager.Instance.LoadSceneAsync(_gameplaySceneName);
-        await SceneLoadManager.Instance.LoadSceneAsync(_defaultLevelSceneName);
+        await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_gameplaySceneName);
+        await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_defaultLevelSceneName);
+
+        // Set Level as active scene (for lighting, physics)
+        var levelScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(_defaultLevelSceneName);
+        if (levelScene.IsValid())
+            UnityEngine.SceneManagement.SceneManager.SetActiveScene(levelScene);
+
+        // Unload MainMenu last (after all gameplay scenes are ready)
+        await SceneLoadManager.Instance.UnloadSceneAsync("Scene_MainMenu");
 
         SceneLoadManager.Instance.OnProgressChanged -= OnLoadingProgress;
 
@@ -301,4 +318,5 @@ public class MainMenuController : MonoBehaviour {
 #endif
             });
     }
+}
 }

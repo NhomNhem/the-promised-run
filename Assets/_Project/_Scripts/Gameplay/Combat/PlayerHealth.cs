@@ -23,6 +23,9 @@ namespace ThePromisedRun.Gameplay.Combat {
         [Header("ScriptableVariables")]
         [SerializeField] private ScriptableFloat _healthVar;
 
+        [Header("Death")]
+        [SerializeField] private ThePromisedRun.UI.DeathScreen _deathScreen;
+
         [Header("Events")]
         public UnityEvent<float> OnHealthChangedUnity = new UnityEvent<float>(); // normalized 0-1
         public UnityEvent        OnHit           = new UnityEvent();
@@ -82,6 +85,10 @@ namespace ThePromisedRun.Gameplay.Combat {
 
             if (!IsAlive) {
                 OnDeathUnity.Invoke();
+                // Lazy-find DeathScreen at death time (may be in additively loaded Scene_HUD)
+                if (_deathScreen == null)
+                    _deathScreen = FindFirstObjectByType<ThePromisedRun.UI.DeathScreen>();
+                _deathScreen?.Show();
                 Debug.Log("[PlayerHealth] Player died.");
             }
         }

@@ -51,6 +51,7 @@ namespace ThePromisedRun.Gameplay {
         public Animator Anim { get; private set; }
         public InputReader Input { get; private set; }
         public PlayerJuice Juice { get; private set; }
+        public UI.ComboCounterUI ComboUI { get; private set; }
         public Transform Visual => _visual;
         public float MoveSpeed => _moveSpeed;
         public float JumpForce => _jumpForce;
@@ -147,6 +148,7 @@ namespace ThePromisedRun.Gameplay {
             Rb = GetComponent<Rigidbody>();
             Input = GetComponent<InputReader>();
             Juice = GetComponent<PlayerJuice>();
+            ComboUI = GetComponentInChildren<UI.ComboCounterUI>(true);
 
             Anim = _visual != null
                 ? _visual.GetComponentInChildren<Animator>(true)

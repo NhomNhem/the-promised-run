@@ -26,16 +26,22 @@ namespace ThePromisedRun.Gameplay {
         private float   _autoSaveTimer;
 
         private void Awake() {
-            // References must be assigned in Inspector or injected by scene bootstrap.
-            // FindFirstObjectByType is intentionally removed — breaks multi-scene additive loading.
+            // _player can be assigned in Inspector or found at runtime (cross-scene additive).
+            // _playerHealth lives in Scene_GamePlay — lazy-find at Start() after all scenes load.
             if (_player == null)
-                Debug.LogWarning("[CheckpointSystem] PlayerController not assigned. Drag Player prefab into Inspector.");
-            if (_playerHealth == null)
-                Debug.LogWarning("[CheckpointSystem] PlayerHealth not assigned. Drag Player prefab into Inspector.");
+                Debug.LogWarning("[CheckpointSystem] PlayerController not assigned — will search at Start().");
         }
 
         private void Start() {
-            // Save initial position as first checkpoint
+            // Lazy-find cross-scene references (Player is in Scene_GamePlay, loaded additively)
+            if (_player == null)
+                _player = FindFirstObjectByType<PlayerController>();
+            if (_playerHealth == null)
+                _playerHealth = FindFirstObjectByType<Combat.PlayerHealth>();
+
+            if (_player == null)
+                Debug.LogWarning("[CheckpointSystem] PlayerController not found. Respawn will not work.");
+
             SaveCheckpoint();
         }
 
@@ -57,21 +63,33 @@ namespace ThePromisedRun.Gameplay {
         }
 
         public void Respawn() {
-            if (!_hasSave || _player == null) return;
+            if (!_hasSave) return;
 
-            // Restore position
-            _player.transform.position = _savedPosition;
-
-            // Reset velocity
-            if (_player.Rb != null)
-                _player.Rb.linearVelocity = Vector3.zero;
+            // Use GameManager for cross-scene respawn if available
+            if (Core.GameManager.Instance != null) {
+                Core.GameManager.Instance.RespawnPlayerAt(_savedPosition);
+            } else if (_player != null) {
+                _player.transform.position = _savedPosition;
+                if (_player.Rb != null) _player.Rb.linearVelocity = Vector3.zero;
+            } else {
+                Debug.LogWarning("[CheckpointSystem] Cannot respawn — no Player reference.");
+                return;
+            }
 
             // Reset OL gauge
-            _player.ResetChaos();
+            if (_player != null) _player.ResetChaos();
+            else {
+                var pc = FindFirstObjectByType<PlayerController>();
+                pc?.ResetChaos();
+            }
 
             // Restore HP
             if (_playerHealth != null)
                 _playerHealth.RestoreHealth(_savedHP);
+            else {
+                var ph = FindFirstObjectByType<Combat.PlayerHealth>();
+                ph?.RestoreHealth(_savedHP);
+            }
 
             OnCheckpointLoaded.Invoke();
             Debug.Log($"[Checkpoint] Respawned at {_savedPosition}");
