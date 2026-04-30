@@ -49,7 +49,6 @@ namespace ThePromisedRun.Gameplay.States {
             _playerController.Input.ConsumeAttackInput();
             ExecuteHit();
         }
-
         public override void OnUpdate() {
             base.OnUpdate();
 
@@ -101,8 +100,10 @@ namespace ThePromisedRun.Gameplay.States {
             base.OnExit();
             _comboIndex = 0;
             _animator.SetLayerWeight(AttackLayer, 0f);
-            // Don't reset VelocityX/Z here — LocomotionState.OnEnter will set correct values
-            // Only stop horizontal drift if no input
+
+            // Reset combo counter UI
+            _playerController.ComboUI?.EndCombo();
+
             if (_playerController.Input.MoveInput.sqrMagnitude < 0.01f) {
                 _playerController.Rb.linearVelocity = new Vector3(
                     0f, _playerController.Rb.linearVelocity.y, 0f);
@@ -144,6 +145,9 @@ namespace ThePromisedRun.Gameplay.States {
 
             _playerController.Juice?.OnAttackSwing();
             _playerController.AddChaos(_playerController.ChaosPerHit, ChaosSource.Attack);
+
+            // Update combo counter UI
+            _playerController.ComboUI?.SetCombo(_comboIndex);
         }
 
         private static IEnumerator HitStop(float duration, float timeScale) {

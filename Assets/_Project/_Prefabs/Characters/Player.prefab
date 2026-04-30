@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6429177041380110986}
   - component: {fileID: 342240125715994053}
   - component: {fileID: 1890695566735874157}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Detector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79,7 +79,14 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   ignoreList: []
-  colliders: []
+  colliders:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 6973943808851950464}
+  - {fileID: 6519127441161657579}
+  - {fileID: 5468740681856589176}
+  - {fileID: 8063853150752285654}
   boundsSolver: 0
   boundsCenter: 0
   collectBlockedLOSHits: 0
@@ -199,9 +206,9 @@ GameObject:
   - component: {fileID: 2098795500036843833}
   - component: {fileID: 5532355530303286643}
   - component: {fileID: 6973943808851950464}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -237,16 +244,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44b8b4ce3a14456a5dec10f44ff7f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThePromisedRun.Gameplay.PlayerController
-  _playerProperties: {fileID: 0}
-  _visual: {fileID: 0}
-  _detector: {fileID: 0}
-  _groundDetector: {fileID: 0}
+  _playerProperties: {fileID: 11400000, guid: a0f93472103708148a52993346e428dd, type: 2}
+  _visual: {fileID: 697831658421500319}
+  _detector: {fileID: 6429177041380110986}
+  _groundDetector: {fileID: 8214694393809945069}
   _attackHitbox: {fileID: 337164870885751837}
   _enemyDetector: {fileID: 1890695566735874157}
-  _chaosMeterVar: {fileID: 0}
-  OnChaosChanged:
-    m_PersistentCalls:
-      m_Calls: []
+  _chaosMeterVar: {fileID: 11400000, guid: e9a3ba01dc4627844842a1a0dca07d02, type: 2}
+  _overloadStateVar: {fileID: 0}
   OnOverloadStarted:
     m_PersistentCalls:
       m_Calls: []
@@ -425,7 +430,7 @@ GameObject:
   - component: {fileID: 8594901196121286252}
   - component: {fileID: 5468740681856589176}
   - component: {fileID: 2345106885648379122}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: AttackHitbox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -501,7 +506,7 @@ GameObject:
   - component: {fileID: 697831658421500319}
   - component: {fileID: 2037732542014920000}
   - component: {fileID: 3174021025606501922}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -656,7 +661,7 @@ GameObject:
   - component: {fileID: 70065726595099346}
   - component: {fileID: 6366446919714825807}
   - component: {fileID: 6712424841965950040}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: HUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -692,7 +697,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: c1e8d966367735b4481b79b9b00e8a5d, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 650261c15ab70f344ae5ee9d2c85062f, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: d3ebbf4a43306bf4baf5ed17291d786b, type: 3}
   m_SortingOrder: 10
   m_Position: 0
   m_WorldSpaceSizeMode: 1
