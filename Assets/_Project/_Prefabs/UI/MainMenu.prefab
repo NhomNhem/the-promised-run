@@ -1228,7 +1228,6 @@ RectTransform:
   - {fileID: 1722798854424434407}
   - {fileID: 5615133951559360463}
   - {fileID: 808370866250081177}
-  - {fileID: 4053270247320113091}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1316,7 +1315,6 @@ MonoBehaviour:
   settingsButton: {fileID: 7327352067608836037}
   quitButton: {fileID: 7620258769836421432}
   creditsPanel: {fileID: 5552845435893673863}
-  settingsPanel: {fileID: 7513904302311963402}
   gameplaySceneName: MoveScene
 --- !u!1 &7513904302311963402
 GameObject:

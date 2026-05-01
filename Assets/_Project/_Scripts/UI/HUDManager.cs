@@ -20,7 +20,9 @@ namespace ThePromisedRun.UI {
     ///   ├── GameHUDController
     ///   ├── ComboCounterUI
     ///   ├── PopupUI
-    ///   └── DeathScreen
+    ///   ├── DeathScreen
+    ///   ├── PauseMenuController
+    ///   └── SettingsPanelController
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
     [DefaultExecutionOrder(-100)] // runs before other HUD scripts
@@ -64,6 +66,8 @@ namespace ThePromisedRun.UI {
             GetComponent<OLGaugeController>()?.Initialize(_root);
             GetComponent<EndingSequenceController>()?.Initialize(_root);
             GetComponent<OverloadFlashEffect>()?.Initialize(_root);
+            GetComponent<PauseMenuController>()?.Initialize(_root);
+            GetComponent<SettingsPanelController>()?.Initialize(_root);
         }
 
         /// <summary>

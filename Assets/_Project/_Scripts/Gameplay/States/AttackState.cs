@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using ThePromisedRun.Gameplay.Combat;
+using ThePromisedRun.Audio;
 
 namespace ThePromisedRun.Gameplay.States {
     /// <summary>
@@ -142,6 +143,7 @@ namespace ThePromisedRun.Gameplay.States {
             _playerController.FaceNearestEnemyOrForward();
             _playerController.ApplyAttackStep(_comboIndex);
             _animator.CrossFade(Clips[_comboIndex - 1], _playerController.AttackBlendTime, AttackLayer, 0f);
+            AudioManager.Instance?.PlayAttack();
 
             _playerController.Juice?.OnAttackSwing();
             _playerController.AddChaos(_playerController.ChaosPerHit, ChaosSource.Attack);

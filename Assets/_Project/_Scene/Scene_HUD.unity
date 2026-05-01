@@ -138,6 +138,8 @@ GameObject:
   - component: {fileID: 1858727480}
   - component: {fileID: 1858727479}
   - component: {fileID: 1858727482}
+  - component: {fileID: 1858727483}
+  - component: {fileID: 1858727484}
   m_Layer: 0
   m_Name: HUD
   m_TagString: Untagged
@@ -319,6 +321,38 @@ MonoBehaviour:
   _flashDuration: 0.08
   _fadeDuration: 0.15
   _overloadStateVar: {fileID: 11400000, guid: 6f1a03790d94edf45b95971e567ff61e, type: 2}
+--- !u!114 &1858727483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858727471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 349f3582c2c6e53419b467a871132c62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.PauseMenuController
+  _mainMenuSceneName: Scene_MainMenu
+  _gameplaySceneName: Scene_GamePlay
+  _hudSceneName: Scene_HUD
+  _fadeInDuration: 0.2
+  _fadeOutDuration: 0.15
+--- !u!114 &1858727484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858727471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8acdc712ba47a12478c9e3375a90fb60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.SettingsPanelController
+  _settingsUxml: {fileID: 9197481963319205126, guid: 10f1bc8ce95b5d14eb434d92f4d801f8, type: 3}
+  _fadeInDuration: 0.2
+  _fadeOutDuration: 0.15
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -4,6 +4,7 @@ using OpenUtility.Data;
 using ThePromisedRun.Core.Interfaces;
 using ThePromisedRun.Gameplay.Juice;
 using ThePromisedRun.UI;
+using ThePromisedRun.Audio;
 
 namespace ThePromisedRun.Gameplay.Combat {
     /// <summary>
@@ -73,6 +74,7 @@ namespace ThePromisedRun.Gameplay.Combat {
 
             OnHealthChangedUnity.Invoke(HealthNorm);
             OnHit.Invoke();
+            AudioManager.Instance?.PlayHit();
 
             // Hit animation & screen flash
             _player.Anim?.SetTrigger("Hit");
@@ -92,6 +94,7 @@ namespace ThePromisedRun.Gameplay.Combat {
             _player.AddChaos(10f, ChaosSource.EnemyHit);
 
             if (!IsAlive) {
+                AudioManager.Instance?.PlayDeath();
                 OnDeathUnity.Invoke();
                 // Lazy-find DeathScreen at death time (may be in additively loaded Scene_HUD)
                 if (_deathScreen == null)

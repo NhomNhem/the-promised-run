@@ -256,13 +256,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8e500768436088408a4369503daa99d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Audio.AudioManager
-  _bgmSource: {fileID: 0}
-  _bgmClip: {fileID: 0}
-  _bgmVolume: 0.4
-  _sfxSource: {fileID: 0}
-  _popupSFX: {fileID: 0}
-  _overloadSFX: {fileID: 0}
-  _overloadStateVar: {fileID: 11400000, guid: 6f1a03790d94edf45b95971e567ff61e, type: 2}
+  _settings: {fileID: 11400000, guid: 085ba6f00fcb4488917e18ef1a674b5c, type: 2}
+  _menuBgmId: 0
+  _gameplayBgmId: 0
+  _sfxHit: 0
+  _sfxDash: 0
+  _sfxJump: 0
+  _sfxAttack: 0
+  _sfxDeath: 0
 --- !u!4 &1602524073
 Transform:
   m_ObjectHideFlags: 0

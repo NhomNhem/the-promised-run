@@ -40,6 +40,8 @@ public class MainMenuController : MonoBehaviour {
     private Button _btnInfo;
     private Button _btnQuit;
 
+    private SettingsPanelController _settingsPanel;
+
     private VisualElement _loadingOverlay;
     private VisualElement _loadingBarFill;
     private Label _loadingLabel;
@@ -64,6 +66,9 @@ public class MainMenuController : MonoBehaviour {
 
         InitializeElements();
         SetupButtonCallbacks();
+
+        _settingsPanel = GetComponent<SettingsPanelController>();
+        _settingsPanel?.Initialize(_root);
         
         _blueScreen.style.display = DisplayStyle.None;
         _blueScreen.style.opacity = 0f;
@@ -109,7 +114,7 @@ public class MainMenuController : MonoBehaviour {
         RegisterButtonEffects(_btnQuit);
 
         if (_btnStart != null) _btnStart.clicked += OnStartClick;
-        if (_btnSettings != null) _btnSettings.clicked += () => _ = TriggerLateAdviceAsync("Hệ thống: Cài đặt này chỉ là ảo giác của bạn.");
+        if (_btnSettings != null) _btnSettings.clicked += () => _settingsPanel?.Open();
         if (_btnInfo != null) _btnInfo.clicked += () => _ = TriggerLateAdviceAsync("Hệ thống: Thông tin? Bạn có chắc muốn biết không?");
         if (_btnQuit != null) _btnQuit.clicked += HandleQuit;
     }
