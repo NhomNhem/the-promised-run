@@ -12,8 +12,6 @@ namespace ThePromisedRun.UI {
         [SerializeField] private Gameplay.OverloadSystem _overloadSystem;
 
         [Header("Config")]
-        [SerializeField] private float _transitionSpeed = 5f;
-
         private VisualElement _gaugeBar;
         private VisualElement _gaugeContainer;
         private bool          _initialized;

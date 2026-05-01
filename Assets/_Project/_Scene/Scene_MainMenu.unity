@@ -362,21 +362,11 @@ MonoBehaviour:
   _defaultLevelSceneName: Level_01_WelcomeHall
   _lateAdviceDelay: 1.5
   _stressLevel: 42
---- !u!114 &1522186432
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1522186428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8acdc712ba47a12478c9e3375a90fb60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.SettingsPanelController
-  _settingsUxml: {fileID: 9197481963319205126, guid: 10f1bc8ce95b5d14eb434d92f4d801f8, type: 3}
-  _fadeInDuration: 0.2
-  _fadeOutDuration: 0.15
+  _loadingFadeInDuration: 0.3
+  _loadingFadeOutDuration: 0.4
+  _loadingMinDisplayTime: 0.8
+  _loadingBarCompleteDuration: 0.5
+  _loadingCompleteHoldTime: 0.4
 --- !u!114 &1522186430
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -415,6 +405,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1522186432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522186428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8acdc712ba47a12478c9e3375a90fb60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.SettingsPanelController
+  _settingsUxml: {fileID: 9197481963319205126, guid: 10f1bc8ce95b5d14eb434d92f4d801f8, type: 3}
+  _fadeInDuration: 0.2
+  _fadeOutDuration: 0.15
 --- !u!1 &1599320234
 GameObject:
   m_ObjectHideFlags: 0

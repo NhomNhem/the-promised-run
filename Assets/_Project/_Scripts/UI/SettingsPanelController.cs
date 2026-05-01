@@ -35,6 +35,8 @@ namespace ThePromisedRun.UI
         private Button        _btnApply;
         private Button        _btnCancel;
         private Button        _btnReset;
+        private Button        _btnBack;
+        private Button        _btnEndGame;
 
         // Snapshot for Cancel
         private float _snapMaster;
@@ -44,6 +46,10 @@ namespace ThePromisedRun.UI
 
         private Tween _fadeTween;
         private bool  _initialized;
+
+        // ESC context tracking
+        private bool                 _openedFromEsc;
+        private PauseMenuController  _pauseMenuRef;
 
         #endregion
 
@@ -81,6 +87,8 @@ namespace ThePromisedRun.UI
             _btnApply         = root.Q<Button>("btn-apply");
             _btnCancel        = root.Q<Button>("btn-cancel");
             _btnReset         = root.Q<Button>("btn-reset");
+            _btnBack          = root.Q<Button>("btn-back");
+            _btnEndGame       = root.Q<Button>("btn-endgame");
 
             if (_overlay == null)
             {
@@ -109,6 +117,8 @@ namespace ThePromisedRun.UI
             _btnApply?.RegisterCallback<ClickEvent>(_  => Apply());
             _btnCancel?.RegisterCallback<ClickEvent>(_ => Cancel());
             _btnReset?.RegisterCallback<ClickEvent>(_  => Reset());
+            _btnBack?.RegisterCallback<ClickEvent>(_   => OnBackClicked());
+            _btnEndGame?.RegisterCallback<ClickEvent>(_ => OnEndGameClicked());
 
             _initialized = true;
         }
@@ -118,11 +128,32 @@ namespace ThePromisedRun.UI
         #region Public API
 
         /// <summary>
+        /// Mở Settings từ ESC trong gameplay — hiện btn-back, ẩn btn-cancel, pause game.
+        /// </summary>
+        public void OpenFromEsc(PauseMenuController pauseMenu)
+        {
+            _openedFromEsc = true;
+            _pauseMenuRef  = pauseMenu;
+
+            if (_btnBack   != null) _btnBack.style.display   = DisplayStyle.Flex;
+            if (_btnCancel != null) _btnCancel.style.display = DisplayStyle.None;
+
+            Open();
+        }
+
+        /// <summary>
         /// Opens the Settings panel: snapshots current values, populates controls, fades in.
         /// </summary>
         public void Open()
         {
             if (!_initialized || _overlay == null) return;
+
+            // Default context (Main Menu / Pause button): hide Back, show Cancel
+            if (!_openedFromEsc)
+            {
+                if (_btnBack != null) _btnBack.style.display = DisplayStyle.None;
+                if (_btnCancel != null) _btnCancel.style.display = DisplayStyle.Flex;
+            }
 
             // Snapshot current in-memory values for Cancel
             AudioSettingsSO settings = AudioManager.Instance?.Settings;
@@ -176,7 +207,51 @@ namespace ThePromisedRun.UI
             if (_sliderSfx    != null) _sliderSfx.SetValueWithoutNotify(_snapSfx);
             UpdateQualityButtons(_snapQuality);
 
+            // Nếu mở từ ESC, notify PauseMenuController để resume game
+            if (_openedFromEsc)
+            {
+                RestoreEscContext();
+            }
+
             Close();
+        }
+
+        /// <summary>
+        /// Nút "QUAY LẠI" — lưu settings và đóng panel, resume game.
+        /// Chỉ hiển thị khi Settings được mở từ ESC.
+        /// </summary>
+        private void OnBackClicked()
+        {
+            Apply(); // lưu settings trước khi đóng
+            RestoreEscContext();
+            // Close() đã được gọi bên trong Apply() → Close()
+        }
+
+        private void OnEndGameClicked()
+        {
+            // Ensure settings closes and gameplay resumes before starting ending sequence.
+            if (_openedFromEsc)
+                RestoreEscContext();
+
+            Time.timeScale = 1f;
+            Close();
+
+            var ending = FindFirstObjectByType<EndingSequenceController>();
+            if (ending != null)
+                ending.PlayEnding();
+            else
+                Debug.LogWarning("[SettingsPanelController] EndingSequenceController not found. End game test skipped.");
+        }
+
+        /// <summary>Reset ESC context và notify PauseMenuController.</summary>
+        private void RestoreEscContext()
+        {
+            _openedFromEsc = false;
+            _pauseMenuRef?.OnSettingsClosedFromEsc();
+            _pauseMenuRef = null;
+
+            if (_btnBack   != null) _btnBack.style.display   = DisplayStyle.None;
+            if (_btnCancel != null) _btnCancel.style.display = DisplayStyle.Flex;
         }
 
         /// <summary>Resets all settings to defaults and applies immediately (does NOT save).</summary>

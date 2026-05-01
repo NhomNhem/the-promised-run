@@ -2,36 +2,38 @@
     <ui:Style src="project://database/Assets/_Project/_UI/Settings.uss" />
     <ui:VisualElement name="settings-overlay" class="settings-overlay">
         <ui:VisualElement name="settings-panel" class="settings-panel">
-            <ui:Label text="SETTINGS" class="settings-title"/>
+            <ui:Label text="CÀI ĐẶT" class="settings-title"/>
 
             <!-- Audio Section -->
-            <ui:Label text="AUDIO" class="settings-section-label"/>
+            <ui:Label text="ÂM THANH" class="settings-section-label"/>
             <ui:VisualElement class="settings-row">
-                <ui:Label text="Master" class="settings-label"/>
+                <ui:Label text="Tổng thể" class="settings-label"/>
                 <ui:Slider name="slider-master" low-value="0" high-value="1" value="1" class="settings-slider"/>
             </ui:VisualElement>
             <ui:VisualElement class="settings-row">
-                <ui:Label text="Music" class="settings-label"/>
+                <ui:Label text="Nhạc nền" class="settings-label"/>
                 <ui:Slider name="slider-music" low-value="0" high-value="1" value="1" class="settings-slider"/>
             </ui:VisualElement>
             <ui:VisualElement class="settings-row">
-                <ui:Label text="SFX" class="settings-label"/>
+                <ui:Label text="Hiệu ứng" class="settings-label"/>
                 <ui:Slider name="slider-sfx" low-value="0" high-value="1" value="1" class="settings-slider"/>
             </ui:VisualElement>
 
             <!-- Graphics Section -->
-            <ui:Label text="GRAPHICS" class="settings-section-label"/>
+            <ui:Label text="ĐỒ HỌA" class="settings-section-label"/>
             <ui:VisualElement class="settings-row">
-                <ui:Button name="btn-quality-low"    text="LOW"    class="quality-button"/>
-                <ui:Button name="btn-quality-medium" text="MEDIUM" class="quality-button active"/>
-                <ui:Button name="btn-quality-high"   text="HIGH"   class="quality-button"/>
+                <ui:Button name="btn-quality-low"    text="THẤP"        class="quality-button"/>
+                <ui:Button name="btn-quality-medium" text="TRUNG BÌNH"  class="quality-button active"/>
+                <ui:Button name="btn-quality-high"   text="CAO"         class="quality-button"/>
             </ui:VisualElement>
 
             <!-- Action Buttons -->
             <ui:VisualElement class="settings-actions">
-                <ui:Button name="btn-apply"  text="APPLY"            class="settings-action-button primary"/>
-                <ui:Button name="btn-cancel" text="CANCEL"           class="settings-action-button"/>
-                <ui:Button name="btn-reset"  text="RESET TO DEFAULT" class="settings-action-button"/>
+                <ui:Button name="btn-apply"  text="ÁP DỤNG"           class="settings-action-button primary"/>
+                <ui:Button name="btn-cancel" text="HỦY"                class="settings-action-button"/>
+                <ui:Button name="btn-back"   text="QUAY LẠI"           class="settings-action-button" style="display: none;"/>
+                <ui:Button name="btn-endgame" text="END GAME"          class="settings-action-button danger"/>
+                <ui:Button name="btn-reset"  text="ĐẶT LẠI MẶC ĐỊNH"  class="settings-action-button"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

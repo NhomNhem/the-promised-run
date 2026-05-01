@@ -18,7 +18,7 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
         [SerializeField] private EnemyAINavMeshController navMeshController;
         
         [Header("Debug")]
-        [SerializeField] private bool debugMode = true;
+        [SerializeField] private bool debugMode = false;
         [SerializeField] private bool showDecisionLogs = false;
         
         // State management

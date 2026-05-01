@@ -69,6 +69,7 @@ namespace ThePromisedRun.Gameplay.Combat {
 
             _health = Mathf.Max(0f, _health - amount);
             _iFrameTimer = iFrames;
+            UI.DamagePopupSpawner.Spawn(transform.position, amount, UI.DamagePopupType.Player);
 
             _healthVar?.SetValue(_health);
 

@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 868e4e236d2a7954999fa98083039ed7, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -257,13 +257,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Audio.AudioManager
   _settings: {fileID: 11400000, guid: 085ba6f00fcb4488917e18ef1a674b5c, type: 2}
-  _menuBgmId: 0
-  _gameplayBgmId: 0
-  _sfxHit: 0
-  _sfxDash: 0
-  _sfxJump: 0
-  _sfxAttack: 0
-  _sfxDeath: 0
+  _useSingleBgm: 1
+  _menuBgmId:
+    _entity: {fileID: 0}
+    ID: 0
+    <DebugObject>k__BackingField: {fileID: 0}
+  _gameplayBgmId:
+    _entity: {fileID: 0}
+    ID: 0
+    <DebugObject>k__BackingField: {fileID: 0}
+  _menuBgmClip: {fileID: 8300000, guid: df836ff862d0e6e4180520ac51307b95, type: 3}
+  _gameplayBgmClip: {fileID: 8300000, guid: df836ff862d0e6e4180520ac51307b95, type: 3}
+  _sfxHit:
+    _entity: {fileID: 0}
+    ID: 0
+    <DebugObject>k__BackingField: {fileID: 0}
+  _sfxDash:
+    _entity: {fileID: 0}
+    ID: 0
+    <DebugObject>k__BackingField: {fileID: 0}
+  _sfxJump:
+    _entity: {fileID: 0}
+    ID: 0
+    <DebugObject>k__BackingField: {fileID: 0}
+  _sfxAttack:
+    _entity: {fileID: 0}
+    ID: 0
+    <DebugObject>k__BackingField: {fileID: 0}
+  _sfxDeath:
+    _entity: {fileID: 0}
+    ID: 0
+    <DebugObject>k__BackingField: {fileID: 0}
+  _sfxHitClip: {fileID: 8300000, guid: 41b77ef22ede79f498d7e892832f1f87, type: 3}
+  _sfxDashClip: {fileID: 8300000, guid: f80bba39845767544b932f17fbe3be76, type: 3}
+  _sfxJumpClip: {fileID: 8300000, guid: 10dfe07c20ffbc14597538a5e1cd1bce, type: 3}
+  _sfxAttackClip: {fileID: 8300000, guid: f80bba39845767544b932f17fbe3be76, type: 3}
+  _sfxDeathClip: {fileID: 8300000, guid: 8165beaa5859c5448a3ceeafb2ab20e1, type: 3}
+  _musicSource: {fileID: 0}
+  _sfxSource: {fileID: 0}
 --- !u!4 &1602524073
 Transform:
   m_ObjectHideFlags: 0

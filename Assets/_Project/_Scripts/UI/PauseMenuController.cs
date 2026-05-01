@@ -31,6 +31,7 @@ namespace ThePromisedRun.UI
         private VisualElement _pauseLayer;
         private VisualElement _pauseOverlay;
         private Button        _btnResume;
+        private Button        _btnTestEnding;
         private Button        _btnSettings;
         private Button        _btnQuit;
 
@@ -39,6 +40,7 @@ namespace ThePromisedRun.UI
         private bool  _isPaused;
         private bool  _isTransitioning;
         private bool  _initialized;
+        private bool  _settingsOpenFromEsc;
 
         #endregion
 
@@ -59,6 +61,7 @@ namespace ThePromisedRun.UI
             _pauseLayer   = root.Q<VisualElement>("pause-layer");
             _pauseOverlay = root.Q<VisualElement>("pause-overlay");
             _btnResume    = root.Q<Button>("btn-resume");
+            _btnTestEnding = root.Q<Button>("btn-test-ending");
             _btnSettings  = root.Q<Button>("btn-settings");
             _btnQuit      = root.Q<Button>("btn-quit");
 
@@ -73,6 +76,7 @@ namespace ThePromisedRun.UI
 
             // Wire button callbacks
             _btnResume?.RegisterCallback<ClickEvent>(_   => OnResumeClicked());
+            _btnTestEnding?.RegisterCallback<ClickEvent>(_ => OnTestEndingClicked());
             _btnSettings?.RegisterCallback<ClickEvent>(_ => OnSettingsClicked());
             _btnQuit?.RegisterCallback<ClickEvent>(_     => OnQuitClicked());
 
@@ -115,9 +119,43 @@ namespace ThePromisedRun.UI
         private void TogglePause()
         {
             if (_isPaused)
-                CloseAsync();
+            {
+                if (_settingsOpenFromEsc)
+                {
+                    // ESC lần 2: đóng Settings đang mở từ ESC (không apply)
+                    _settingsPanel?.Cancel();
+                }
+                else
+                {
+                    CloseAsync();
+                }
+            }
             else
-                OpenAsync();
+            {
+                OpenSettingsFromEsc();
+            }
+        }
+
+        /// <summary>
+        /// Mở Settings Panel trực tiếp từ ESC — pause game và track trạng thái.
+        /// </summary>
+        public void OpenSettingsFromEsc()
+        {
+            if (_settingsPanel == null) return;
+            _isPaused = true;
+            _settingsOpenFromEsc = true;
+            Time.timeScale = 0f;
+            _settingsPanel.OpenFromEsc(this);
+        }
+
+        /// <summary>
+        /// Callback từ SettingsPanelController khi đóng panel mở từ ESC.
+        /// </summary>
+        public void OnSettingsClosedFromEsc()
+        {
+            _settingsOpenFromEsc = false;
+            _isPaused = false;
+            Time.timeScale = 1f;
         }
 
         /// <summary>
@@ -193,6 +231,22 @@ namespace ThePromisedRun.UI
         private void OnSettingsClicked()
         {
             _settingsPanel?.Open();
+        }
+
+        private void OnTestEndingClicked()
+        {
+            // Ensure gameplay resumes so ending coroutine uses normal time scale.
+            _fadeTween?.Kill();
+            if (_pauseLayer != null)
+                _pauseLayer.AddToClassList("hidden");
+            _isPaused = false;
+            Time.timeScale = 1f;
+
+            var ending = FindFirstObjectByType<EndingSequenceController>();
+            if (ending != null)
+                ending.PlayEnding();
+            else
+                Debug.LogWarning("[PauseMenuController] EndingSequenceController not found for test ending.");
         }
 
         private void OnQuitClicked()

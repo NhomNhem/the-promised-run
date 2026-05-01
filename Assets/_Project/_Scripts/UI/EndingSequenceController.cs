@@ -8,28 +8,30 @@ namespace ThePromisedRun.UI {
     /// EndingSequenceController — plays the ending cutscene after boss death.
     /// Receives VisualElement root from HUDManager (shared UIDocument).
     ///
-    /// Sequence:
-    ///   T=0s:  Fade to black (1s)
-    ///   T=1s:  Silence 2s
-    ///   T=3s:  "SYSTEM OFFLINE. HERO #47 DESIGNATION: GRADUATE." (1s)
-    ///   T=4s:  Hide text
-    ///   T=5s:  Footstep audio (8s)
-    ///   T=13s: Fade to white (2s)
-    ///   T=15s: Wait 1s
-    ///   T=16s: "HERO #47 WAS THE LAST." (3s, large font)
-    ///   T=19s: Fade to black (3s)
-    ///   T=22s: Wait 2s
-    ///   T=24s: Return to MainMenu
+    /// Sequence (minimal game-jam ending):
+    ///   1) Fade to black
+    ///   2) Fade in ending text slowly
+    ///   3) Hold text
+    ///   4) Fade out to black
+    ///   5) Return to MainMenu
     /// </summary>
     public class EndingSequenceController : MonoBehaviour {
-        [Header("Audio")]
-        [SerializeField] private AudioClip _footstepClip;
-        [SerializeField] [Range(0f,1f)] private float _footstepVolume = 0.8f;
+        private static readonly string[] EndingLines = {
+            "ENDING",
+            "Bạn tìm thấy nơi hệ thống ở đó.",
+            "Nó vẫn spam lời khuyên. Vẫn gào thét vào mic.",
+            "Không biết bạn đã đến.",
+            "Bạn cầm cây kiếm.",
+            "Một cú swing.",
+            "Tất cả yên tĩnh.",
+            "Không còn lời khuyên nữa."
+        };
 
         private VisualElement _endingRoot;
         private Label         _endingText;
         private VisualElement _screenFade;
-        private AudioSource   _audioSource;
+        private VisualElement _popupWindow;
+        private Label         _popupMessage;
         private bool          _playingEnding;
 
         /// <summary>Called by HUDManager with the shared UIDocument root.</summary>
@@ -42,6 +44,8 @@ namespace ThePromisedRun.UI {
             _endingRoot = root.Q<VisualElement>("ending-root");
             _endingText = root.Q<Label>("ending-text");
             _screenFade = root.Q<VisualElement>("screen-fade");
+            _popupWindow = root.Q<VisualElement>("popup-window");
+            _popupMessage = root.Q<Label>("popup-message");
 
             _endingRoot?.AddToClassList("hidden");
 
@@ -49,11 +53,11 @@ namespace ThePromisedRun.UI {
             if (_screenFade != null) {
                 _screenFade.RemoveFromClassList("hidden");
                 _screenFade.style.backgroundColor = new StyleColor(new Color(0f, 0f, 0f, 0f));
+                _screenFade.pickingMode = PickingMode.Ignore;
             }
 
-            _audioSource = GetComponent<AudioSource>();
-            if (_audioSource == null)
-                _audioSource = gameObject.AddComponent<AudioSource>();
+            if (_endingText != null)
+                _endingText.style.opacity = 0f;
         }
 
         /// <summary>Trigger ending sequence. Called by BossController on death.</summary>
@@ -64,48 +68,34 @@ namespace ThePromisedRun.UI {
 
         private IEnumerator EndingSequence() {
             _playingEnding = true;
-            Debug.Log("[EndingSequence] Starting...");
+            Debug.Log("[EndingSequence] Bắt đầu...");
 
-            // T=0s: Fade to black
+            ShowEndingPopup("KẺ KIẾN TRÚC ĐÃ GỤC NGÃ.\nHỆ THỐNG ĐANG TẮT...");
+            yield return new WaitForSecondsRealtime(2.5f);
+            HideEndingPopup();
+
+            // 1) Black fade
             yield return FadeScreenTo(new Color(0f, 0f, 0f, 1f), 1f);
+            yield return new WaitForSecondsRealtime(1f);
+            // screen-fade is topmost; make it transparent so ending text is visible.
+            if (_screenFade != null)
+                _screenFade.style.backgroundColor = new StyleColor(new Color(0f, 0f, 0f, 0f));
 
-            // T=1s: Silence
-            yield return new WaitForSeconds(2f);
+            // 2) Text fade-in
+            ShowText(string.Empty, 52);
+            yield return PlayEndingTextSequence();
 
-            // T=3s: First message
-            ShowText("SYSTEM OFFLINE.\nHERO #47 DESIGNATION: GRADUATE.", 60);
-            yield return new WaitForSeconds(3f);
+            // 4) Fade out text and keep black screen
+            yield return FadeTextTo(0f, 1f);
+            yield return FadeScreenTo(new Color(0f, 0f, 0f, 1f), 2f);
 
-            // T=6s: Hide text
-            HideText();
-            yield return new WaitForSeconds(1f);
-
-            // T=7s: Footstep audio
-            if (_footstepClip != null && _audioSource != null) {
-                _audioSource.clip   = _footstepClip;
-                _audioSource.volume = _footstepVolume;
-                _audioSource.Play();
-                yield return new WaitForSeconds(_footstepClip.length);
-            } else {
-                yield return new WaitForSeconds(4f);
+            // 5) Back to MainMenu
+            Debug.Log("[EndingSequence] Hoàn tất. Đang tải MainMenu.");
+            try {
+                SceneManager.LoadScene(0); // Scene_MainMenu is usually build index 0
+            } catch {
+                SceneManager.LoadScene("Scene_MainMenu");
             }
-
-            // Fade to white
-            yield return FadeScreenTo(new Color(1f, 1f, 1f, 1f), 2f);
-            yield return new WaitForSeconds(1f);
-
-            // Final text
-            ShowText("HERO #47 WAS THE LAST.", 80);
-            yield return new WaitForSeconds(4f);
-
-            // Fade to black
-            HideText();
-            yield return FadeScreenTo(new Color(0f, 0f, 0f, 1f), 3f);
-            yield return new WaitForSeconds(2f);
-
-            // Return to MainMenu
-            Debug.Log("[EndingSequence] Complete. Loading MainMenu.");
-            SceneManager.LoadScene(0); // Scene_MainMenu is build index 0
         }
 
         private void ShowText(string message, int fontSize) {
@@ -119,6 +109,56 @@ namespace ThePromisedRun.UI {
             _endingRoot?.AddToClassList("hidden");
         }
 
+        private IEnumerator FadeTextTo(float targetOpacity, float duration) {
+            if (_endingText == null) yield break;
+
+            float startOpacity = _endingText.resolvedStyle.opacity;
+            float elapsed = 0f;
+
+            while (elapsed < duration) {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                _endingText.style.opacity = Mathf.Lerp(startOpacity, targetOpacity, t);
+                yield return null;
+            }
+
+            _endingText.style.opacity = targetOpacity;
+        }
+
+        private IEnumerator PlayEndingTextSequence() {
+            if (_endingText == null) yield break;
+
+            _endingText.text = string.Empty;
+            _endingText.style.opacity = 1f;
+
+            string built = string.Empty;
+            for (int i = 0; i < EndingLines.Length; i++) {
+                if (i > 0) built += "\n";
+                built += EndingLines[i];
+                _endingText.text = built;
+
+                if (i == 0) {
+                    yield return new WaitForSecondsRealtime(1.1f);
+                } else if (i >= 4) {
+                    yield return new WaitForSecondsRealtime(0.85f);
+                } else {
+                    yield return new WaitForSecondsRealtime(1.0f);
+                }
+            }
+
+            yield return new WaitForSecondsRealtime(2.0f);
+        }
+
+        private void ShowEndingPopup(string message) {
+            if (_popupWindow == null || _popupMessage == null) return;
+            _popupMessage.text = message;
+            _popupWindow.RemoveFromClassList("hidden");
+        }
+
+        private void HideEndingPopup() {
+            _popupWindow?.AddToClassList("hidden");
+        }
+
         private IEnumerator FadeScreenTo(Color targetColor, float duration) {
             if (_screenFade == null) yield break;
 
@@ -126,7 +166,7 @@ namespace ThePromisedRun.UI {
             float elapsed    = 0f;
 
             while (elapsed < duration) {
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
                 _screenFade.style.backgroundColor = new StyleColor(Color.Lerp(startColor, targetColor, t));
                 yield return null;

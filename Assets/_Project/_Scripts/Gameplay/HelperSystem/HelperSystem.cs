@@ -67,47 +67,47 @@ namespace ThePromisedRun.Gameplay.HelperSystem {
 
         #region Popup Messages by Type
         private static readonly string[] LateWarningMsgs = {
-            "JUMP!", "RUN!", "WATCH OUT!", "DODGE!", "ALERT: Danger (3 seconds ago)"
+            "NHẢY!", "CHẠY!", "COI CHỪNG!", "NÉ ĐÒN!", "CẢNH BÁO: Nguy hiểm (3 giây trước)"
         };
         private static readonly string[] FakeQuestMsgs = {
-            "NEW QUEST: Collect 3 Phantom Coins",
-            "OBJECTIVE: Find the Sacred Mushroom",
-            "TASK: Defeat 10 enemies (0/10)",
-            "SIDE QUEST: Return to the beginning",
+            "NHIỆM VỤ MỚI: Thu thập 3 Đồng Ma Ảnh",
+            "MỤC TIÊU: Tìm Nấm Thiêng",
+            "NHIỆM VỤ: Hạ 10 kẻ địch (0/10)",
+            "NHIỆM VỤ PHỤ: Quay lại điểm bắt đầu",
         };
         private static readonly string[] FakeLevelUpMsgs = {
-            "LEVEL UP! +5 WIS",
-            "ACHIEVEMENT UNLOCKED: Breathing",
-            "BONUS: +0 damage for 0 seconds",
-            "SKILL POINT AVAILABLE (skill tree not found)",
+            "LÊN CẤP! +5 TRÍ TUỆ",
+            "THÀNH TỰU MỞ KHÓA: Hít thở",
+            "THƯỞNG: +0 sát thương trong 0 giây",
+            "CÓ ĐIỂM KỸ NĂNG (không tìm thấy cây kỹ năng)",
         };
         private static readonly string[] AFKMsgs = {
-            "Auto-logout in 5s...",
-            "WARNING: Inactivity detected",
-            "SESSION TIMEOUT: Move or be removed",
+            "Tự động đăng xuất sau 5 giây...",
+            "CẢNH BÁO: Phát hiện không hoạt động",
+            "PHIÊN SẮP HẾT HẠN: Di chuyển hoặc sẽ bị loại",
         };
         private static readonly string[] FakeHealMsgs = {
-            "RECOMMENDED: Use Healing Potion!",
-            "TIP: Healing items available nearby",
-            "ALERT: Low HP — drink potion (no potion exists)",
+            "KHUYÊN DÙNG: Thuốc hồi máu!",
+            "MẸO: Có vật phẩm hồi máu ở gần",
+            "CẢNH BÁO: Máu thấp — uống thuốc (nhưng không có thuốc)",
         };
         private static readonly string[] RecalibrateMsgs = {
-            "SYSTEM RECALIBRATING...",
-            "ERROR: Unexpected hero behavior",
-            "RECALCULATING optimal strategy...",
-            "ANOMALY DETECTED. Adjusting parameters.",
+            "HỆ THỐNG ĐANG HIỆU CHỈNH...",
+            "LỖI: Hành vi anh hùng ngoài dự kiến",
+            "ĐANG TÍNH LẠI chiến thuật tối ưu...",
+            "PHÁT HIỆN DỊ THƯỜNG. Đang điều chỉnh tham số.",
         };
         private static readonly string[] ExitBlockMsgs = {
-            "NEW QUEST available! Explore deeper.",
-            "WAIT — unfinished objectives detected",
-            "ACHIEVEMENT: 0% area explored. Go back.",
+            "ĐÃ MỞ NHIỆM VỤ MỚI! Hãy khám phá sâu hơn.",
+            "KHOAN — phát hiện mục tiêu chưa hoàn thành",
+            "THÀNH TỰU: Đã khám phá 0% khu vực. Quay lại ngay.",
         };
         private static readonly string[] GenericMsgs = {
-            "TIP: Try not to die",
-            "HINT: The exit is somewhere",
-            "CONGRATULATIONS! (on your previous action)",
-            "REMINDER: You are being monitored",
-            "SYSTEM: All is well. Proceed normally.",
+            "MẸO: Cố gắng đừng chết",
+            "GỢI Ý: Lối ra nằm đâu đó",
+            "CHÚC MỪNG! (cho hành động trước đó của bạn)",
+            "NHẮC NHỞ: Bạn đang bị theo dõi",
+            "HỆ THỐNG: Mọi thứ ổn. Hãy tiếp tục bình thường.",
         };
         #endregion
 

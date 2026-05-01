@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 559e65631a9130d48bab95929ee146a2, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -160,7 +160,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.DeathScreen
   _fadeInDuration: 0.5
-  _displayDuration: 3
   _fadeOutDuration: 0.3
   _checkpoint: {fileID: 0}
 --- !u!114 &1858727473
@@ -222,6 +221,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59ce308503edda64db5d8a0bd19e6ead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.HUDManager
+  _fadeInDuration: 0.5
+  _fadeInDelay: 0.1
 --- !u!114 &1858727477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,8 +273,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76cdb27ad37bce747acde49d4d4c6dc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.EndingSequenceController
-  _footstepClip: {fileID: 0}
-  _footstepVolume: 0.8
 --- !u!114 &1858727480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287,7 +286,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.UI.OLGaugeController
   _overloadSystem: {fileID: 0}
-  _transitionSpeed: 5
 --- !u!114 &1858727481
 MonoBehaviour:
   m_ObjectHideFlags: 0

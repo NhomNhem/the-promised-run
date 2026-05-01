@@ -33,6 +33,10 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
         private EnemyChaseState     _chase;
         private EnemyAttackFSMState _attack;
         private EnemyDeadFSMState   _dead;
+        private EnemyHitState       _hit;
+
+        // Hit flag — set by EnemyHealth.OnDamaged, consumed once by WasHit() predicate
+        private bool _wasHit;
 
         // ── Cached target ──────────────────────────────────────────────
         private IDamageable _target;
@@ -44,6 +48,16 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
         private bool TargetTooFar()    => HasTarget() && DistToTarget() > _loseTargetDistance;
         private bool AttackDone()      => _attack.AttackComplete;
         private bool IsDead()          => _health != null && !_health.IsAlive;
+
+        /// <summary>
+        /// Consumes the _wasHit flag — returns true once per hit event, then resets.
+        /// Only triggers Hit state when enemy is still alive (Dead transition takes priority).
+        /// </summary>
+        private bool WasHit() {
+            bool v = _wasHit;
+            _wasHit = false;
+            return v && _health != null && _health.IsAlive;
+        }
 
         private float DistToTarget() {
             if (_target == null) return float.MaxValue;
@@ -63,6 +77,13 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
                 _playerMask = playerLayer >= 0
                     ? (1 << playerLayer)
                     : (1 << 0); // Default layer fallback
+            }
+
+            // Subscribe to damage events so FSM can transition to Hit state
+            if (_health != null) {
+                _health.OnDamaged.AddListener(_ => {
+                    if (_health.IsAlive) _wasHit = true;
+                });
             }
         }
 
@@ -100,6 +121,7 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
             _chase  = new EnemyChaseState(_enemy);
             _attack = new EnemyAttackFSMState(_enemy, hitbox);
             _dead   = new EnemyDeadFSMState(_enemy);
+            _hit    = new EnemyHitState(_enemy);
 
             _fsm = new StateMachine();
 
@@ -119,7 +141,14 @@ namespace ThePromisedRun.Gameplay.Enemy.AI {
             // Attack → Attack (attack done, still in range — re-enter)
             _fsm.AddTransition(_attack, _chase,  new FuncPredicate(AttackDone));
 
-            // Any → Dead
+            // Hit → Chase / Patrol (after stun duration)
+            _fsm.AddTransition(_hit, _chase,  new FuncPredicate(() => _hit.HitComplete && HasTarget()));
+            _fsm.AddTransition(_hit, _patrol, new FuncPredicate(() => _hit.HitComplete && !HasTarget()));
+
+            // Any → Hit (when damaged and alive) — checked BEFORE Dead so it doesn't fire on killing blow
+            _fsm.AddAnyTransition(_hit,  new FuncPredicate(WasHit));
+
+            // Any → Dead (takes priority over Hit on killing blow because IsDead checks !IsAlive)
             _fsm.AddAnyTransition(_dead, new FuncPredicate(IsDead));
 
             // Start in Idle (→ Patrol immediately via predicate)

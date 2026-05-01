@@ -34,15 +34,21 @@ namespace ThePromisedRun.UI {
                 ? SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive)
                 : SceneManager.LoadSceneAsync(sceneName);
 
+            if (asyncOp == null) {
+                Debug.LogError($"[SceneLoadManager] Failed to start async load for scene: {sceneName}");
+                return;
+            }
+
             _currentLoadOperation = asyncOp;
-            asyncOp.allowSceneActivation = false;
+            // WebGL is sensitive to manual scene-activation gating; keep default activation flow.
+            asyncOp.allowSceneActivation = true;
 
             while (!asyncOp.isDone) {
-                OnProgressChanged?.Invoke(asyncOp.progress);
-
-                if (asyncOp.progress >= 0.9f) {
-                    asyncOp.allowSceneActivation = true;
-                }
+                // Normalize progress to [0..1] for UI (Unity reports up to 0.9 before final activation).
+                float normalized = asyncOp.progress < 0.9f
+                    ? Mathf.Clamp01(asyncOp.progress / 0.9f)
+                    : 1f;
+                OnProgressChanged?.Invoke(normalized);
 
                 await Awaitable.NextFrameAsync();
             }

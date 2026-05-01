@@ -210,6 +210,26 @@
     max-width: 600px;
 }
 
+.death-button {
+    width: 320px;
+    height: 55px;
+    margin-top: 28px;
+    background-color: rgb(236, 72, 153);
+    color: rgb(255, 255, 255);
+    border-width: 0;
+    border-bottom-width: 4px;
+    border-right-width: 4px;
+    border-color: rgb(255, 255, 255);
+    font-size: 18px;
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.death-button:hover {
+    background-color: rgb(244, 114, 182);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    OL GAUGE — right edge
    ═══════════════════════════════════════════════════════════════════════════ */

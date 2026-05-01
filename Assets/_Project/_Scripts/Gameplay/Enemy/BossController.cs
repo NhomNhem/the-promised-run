@@ -22,7 +22,8 @@ namespace ThePromisedRun.Gameplay.Enemy {
     public class BossController : MonoBehaviour {
         [Header("Stats")]
         [SerializeField] private int   _maxHealth            = 100;
-        [SerializeField] private int   _damagePerHit         = 34;
+        [SerializeField] private bool  _useFixedHitsToKillForTesting = true;
+        [SerializeField] private int   _hitsToKill = 5;
 
         [Header("Phase 2 Barrage")]
         [SerializeField] private float _popupBarrageInterval = 1f;
@@ -36,8 +37,12 @@ namespace ThePromisedRun.Gameplay.Enemy {
         [Header("Visual")]
         [SerializeField] private Animator  _animator;
         [SerializeField] private Renderer  _renderer;
+        [SerializeField] private string[] _idleStateCandidates = { "Idle_A", "Melee_2H_Idle", "Melee_Unarmed_Idle", "Idle" };
+        [SerializeField] private string[] _hitTriggerCandidates = { "Hit", "GetHit" };
+        [SerializeField] private string[] _deathTriggerCandidates = { "Death", "Die" };
 
         private int   _health;
+        private int   _remainingHits;
         private float _popupTimer;
         private bool  _isDefeated;
         private bool  _wasOverloaded;
@@ -52,6 +57,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
 
         private void Start() {
             _health = _maxHealth;
+            _remainingHits = Mathf.Max(1, _hitsToKill);
 
             if (_overloadSystem   == null) _overloadSystem   = FindFirstObjectByType<OverloadSystem>();
             if (_endingController == null) _endingController = FindFirstObjectByType<EndingSequenceController>();
@@ -67,6 +73,8 @@ namespace ThePromisedRun.Gameplay.Enemy {
 
             if (_overloadSystem == null)
                 Debug.LogError("[BossController] OverloadSystem not found!");
+
+            TryPlayIdleLarge();
         }
 
         private void Update() {
@@ -107,8 +115,14 @@ namespace ThePromisedRun.Gameplay.Enemy {
                 return;
             }
 
-            _health -= damage;
-            _health  = Mathf.Max(0, _health);
+            if (_useFixedHitsToKillForTesting) {
+                _remainingHits = Mathf.Max(0, _remainingHits - 1);
+                _health = Mathf.RoundToInt(_maxHealth * ((float)_remainingHits / Mathf.Max(1, _hitsToKill)));
+            } else {
+                _health -= damage;
+                _health  = Mathf.Max(0, _health);
+            }
+            DamagePopupSpawner.Spawn(transform.position, damage, DamagePopupType.Boss);
 
             Debug.Log($"[Boss] Hit! HP: {_health}/{_maxHealth}");
 
@@ -117,7 +131,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
                 _material.color = _colorHit;
                 _hitFlashTimer  = HitFlashDuration;
             }
-            _animator?.SetTrigger("Hit");
+            TriggerFirstValid(_hitTriggerCandidates);
 
             if (_health <= 0)
                 DefeatBoss();
@@ -153,7 +167,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
             _isDefeated = true;
 
             Debug.Log("[Boss] DEFEATED. Triggering ending sequence...");
-            _animator?.SetTrigger("Death");
+            TriggerFirstValid(_deathTriggerCandidates);
 
             if (_material != null)
                 _material.color = Color.black; // goes dark on death
@@ -167,5 +181,30 @@ namespace ThePromisedRun.Gameplay.Enemy {
         public void SetHealthForTesting(int hp) => _health = Mathf.Clamp(hp, 0, _maxHealth);
         public int  Health     => _health;
         public bool IsDefeated => _isDefeated;
+
+        private void TryPlayIdleLarge() {
+            if (_animator == null || _idleStateCandidates == null) return;
+
+            for (int i = 0; i < _idleStateCandidates.Length; i++) {
+                string stateName = _idleStateCandidates[i];
+                if (string.IsNullOrWhiteSpace(stateName)) continue;
+                int stateHash = Animator.StringToHash(stateName);
+                if (_animator.HasState(0, stateHash)) {
+                    _animator.CrossFade(stateHash, 0.1f, 0);
+                    return;
+                }
+            }
+        }
+
+        private void TriggerFirstValid(string[] triggerCandidates) {
+            if (_animator == null || triggerCandidates == null) return;
+
+            for (int i = 0; i < triggerCandidates.Length; i++) {
+                string trigger = triggerCandidates[i];
+                if (string.IsNullOrWhiteSpace(trigger)) continue;
+                _animator.SetTrigger(trigger);
+                return;
+            }
+        }
     }
 }

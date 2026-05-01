@@ -24,7 +24,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         /// Called when entering this state
         /// </summary>
         public virtual void Enter() {
-            Debug.Log($"[{EnemyEntity}] Entering {StateType} state");
             OnEnter();
         }
         
@@ -32,7 +31,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
         /// Called when exiting this state
         /// </summary>
         public virtual void Exit() {
-            Debug.Log($"[{EnemyEntity}] Exiting {StateType} state");
             OnExit();
         }
         

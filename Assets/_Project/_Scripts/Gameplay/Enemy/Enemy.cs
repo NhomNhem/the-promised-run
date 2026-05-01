@@ -342,10 +342,8 @@ namespace ThePromisedRun.Gameplay.Enemy {
             enabled = false;
             rb.isKinematic = true;
             
-            // Play death animation
-            if (animator != null) {
-                animator.SetTrigger("Death");
-            }
+            // Death animation is handled by EnemyDeadFSMState.OnEnter() via CrossFade —
+            // do NOT call SetTrigger("Death") here to avoid triggering it twice.
             
             // Notify listeners
             OnTargetLost?.Invoke(null);

@@ -19,7 +19,6 @@ public class MainMenuController : MonoBehaviour {
     [Header("Loading Screen")]
     [SerializeField] private float _loadingFadeInDuration      = 0.3f;
     [SerializeField] private float _loadingFadeOutDuration     = 0.4f;
-    [SerializeField] private float _loadingMinDisplayTime      = 0.8f;  // prevent flash on fast loads
     [SerializeField] private float _loadingBarCompleteDuration = 0.5f;  // animate bar to 100% after load
     [SerializeField] private float _loadingCompleteHoldTime    = 0.4f;  // hold at 100% before fade-out
 
@@ -123,50 +122,67 @@ public class MainMenuController : MonoBehaviour {
         if (_isLoading) return;
         _isLoading = true;
 
-        Debug.Log($"[MainMenu] Loading: {_hudSceneName} → {_gameplaySceneName} → {_defaultLevelSceneName}");
+        bool completed = false;
+        SetMainMenuButtonsInteractable(false);
 
-        if (SceneLoadManager.Instance == null) {
-            Debug.LogError("[MainMenu] SceneLoadManager.Instance is null. Aborting.");
-            _isLoading = false;
-            return;
+        try {
+            Debug.Log($"[MainMenu] Loading: {_hudSceneName} → {_gameplaySceneName} → {_defaultLevelSceneName}");
+
+            if (SceneLoadManager.Instance == null) {
+                Debug.LogError("[MainMenu] SceneLoadManager.Instance is null. Aborting.");
+                return;
+            }
+
+            // Step 1: Fade-in overlay — wait until fully visible before loading
+            await ShowLoadingOverlayAsync();
+
+            SceneLoadManager.Instance.OnProgressChanged += OnLoadingProgress;
+
+            // Step 2: Load gameplay scenes
+            await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_gameplaySceneName);
+            await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_defaultLevelSceneName);
+
+            // Set Level as active scene (for lighting, physics)
+            var levelScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(_defaultLevelSceneName);
+            if (levelScene.IsValid())
+                UnityEngine.SceneManagement.SceneManager.SetActiveScene(levelScene);
+
+            // Step 3: Load HUD before hiding loading overlay so the web build does not
+            // return control early while UI/controller initialization is still running.
+            await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_hudSceneName);
+
+            SceneLoadManager.Instance.OnProgressChanged -= OnLoadingProgress;
+
+            // Step 4: Give the newly loaded scenes one frame to finish Awake/Start work.
+            await Awaitable.NextFrameAsync();
+
+            // Step 5: Animate bar to 100% — gives "completion" feel even if load was instant
+            await AnimateProgressToCompleteAsync();
+
+            // Step 6: Hold at 100% briefly so user sees the completed state
+            await Awaitable.WaitForSecondsAsync(_loadingCompleteHoldTime);
+
+            // Step 7: Fade-out overlay only after all gameplay scenes are fully loaded.
+            await HideLoadingOverlayAsync();
+
+            // Step 8: Fade-in HUD with animation
+            HUDManager hudManager = FindFirstObjectByType<HUDManager>();
+            hudManager?.FadeIn();
+
+            // Step 9: Unload MainMenu last (after all gameplay scenes are ready)
+            await SceneLoadManager.Instance.UnloadSceneAsync("Scene_MainMenu");
+
+            completed = true;
+        } finally {
+            if (!completed) {
+                SceneLoadManager sceneLoadManager = SceneLoadManager.Instance;
+                if (sceneLoadManager != null) {
+                    sceneLoadManager.OnProgressChanged -= OnLoadingProgress;
+                }
+                SetMainMenuButtonsInteractable(true);
+                _isLoading = false;
+            }
         }
-
-        // Step 1: Fade-in overlay — wait until fully visible before loading
-        await ShowLoadingOverlayAsync();
-
-        SceneLoadManager.Instance.OnProgressChanged += OnLoadingProgress;
-
-        // Step 2: Load gameplay scenes only (NOT HUD — it would render over loading screen)
-        await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_gameplaySceneName);
-        await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_defaultLevelSceneName);
-
-        // Set Level as active scene (for lighting, physics)
-        var levelScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(_defaultLevelSceneName);
-        if (levelScene.IsValid())
-            UnityEngine.SceneManagement.SceneManager.SetActiveScene(levelScene);
-
-        SceneLoadManager.Instance.OnProgressChanged -= OnLoadingProgress;
-
-        // Step 3: Animate bar to 100% — gives "completion" feel even if load was instant
-        await AnimateProgressToCompleteAsync();
-
-        // Step 4: Hold at 100% briefly so user sees the completed state
-        await Awaitable.WaitForSecondsAsync(_loadingCompleteHoldTime);
-
-        // Step 5: Fade-out overlay
-        await HideLoadingOverlayAsync();
-
-        // Step 6: Load HUD scene NOW — after loading screen is gone, so it never overlaps
-        await SceneLoadManager.Instance.LoadSceneAdditiveAsync(_hudSceneName);
-
-        // Step 7: Fade-in HUD with animation
-        HUDManager hudManager = FindFirstObjectByType<HUDManager>();
-        hudManager?.FadeIn();
-
-        // Step 8: Unload MainMenu last (after all gameplay scenes are ready)
-        await SceneLoadManager.Instance.UnloadSceneAsync("Scene_MainMenu");
-
-        _isLoading = false;
     }
 
     /// <summary>Fade-in the loading overlay using DOTween.</summary>
@@ -180,7 +196,7 @@ public class MainMenuController : MonoBehaviour {
         if (_loadingBarFill != null)
             _loadingBarFill.style.width = new Length(0f, LengthUnit.Percent);
         if (_loadingLabel != null)
-            _loadingLabel.text = "LOADING... 0%";
+            _loadingLabel.text = "ĐANG TẢI... 0%";
 
         // Animate opacity 0 → 1 and wait for completion
         bool done = false;
@@ -216,7 +232,7 @@ public class MainMenuController : MonoBehaviour {
                 if (_loadingBarFill != null)
                     _loadingBarFill.style.width = new Length(x * 100f, LengthUnit.Percent);
                 if (_loadingLabel != null)
-                    _loadingLabel.text = $"LOADING... {Mathf.RoundToInt(x * 100)}%";
+                    _loadingLabel.text = $"ĐANG TẢI... {Mathf.RoundToInt(x * 100)}%";
             },
             1f, _loadingBarCompleteDuration
         ).SetEase(Ease.OutQuart)
@@ -253,14 +269,14 @@ public class MainMenuController : MonoBehaviour {
             _stressBarInner.style.width = new Length(progress * bgWidth / 2f, LengthUnit.Pixel);
         }
         if (_stressLabel != null)
-            _stressLabel.text = $"CPU STRESS: {Mathf.RoundToInt(progress * 100)}%";
+            _stressLabel.text = $"TẢI HỆ THỐNG: {Mathf.RoundToInt(progress * 100)}%";
 
         // Track real progress — AnimateProgressToCompleteAsync will pick up from here
         _displayedProgress = progress;
         if (_loadingBarFill != null)
             _loadingBarFill.style.width = new Length(progress * 100f, LengthUnit.Percent);
         if (_loadingLabel != null)
-            _loadingLabel.text = $"LOADING... {Mathf.RoundToInt(progress * 100)}%";
+            _loadingLabel.text = $"ĐANG TẢI... {Mathf.RoundToInt(progress * 100)}%";
     }
 
     private void RegisterButtonEffects(Button btn) {
@@ -272,6 +288,18 @@ public class MainMenuController : MonoBehaviour {
         btn.RegisterCallback<MouseUpEvent>(evt => OnButtonRelease(btn));
         
         btn.style.scale = new StyleScale(Vector2.one);
+    }
+
+    private void SetMainMenuButtonsInteractable(bool interactable) {
+        SetButtonInteractable(_btnStart, interactable);
+        SetButtonInteractable(_btnSettings, interactable);
+        SetButtonInteractable(_btnInfo, interactable);
+        SetButtonInteractable(_btnQuit, interactable);
+    }
+
+    private static void SetButtonInteractable(VisualElement element, bool interactable) {
+        if (element == null) return;
+        element.SetEnabled(interactable);
     }
 
     private Tween _buttonTween;

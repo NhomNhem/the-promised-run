@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 using ThePromisedRun.Gameplay.Enemy;
@@ -52,13 +53,11 @@ namespace ThePromisedRun.Editor {
             // Ensure editor is ready
             PrintNavMeshStatus();
             // When running in batchmode, also force an EditorApplication quit so Unity process ends cleanly
-            #if UNITY_EDITOR
             if (Application.isBatchMode) {
                 Debug.Log("[EnemyDiagnostics] Running in batchmode - quitting Editor after diagnostics.");
                 EditorApplication.Exit(0);
             }
-            #endif
         }
     }
 }
-
+#endif

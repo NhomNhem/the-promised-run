@@ -30,6 +30,7 @@ namespace ThePromisedRun.Core {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            ApplyWebGLPerformanceProfile();
         }
 
         private void OnEnable() {
@@ -65,19 +66,24 @@ namespace ThePromisedRun.Core {
         }
 
         private Transform FindSpawnPointInScene(Scene scene) {
+            Transform firstSpawnPoint = null;
+
             foreach (var root in scene.GetRootGameObjects()) {
                 // Check root itself
-                if (root.CompareTag(_spawnPointTag))
-                    return root.transform;
+                if (root.CompareTag(_spawnPointTag)) {
+                    if (root.name == "SpawnPoint") return root.transform;
+                    firstSpawnPoint ??= root.transform;
+                }
 
                 // Check children
                 var found = root.GetComponentsInChildren<Transform>(true);
                 foreach (var t in found) {
-                    if (t.CompareTag(_spawnPointTag))
-                        return t;
+                    if (!t.CompareTag(_spawnPointTag)) continue;
+                    if (t.name == "SpawnPoint") return t;
+                    firstSpawnPoint ??= t;
                 }
             }
-            return null;
+            return firstSpawnPoint;
         }
 
         private void MovePlayerToSpawnPoint(Transform spawnPoint) {
@@ -112,5 +118,14 @@ namespace ThePromisedRun.Core {
 
         /// <summary>Returns the current Player instance (may be null before spawn).</summary>
         public GameObject GetPlayer() => _playerInstance;
+
+        private void ApplyWebGLPerformanceProfile() {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Reduce browser/GPU pressure for large map + many enemies.
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 45;
+            QualitySettings.SetQualityLevel(0, true); // Low
+#endif
+        }
     }
 }

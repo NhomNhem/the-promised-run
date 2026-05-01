@@ -32,18 +32,18 @@ namespace ThePromisedRun.UI {
         private bool  _initialized;
 
         private static readonly string[] PopupMessages = {
-            "JUMP!",
-            "RUN!",
-            "LEVEL UP! +5 WIS",
-            "WARNING: Danger detected (3 seconds ago)",
-            "NEW QUEST: Collect 3 Phantom Coins",
-            "Auto-logout in 5s...",
-            "RECOMMENDED: Use Healing Potion!",
-            "ACHIEVEMENT UNLOCKED: Breathing",
-            "SYSTEM RECALIBRATING...",
-            "TIP: Try not to die",
-            "REMINDER: You are being monitored",
-            "TASK: Defeat 10 enemies (0/10)",
+            "NHẢY!",
+            "CHẠY!",
+            "LÊN CẤP! +5 TRÍ TUỆ",
+            "CẢNH BÁO: Phát hiện nguy hiểm (3 giây trước)",
+            "NHIỆM VỤ MỚI: Thu thập 3 Đồng Ma Ảnh",
+            "Tự động đăng xuất sau 5 giây...",
+            "KHUYÊN DÙNG: Thuốc hồi máu!",
+            "THÀNH TỰU MỞ KHÓA: Hít thở",
+            "HỆ THỐNG ĐANG HIỆU CHỈNH...",
+            "MẸO: Cố gắng đừng chết",
+            "NHẮC NHỞ: Bạn đang bị theo dõi",
+            "NHIỆM VỤ: Hạ 10 kẻ địch (0/10)",
         };
 
         /// <summary>Called by HUDManager with the shared UIDocument root.</summary>

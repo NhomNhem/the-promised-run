@@ -524,7 +524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b09eca2e4a1b0847b89e544ee0bae3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ThePromisedRun.Runtime::ThePromisedRun.Gameplay.Enemy.EnemyAttackHitbox
-  _damage: 10
+  _damage: 6
   _targetLayers:
     serializedVersion: 2
     m_Bits: 1

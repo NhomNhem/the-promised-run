@@ -41,7 +41,12 @@ namespace ThePromisedRun.Gameplay {
 
             if (_player == null)
                 Debug.LogWarning("[CheckpointSystem] PlayerController not found. Respawn will not work.");
+            _ = SaveInitialCheckpointNextFrame();
+        }
 
+        private async Awaitable SaveInitialCheckpointNextFrame() {
+            // Wait one frame so GameManager has time to move Player to Arena1 spawn.
+            await Awaitable.NextFrameAsync();
             SaveCheckpoint();
         }
 
@@ -63,13 +68,22 @@ namespace ThePromisedRun.Gameplay {
         }
 
         public void Respawn() {
-            if (!_hasSave) return;
+            // Xác định vị trí respawn
+            Vector3 respawnPos;
+            if (_hasSave) {
+                respawnPos = _savedPosition;
+            } else {
+                // Fallback: tìm SpawnPoint trong scene
+                var spawnPoint = GameObject.FindWithTag("SpawnPoint");
+                respawnPos = spawnPoint != null ? spawnPoint.transform.position : Vector3.zero;
+                Debug.Log($"[Checkpoint] No save found — respawning at SpawnPoint: {respawnPos}");
+            }
 
             // Use GameManager for cross-scene respawn if available
             if (Core.GameManager.Instance != null) {
-                Core.GameManager.Instance.RespawnPlayerAt(_savedPosition);
+                Core.GameManager.Instance.RespawnPlayerAt(respawnPos);
             } else if (_player != null) {
-                _player.transform.position = _savedPosition;
+                _player.transform.position = respawnPos;
                 if (_player.Rb != null) _player.Rb.linearVelocity = Vector3.zero;
             } else {
                 Debug.LogWarning("[CheckpointSystem] Cannot respawn — no Player reference.");
@@ -83,16 +97,18 @@ namespace ThePromisedRun.Gameplay {
                 pc?.ResetChaos();
             }
 
-            // Restore HP
-            if (_playerHealth != null)
-                _playerHealth.RestoreHealth(_savedHP);
-            else {
-                var ph = FindFirstObjectByType<Combat.PlayerHealth>();
-                ph?.RestoreHealth(_savedHP);
+            // Restore HP chỉ khi có save
+            if (_hasSave) {
+                if (_playerHealth != null)
+                    _playerHealth.RestoreHealth(_savedHP);
+                else {
+                    var ph = FindFirstObjectByType<Combat.PlayerHealth>();
+                    ph?.RestoreHealth(_savedHP);
+                }
             }
 
             OnCheckpointLoaded.Invoke();
-            Debug.Log($"[Checkpoint] Respawned at {_savedPosition}");
+            Debug.Log($"[Checkpoint] Respawned at {respawnPos}");
         }
     }
 }

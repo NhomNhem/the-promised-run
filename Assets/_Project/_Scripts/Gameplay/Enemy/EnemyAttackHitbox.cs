@@ -12,7 +12,7 @@ namespace ThePromisedRun.Gameplay.Enemy {
     [RequireComponent(typeof(SphereCollider))]
     public class EnemyAttackHitbox : MonoBehaviour {
         [Header("Damage")]
-        [SerializeField] private float _damage = 10f;
+        [SerializeField] private float _damage = 6f;
         [SerializeField] private LayerMask _targetLayers;
 
         [Header("Events")]

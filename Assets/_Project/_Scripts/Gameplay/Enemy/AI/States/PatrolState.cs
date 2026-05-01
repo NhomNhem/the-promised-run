@@ -38,8 +38,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
             _detector     = EnemyEntity.GameObject.GetComponent<EnemyDetector>();
             _navAgent     = EnemyEntity.GameObject.GetComponent<NavMeshAgent>();
             _anim         = EnemyEntity.GameObject.GetComponentInChildren<Animator>(); // cache once
-            string isOnNavStr = _navAgent != null ? _navAgent.isOnNavMesh.ToString() : "N/A";
-            Debug.Log($"[PatrolState] Enter - spawn={_spawnCenter} navAgentPresent={_navAgent != null} isOnNavMesh={isOnNavStr}");
             _anim?.SetBool("IsMoving", false);
             PickNextWaypoint();
         }
@@ -97,7 +95,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
                 if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, PatrolRadius, NavMesh.AllAreas)) {
                     _currentWaypoint = hit.position;
                     _hasWaypoint     = true;
-                    Debug.Log($"[PatrolState] PickNextWaypoint - sampled waypoint: {hit.position}");
                     return;
                 }
             }
@@ -107,7 +104,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
             fallback.y = EnemyEntity.GameObject.transform.position.y;
             _currentWaypoint = fallback;
             _hasWaypoint     = true;
-            Debug.Log($"[PatrolState] PickNextWaypoint - fallback waypoint: {_currentWaypoint}");
         }
 
         private void ScanForPlayer() {
@@ -121,8 +117,6 @@ namespace ThePromisedRun.Gameplay.Enemy.AI.States {
                 }
                 player = _detector.GetPlayerInSight();
             }
-            if (player != null) Debug.Log($"[PatrolState] Detector saw player at {((MonoBehaviour)player).transform.position}");
-
             // Fallback: Physics.OverlapSphere
             if (player == null) {
                 int playerLayer = LayerMask.NameToLayer("Player");

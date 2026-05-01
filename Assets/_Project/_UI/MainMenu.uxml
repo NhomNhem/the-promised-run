@@ -6,25 +6,24 @@
         <ui:Label name="BsodCode" text="ERROR_CODE: SYSTEM_HATES_YOU_SO_MUCH" class="bsod-code"/>
     </ui:VisualElement>
     <ui:VisualElement name="PopupLayer" class="popup-layer"/>
-    <ui:VisualElement name="MainContainer" class="main-container" style="background-color: rgb(255, 255, 255); background-image: url(&quot;project://database/Assets/_Project/_Art/UI/MainMenu_BG.png?fileID=21300000&amp;guid=4b3e19024706b9e488b7f876d035e3b0&amp;type=3#MainMenu_BG&quot;);">
+    <ui:VisualElement name="MainContainer" class="main-container" style="background-color: rgb(255, 255, 255); background-image: url(&quot;project://database/Assets/_Project/_Art/UI/MainMenu_BG.png?fileID=2800000&amp;guid=4b3e19024706b9e488b7f876d035e3b0&amp;type=3#MainMenu_BG&quot;);">
         <ui:VisualElement name="Scanline" class="scanline"/>
         <ui:Label name="GameTitle" text="THE PROMISED RUN" class="game-title"/>
         <ui:VisualElement name="MenuButtons" class="button-group">
-            <ui:Button name="BtnStart" text="BẮT ĐẦU PHÁ HỦY" class="menu-button primary"/>
-            <ui:Button name="BtnSettings" text="CÀI ĐẶT (VÔ DỤNG)" class="menu-button"/>
-            <ui:Button name="BtnInfo" text="THÔNG TIN CHI TIẾT" class="menu-button"/>
-            <ui:Button name="BtnQuit" text="THOÁT RA THỰC TẠI" class="menu-button danger"/>
+            <ui:Button name="BtnStart" text="CHƠI" class="menu-button primary"/>
+            <ui:Button name="BtnSettings" text="CÀI ĐẶT" class="menu-button"/>
+            <ui:Button name="BtnInfo" text="THÔNG TIN" class="menu-button"/>
+            <ui:Button name="BtnQuit" text="THOÁT" class="menu-button danger"/>
         </ui:VisualElement>
         <ui:VisualElement name="StressContainer" class="stress-container">
-            <ui:Label name="StressLabel" text="CPU STRESS: 42%" class="stress-text"/>
+            <ui:Label name="StressLabel" text="TẢI HỆ THỐNG: 42%" class="stress-text"/>
             <ui:VisualElement name="StressBarBackground" class="stress-bar-bg">
                 <ui:VisualElement name="StressBarInner" class="stress-bar-inner"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <!-- Loading Overlay — inside MainContainer so position:absolute fills correctly -->
-        <ui:VisualElement name="LoadingOverlay" class="loading-overlay">
-            <ui:Label name="LoadingLabel" text="LOADING..." class="loading-label"/>
-            <ui:VisualElement name="LoadingBarBg" class="loading-bar-bg">
+        <ui:VisualElement name="LoadingOverlay" class="loading-overlay" style="background-image: url(&quot;project://database/Assets/_Project/_Art/UI/Layer%20Lab/GUI%20Pro-FantasyRPG/ResourcesData/Sprites/Demo/Demo_Background/BackGround_Sample_04_Character_3840.png?fileID=21300000&amp;guid=9f1dbd2d1b95946ab9417d48fa63605b&amp;type=3#BackGround_Sample_04_Character_3840&quot;); background-color: rgba(255, 255, 255, 0.85);">
+            <ui:Label name="LoadingLabel" text="ĐANG TẢI..." class="loading-label" style="font-size: 32px;"/>
+            <ui:VisualElement name="LoadingBarBg" class="loading-bar-bg" style="height: 40px;">
                 <ui:VisualElement name="LoadingBarFill" class="loading-bar-fill"/>
             </ui:VisualElement>
         </ui:VisualElement>

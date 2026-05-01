@@ -12,9 +12,6 @@ using ThePromisedRun.Gameplay.Input;
 using ThePromisedRun.Gameplay.Player;
 using ThePromisedRun.Gameplay.Player.ScriptableObjects;
 using UnityEngine.Events;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ThePromisedRun.Gameplay {
     public class PlayerController : MonoBehaviour, IDamageable {
@@ -178,6 +175,8 @@ namespace ThePromisedRun.Gameplay {
 
             _stateMachine = new StateMachine();
             SetupStateMachine();
+
+            SetupSwordAttachment();
         }
 
         /// <summary>
@@ -229,6 +228,21 @@ namespace ThePromisedRun.Gameplay {
             if (Rb.linearVelocity.y < 0f)
                 Rb.linearVelocity +=
                     Vector3.up * Physics.gravity.y * (_fallGravityMultiplier - 1f) * Time.fixedDeltaTime;
+        }
+
+        #endregion
+
+        #region Sword Attachment
+
+        /// <summary>
+        /// Kiểm tra xem Sword GameObject có tồn tại trong hierarchy không.
+        /// Kiếm được setup trực tiếp trong prefab — không cần code để attach.
+        /// </summary>
+        private void SetupSwordAttachment() {
+            var sword = GetComponentsInChildren<Transform>()
+                .FirstOrDefault(t => t.name == "Sword");
+            if (sword == null)
+                Debug.LogWarning("[PlayerController] 'Sword' child not found in hierarchy — sword attachment may be missing.");
         }
 
         #endregion

@@ -144,3 +144,13 @@
 .settings-action-button.primary:hover {
     background-color: rgb(244, 114, 182);
 }
+
+.settings-action-button.danger {
+    color: rgb(239, 68, 68);
+    border-color: rgb(127, 29, 29);
+}
+
+.settings-action-button.danger:hover {
+    background-color: rgb(127, 29, 29);
+    color: rgb(255, 255, 255);
+}

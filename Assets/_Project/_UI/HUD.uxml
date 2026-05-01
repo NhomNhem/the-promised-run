@@ -12,7 +12,7 @@
         <ui:VisualElement name="gameplay-layer" class="layer">
 
             <ui:VisualElement name="health-container" class="health-container">
-                <ui:Label name="health-label" text="HP" class="health-label"/>
+                <ui:Label name="health-label" text="MÁU" class="health-label"/>
                 <ui:VisualElement name="health-bar-bg" class="health-bar-bg">
                     <ui:VisualElement name="health-bar-fill" class="health-bar-fill"/>
                 </ui:VisualElement>
@@ -26,7 +26,7 @@
             </ui:VisualElement>
 
             <ui:VisualElement name="overload-banner" class="overload-banner hidden">
-                <ui:Label name="overload-text" text="⚡ SYSTEM OVERLOAD ⚡" class="overload-text"/>
+                <ui:Label name="overload-text" text="⚡ QUÁ TẢI HỆ THỐNG ⚡" class="overload-text"/>
             </ui:VisualElement>
 
             <ui:VisualElement name="combo-counter" class="combo-counter hidden">
@@ -47,6 +47,7 @@
             <ui:VisualElement name="death-root" class="death-root hidden">
                 <ui:Label name="status-text" class="status-text" text=""/>
                 <ui:Label name="cause-text"  class="cause-text"  text=""/>
+                <ui:Button name="btn-play-again" text="CHƠI LẠI" class="death-button"/>
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -54,10 +55,11 @@
         <ui:VisualElement name="pause-layer" class="layer hidden">
             <ui:VisualElement name="pause-overlay" class="pause-overlay">
                 <ui:VisualElement name="pause-panel" class="pause-panel">
-                    <ui:Label name="pause-title" text="PAUSED" class="pause-title"/>
-                    <ui:Button name="btn-resume"   text="RESUME"         class="pause-button primary"/>
-                    <ui:Button name="btn-settings" text="SETTINGS"       class="pause-button"/>
-                    <ui:Button name="btn-quit"     text="QUIT TO MENU"   class="pause-button danger"/>
+                    <ui:Label name="pause-title" text="TẠM DỪNG" class="pause-title"/>
+                    <ui:Button name="btn-resume"   text="TIẾP TỤC"       class="pause-button primary"/>
+                    <ui:Button name="btn-test-ending" text="TEST ENDING" class="pause-button"/>
+                    <ui:Button name="btn-settings" text="CÀI ĐẶT"        class="pause-button"/>
+                    <ui:Button name="btn-quit"     text="THOÁT VỀ MENU"  class="pause-button danger"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
