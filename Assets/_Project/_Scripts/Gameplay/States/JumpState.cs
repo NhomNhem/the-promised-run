@@ -1,4 +1,5 @@
 using UnityEngine;
+using ThePromisedRun.Audio;
 
 namespace ThePromisedRun.Gameplay.States {
     /// <summary>
@@ -31,6 +32,7 @@ namespace ThePromisedRun.Gameplay.States {
             _animator.CrossFade(JumpStart, BlendTime, 0);
             _playerController.ApplyJump();
             _playerController.Juice?.OnTakeoff();
+            AudioManager.Instance?.PlayJump();
         }
 
         public override void OnUpdate() {

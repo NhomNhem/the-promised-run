@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8243642143883093628}
   - component: {fileID: 9219601748231355989}
   - component: {fileID: 950237184849991920}
-  - component: {fileID: 3789749368529432809}
   m_Layer: 0
   m_Name: SettingsPanel
   m_TagString: Untagged
@@ -81,26 +80,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3789749368529432809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 369974930357501343}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3fd526fde664aa4b93980864aefe286, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ThePromisedRun.Runtime::_Project._Scripts.UI.SettingsPanel
-  volumeSlider: {fileID: 3385099432874352521}
-  volumeLabel: {fileID: 7425450110696792823}
-  brightnessSlider: {fileID: 7157315741803078016}
-  brightnessLabel: {fileID: 4078831669868060482}
-  lowQualityButton: {fileID: 3867019128508774153}
-  mediumQualityButton: {fileID: 888526172031200991}
-  highQualityButton: {fileID: 3178200137413479773}
-  closeButton: {fileID: 429751773116801046}
 --- !u!1 &905827172887276787
 GameObject:
   m_ObjectHideFlags: 0

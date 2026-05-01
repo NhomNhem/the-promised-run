@@ -50,6 +50,18 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <!-- ── Pause Layer: full-screen overlay ── -->
+        <ui:VisualElement name="pause-layer" class="layer hidden">
+            <ui:VisualElement name="pause-overlay" class="pause-overlay">
+                <ui:VisualElement name="pause-panel" class="pause-panel">
+                    <ui:Label name="pause-title" text="PAUSED" class="pause-title"/>
+                    <ui:Button name="btn-resume"   text="RESUME"         class="pause-button primary"/>
+                    <ui:Button name="btn-settings" text="SETTINGS"       class="pause-button"/>
+                    <ui:Button name="btn-quit"     text="QUIT TO MENU"   class="pause-button danger"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <!-- ── OL Gauge Layer: right edge ── -->
         <ui:VisualElement name="ol-gauge-container" class="ol-gauge-container">
             <ui:VisualElement name="ol-gauge-label" class="ol-gauge-label">

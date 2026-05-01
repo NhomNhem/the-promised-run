@@ -308,3 +308,81 @@
     background-color: rgba(0, 0, 0, 0);
     /* pointer-events: none not supported in USS — handled via pickingMode in code */
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAUSE MENU — full-screen overlay
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pause-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.pause-panel {
+    width: 320px;
+    background-color: rgba(23, 23, 23, 0.95);
+    border-width: 1px;
+    border-color: rgba(236, 72, 153, 0.6);
+    padding-top: 40px;
+    padding-right: 32px;
+    padding-bottom: 40px;
+    padding-left: 32px;
+    align-items: center;
+    flex-direction: column;
+}
+
+.pause-title {
+    font-size: 32px;
+    color: rgb(255, 255, 255);
+    letter-spacing: 6px;
+    margin-bottom: 32px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.pause-button {
+    width: 100%;
+    height: 50px;
+    background-color: rgb(38, 38, 38);
+    color: rgb(163, 163, 163);
+    border-width: 0;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
+    border-color: rgb(64, 64, 64);
+    margin-bottom: 12px;
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
+.pause-button:hover {
+    background-color: rgb(64, 64, 64);
+    color: rgb(255, 255, 255);
+}
+
+.pause-button.primary {
+    background-color: rgb(236, 72, 153);
+    color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
+}
+
+.pause-button.primary:hover {
+    background-color: rgb(244, 114, 182);
+}
+
+.pause-button.danger {
+    color: rgb(239, 68, 68);
+    border-color: rgb(127, 29, 29);
+}
+
+.pause-button.danger:hover {
+    background-color: rgb(127, 29, 29);
+    color: rgb(255, 255, 255);
+}

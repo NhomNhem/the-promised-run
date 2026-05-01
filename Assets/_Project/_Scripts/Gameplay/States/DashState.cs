@@ -1,5 +1,6 @@
 using UnityEngine;
 using ThePromisedRun.Gameplay.Combat;
+using ThePromisedRun.Audio;
 
 namespace ThePromisedRun.Gameplay.States {
     /// <summary>
@@ -53,6 +54,7 @@ namespace ThePromisedRun.Gameplay.States {
 
             // Juice
             _playerController.Juice?.OnDash();
+            AudioManager.Instance?.PlayDash();
 
             // Animation (with null/missing clip guard)
             if (_animator != null) {
