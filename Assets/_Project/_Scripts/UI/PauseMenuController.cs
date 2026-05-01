@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using DG.Tweening;
+using ThePromisedRun.Gameplay.Input;
 
 namespace ThePromisedRun.UI
 {
@@ -36,6 +37,7 @@ namespace ThePromisedRun.UI
         private Button        _btnQuit;
 
         private SettingsPanelController _settingsPanel;
+        private InputReader _inputReader;
         private Tween _fadeTween;
         private bool  _isPaused;
         private bool  _isTransitioning;
@@ -82,6 +84,7 @@ namespace ThePromisedRun.UI
 
             // Get SettingsPanelController from same GameObject
             _settingsPanel = GetComponent<SettingsPanelController>();
+            _inputReader = FindFirstObjectByType<InputReader>();
 
             _initialized = true;
         }
@@ -98,7 +101,7 @@ namespace ThePromisedRun.UI
             // Only respond to ESC when NOT in MainMenu
             if (SceneManager.GetActiveScene().name == _mainMenuSceneName) return;
 
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            if (WasPausePressedThisFrame())
             {
                 TogglePause();
             }
@@ -141,7 +144,13 @@ namespace ThePromisedRun.UI
         /// </summary>
         public void OpenSettingsFromEsc()
         {
-            if (_settingsPanel == null) return;
+            if (_settingsPanel == null)
+            {
+                Debug.LogWarning("[PauseMenuController] SettingsPanelController not found. Opening pause menu fallback.");
+                OpenAsync();
+                return;
+            }
+
             _isPaused = true;
             _settingsOpenFromEsc = true;
             Time.timeScale = 0f;
@@ -217,6 +226,29 @@ namespace ThePromisedRun.UI
                 _isPaused = false;
                 Time.timeScale = 1f;
             }
+        }
+
+        #endregion
+
+        #region Input Helpers
+
+        private bool WasPausePressedThisFrame()
+        {
+            if (_inputReader == null)
+                _inputReader = FindFirstObjectByType<InputReader>();
+
+            if (_inputReader != null && _inputReader.IsPausePressed)
+            {
+                _inputReader.ConsumePauseInput();
+                return true;
+            }
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (Input.GetKeyDown(KeyCode.Escape))
+                return true;
+#endif
+
+            return false;
         }
 
         #endregion

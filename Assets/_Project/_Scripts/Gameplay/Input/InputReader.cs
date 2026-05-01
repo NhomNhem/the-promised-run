@@ -9,6 +9,7 @@ namespace ThePromisedRun.Gameplay.Input {
         [field: SerializeField] public bool    IsAttackPressed { get; private set; }
         [field: SerializeField] public bool    IsDashPressed   { get; private set; }
         [field: SerializeField] public bool    IsParryPressed  { get; private set; }
+        [field: SerializeField] public bool    IsPausePressed  { get; private set; }
 
         /// <summary>True for 6 frames after jump was pressed (jump buffer).</summary>
         public bool HasJumpBuffer { get; private set; }
@@ -21,6 +22,7 @@ namespace ThePromisedRun.Gameplay.Input {
         private PlayerInputActions _inputActions;
         private InputAction        _attackAction;
         private InputAction        _dashAction;
+        private InputAction        _pauseAction;
 
         private void Update() {
             if (_jumpBufferTimer > 0f) {
@@ -58,6 +60,14 @@ namespace ThePromisedRun.Gameplay.Input {
                     parryAction.started  += ctx => { if (ctx.started) IsParryPressed = true; };
                     parryAction.canceled += ctx => IsParryPressed = false;
                 }
+
+                _pauseAction = _inputActions.asset.FindAction("Gameplay/Pause");
+                if (_pauseAction != null) {
+                    _pauseAction.started  += OnPause;
+                    _pauseAction.canceled += OnPause;
+                } else {
+                    Debug.LogWarning("[InputReader] 'Gameplay/Pause' action not found.");
+                }
             }
             _inputActions.Enable();
         }
@@ -92,6 +102,11 @@ namespace ThePromisedRun.Gameplay.Input {
             if (ctx.canceled) IsDashPressed = false;
         }
 
+        public void OnPause(InputAction.CallbackContext ctx) {
+            if (ctx.started)  IsPausePressed = true;
+            if (ctx.canceled) IsPausePressed = false;
+        }
+
         public void ConsumeJumpInput() {
             IsJumpPressed    = false;
             HasJumpBuffer    = false;
@@ -100,5 +115,6 @@ namespace ThePromisedRun.Gameplay.Input {
         public void ConsumeAttackInput() => IsAttackPressed = false;
         public void ConsumeDashInput()   => IsDashPressed   = false;
         public void ConsumeParryInput()  => IsParryPressed  = false;
+        public void ConsumePauseInput()  => IsPausePressed  = false;
     }
 }
